@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: demo   # 🔴 여기만 프로젝트명(폴더명)으로 수정
+
+  config:
+    import:
+      - optional:classpath:secret/db.yml
+      - optional:classpath:secret/jwt.yml
+      - optional:classpath:secret/mail.yml
+      - optional:classpath:secret/oauth.yml
+      - optional:classpath:secret/next.yml
+      - optional:classpath:secret/solapi.yml
+
+
+  jpa:
+    hibernate:
+      ddl-auto: none   # 🔥 엔티티 다 만든 뒤에는 none이 정석
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  graphql:
+    path: /graphql
+    graphiql:
+      enabled: false
