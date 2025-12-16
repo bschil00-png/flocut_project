@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+    height: 100%;
+}
+
+/* ===== 기본 (pink) ===== */
+:root {
+    --accent: #f25555;
+    --accent-hover: #d93f3f;   /* 더 확실하게 */
+    --accent-soft: rgba(242, 85, 85, 0.15);
+}
+
+/* ===== dark + pink ===== */
+.dark {
+    --accent: #ff7a7a;
+    --accent-hover: #ff5c5c;
+    --accent-soft: rgba(255, 122, 122, 0.18);
+}
+
+/* ===== blue ===== */
+.theme-blue {
+    --accent: #364f6b;
+    --accent-hover: #2c415a;
+    --accent-soft: rgba(54, 79, 107, 0.15);
+}
+
+.dark.theme-blue {
+    --accent: #7aa2ff;
+    --accent-hover: #9bb8ff;
+    --accent-soft: rgba(122, 162, 255, 0.18);
+}
+
+/* ===== navy ===== */
+.theme-navy {
+    --accent: #1f2a37;
+    --accent-hover: #18202b;
+    --accent-soft: rgba(31, 42, 55, 0.15);
+}
+
+.dark.theme-navy {
+    --accent: #8aa4c8;
+    --accent-hover: #a4bce0;
+    --accent-soft: rgba(138, 164, 200, 0.18);
+}
