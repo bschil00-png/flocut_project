@@ -12,7 +12,7 @@ import {
   clearChat,
   setCharacterMode,
   ChatMessage,
-} from "@/api/slice/chatSlice";
+} from "@/api/store/slice/chatSlice";
 
 
 import dynamic from "next/dynamic";

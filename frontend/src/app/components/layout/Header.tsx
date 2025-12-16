@@ -54,7 +54,7 @@ export default function Header() {
       <nav className="hidden md:flex items-center gap-8">
         {[
           {label: "회사 소개", href: "/about"},
-          {label: "요약", href: "/summary"},
+          {label: "요약", href: "/documents"},
           {label: "캘린더", href: "/calendar"},
           {label: "고객지원", href: "/support"},
         ].map((item) => (

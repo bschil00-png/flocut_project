@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "@/api/slice/authSlice";
-import uiReducer from "@/api/slice/uislice";
-import chatReducer from "@/api/slice/chatSlice"; // 추가
+import authReducer from "@/api/store/slice/authSlice";
+import uiReducer from "@/api/store/slice/uislice";
+import chatReducer from "@/api/store/slice/chatSlice"; // 추가
 
-export const store = configureStore({
+export const index = configureStore({
   reducer: {
     auth: authReducer,
     ui: uiReducer,
@@ -11,5 +11,5 @@ export const store = configureStore({
   },
 });
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof index.getState>;
+export type AppDispatch = typeof index.dispatch;
