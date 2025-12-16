@@ -35,6 +35,11 @@ public class AuthController {
 
         // 3) HttpOnly 쿠키 생성
         ResponseCookie cookie = ResponseCookie.from("token", token)
+                //        httpOnly(true)	JS 접근 차단 (XSS 방어)
+//        secure(false)	HTTPS일 때만 전송 (로컬이라 false)
+//        sameSite("None")	Next.js ↔ Spring cross-site 허용
+//        path("/")	모든 요청에 쿠키 포함
+//        maxAge(1일)	로그인 유지 시간
                 .httpOnly(true)
                 .secure(false)   // 로컬 개발 환경
                 .sameSite("None") // ⭐⭐ cross-site 쿠키 필수
