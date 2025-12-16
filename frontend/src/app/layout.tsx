@@ -33,7 +33,7 @@ export default function RootLayout({
     <Providers>
         <GlobalLoader />
       <Header />
-      <main className="min-h-screen">
+      <main className="min-h-screen pt-16">
         {children}
         <FloatingChatButton />
         <ChatDrawer />

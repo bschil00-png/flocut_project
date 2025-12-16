@@ -1,7 +1,7 @@
 "use client";
 
 import { useDispatch, useSelector } from "react-redux";
-import { closeChat } from "@/api/slice/uislice";
+import { closeChat } from "@/api/store/slice/uislice";
 
 import ChatContainer from "./ChatContainer";
 import InputBar from "./InputBar";
@@ -11,7 +11,7 @@ import {
   updateLastAssistantMessage,
   setSummary,
   clearChat,
-} from "@/api/slice/chatSlice";
+} from "@/api/store/slice/chatSlice";
 
 import { useRef, useEffect, useState } from "react";
 import {RootState} from "@/api/store";

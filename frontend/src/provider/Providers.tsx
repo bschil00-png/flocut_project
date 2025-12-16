@@ -6,9 +6,9 @@ import { Provider as ReduxProvider } from "react-redux";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 
-import { store } from "@/api/store";
 import { apolloClient } from "@/lib/apollo/clients";
 import {ApolloProvider} from "@apollo/client/react";
+import { index as store } from "@/api/store/index";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
