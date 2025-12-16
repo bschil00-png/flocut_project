@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Button from "@/app/components/ui/Button";
+import Button from "@/app/components/ui/button/Button";
 import { authApi } from "@/app/api/auth/authApi";
 import Input from "@/app/components/ui/form/Input";
 

@@ -6,12 +6,14 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -30,13 +32,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = null;
 
-        /** 1) Authorization 헤더에서 토큰 읽기 */
+        // 1️⃣ Authorization 헤더
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
         }
 
-        /** 2) 쿠키에서도 토큰 읽기 */
+        // 2️⃣ 쿠키
         if (token == null && request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("token".equals(cookie.getName())) {
@@ -45,13 +47,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        /** 3) 토큰 검증 및 SecurityContext 설정 */
-        if (token != null && jwtUtil.validateToken(token)) {
+        // 3️⃣ 검증 및 Authentication 설정
+        if (token != null && jwtUtil.validateToken(token)
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             String email = jwtUtil.getEmailFromToken(token);
 
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(email, null, null);
+                    new UsernamePasswordAuthenticationToken(
+                            email,
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    );
 
             authentication.setDetails(
                     new WebAuthenticationDetailsSource().buildDetails(request)
@@ -62,5 +69,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 }
