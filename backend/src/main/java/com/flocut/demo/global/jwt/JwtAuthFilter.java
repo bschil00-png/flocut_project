@@ -30,6 +30,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        System.out.println("=== JWT FILTER ENTER ===");
+        System.out.println("URI = " + request.getRequestURI());
+
         String token = null;
 
         // 1️⃣ Authorization 헤더
@@ -46,6 +49,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         }
+
+        System.out.println("final token = " + token);
 
         // 3️⃣ 검증 및 Authentication 설정
         if (token != null && jwtUtil.validateToken(token)
@@ -65,6 +70,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println("✅ Authentication SET for " + email);
         }
 
         filterChain.doFilter(request, response);
