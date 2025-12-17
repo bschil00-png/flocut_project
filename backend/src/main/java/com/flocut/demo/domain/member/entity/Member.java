@@ -7,7 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "tbl_member_test")
+@Table(name = "tbl_member")
 @Getter
 @Setter
 @NoArgsConstructor
