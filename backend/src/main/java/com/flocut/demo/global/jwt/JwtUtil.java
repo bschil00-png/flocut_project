@@ -41,9 +41,16 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+        } catch (ExpiredJwtException e) {
+            System.out.println("❌ JWT 만료됨");
+        } catch (SignatureException e) {
+            System.out.println("❌ JWT 서명 불일치");
+        } catch (JwtException e) {
+            System.out.println("❌ JWT 파싱 실패: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("❌ JWT 기타 오류: " + e.getMessage());
         }
+        return false;
     }
 
     // JWT에서 email 추출
