@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setAuthUser, clearAuth } from "@/api/store/slice/authSlice";
+import { setAuthUser, clearAuth } from "@/store/slice/authSlice";
 import { getMe } from "@/lib/auth";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

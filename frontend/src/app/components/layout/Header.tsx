@@ -3,7 +3,7 @@
 import Link from "next/link";
 import DarkModeToggle from "./DarkModeToggle";
 import { useSelector } from "react-redux";
-import { RootState } from "@/api/store";
+import { RootState } from "@/store";
 
 export default function Header() {
     const { isAuthenticated, user } = useSelector(

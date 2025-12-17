@@ -1,7 +1,7 @@
 "use client";
 
 import { useDispatch, useSelector } from "react-redux";
-import { closeChat } from "@/api/store/slice/uislice";
+import { closeChat } from "@/store/slice/uislice";
 
 import ChatContainer from "./ChatContainer";
 import InputBar from "./InputBar";
@@ -11,10 +11,10 @@ import {
   updateLastAssistantMessage,
   setSummary,
   clearChat,
-} from "@/api/store/slice/chatSlice";
+} from "@/store/slice/chatSlice";
 
 import { useRef, useEffect, useState } from "react";
-import {RootState} from "@/api/store";
+import {RootState} from "@/store";
 
 /**
  * 하단 고정 챗봇 패널

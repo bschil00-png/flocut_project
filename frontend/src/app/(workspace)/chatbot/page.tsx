@@ -12,12 +12,12 @@ import {
   clearChat,
   setCharacterMode,
   ChatMessage,
-} from "@/api/store/slice/chatSlice";
+} from "@/store/slice/chatSlice";
 
 
 import dynamic from "next/dynamic";
 import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "@/api/store";
+import {AppDispatch, RootState} from "@/store";
 
 //  ChatContainer SSR 비활성화
 const ChatContainer = dynamic(

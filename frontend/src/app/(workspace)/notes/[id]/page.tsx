@@ -4,7 +4,7 @@
 import { useState, use } from "react";
 import { useRouter } from "next/navigation";
 import ContextPanel from "@/app/components/layout/WorkspaceLayout/ContextPanel";
-import EditorContainer from "@/app/components/layout/editor/EditorContainer";
+import EditorContainer from "@/app/components/notes/editor/EditorContainer";
 
 export default function NotePage({
                                      params,

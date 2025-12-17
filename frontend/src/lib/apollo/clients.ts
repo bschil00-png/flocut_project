@@ -1,11 +1,10 @@
+// src/lib/apollo/client.ts
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 
-const link = new HttpLink({
-    uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
-    credentials: "include",
-});
-
 export const apolloClient = new ApolloClient({
-    link,
+    link: new HttpLink({
+        uri: "/graphql", // 프록시 경우(이후에 수정예정)
+        credentials: "include",
+    }),
     cache: new InMemoryCache(),
 });

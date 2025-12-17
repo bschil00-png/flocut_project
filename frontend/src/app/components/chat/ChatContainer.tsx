@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import TypingIndicator from "./TypingIndicator";
-import {ChatMessage} from "@/api/store/slice/chatSlice";
+import {ChatMessage} from "@/store/slice/chatSlice";
 //
 // SSR 비활성화된 말풍선
 const MessageBubble = dynamic(() => import("./MessageBubble"), {

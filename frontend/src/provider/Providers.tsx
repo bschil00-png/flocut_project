@@ -8,7 +8,7 @@ import {Toaster} from "sonner";
 
 import {apolloClient} from "@/lib/apollo/clients";
 import {ApolloProvider} from "@apollo/client/react";
-import {index as store} from "@/api/store/index";
+import {index as store} from "@/store";
 import {AuthProvider} from "@/provider/AuthProvider";
 
 export function Providers({children}: { children: ReactNode }) {
