@@ -45,3 +45,37 @@ html, body {
     --accent-hover: #a4bce0;
     --accent-soft: rgba(138, 164, 200, 0.18);
 }
+/*애니메이션 효과 -> 사용 미정 정의만  */
+@keyframes fadeIn {
+    from { opacity: 0 }
+    to { opacity: 1 }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95) }
+    to { opacity: 1; transform: scale(1) }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.18s ease-out;
+}
+
+.animate-scaleIn {
+    animation: scaleIn 0.2s ease-out;
+}
+
+/* TipTap 기본 줄바꿈 유지 */
+.ProseMirror {
+    white-space: pre-wrap;
+}
+
+.ProseMirror p {
+    white-space: pre-wrap;
+    margin: 0 0 1em;
+}
+
+.ProseMirror br {
+    display: inline;
+}
+
+

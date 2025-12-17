@@ -1,147 +1,113 @@
-// components/editor/EditorToolbar.tsx
+// src/app/components/editor/EditorToolbar.tsx
 "use client";
 
+import { useState } from "react";
 import {
-    Bold,
-    Italic,
-    Underline,
-    Code,
-    Link as LinkIcon,
-    List,
-    ListOrdered,
-    Quote,
-    Sparkles,
-    MessageSquare,
-    GitCompare,
-    Clock,
-    MessageCircle,
-    Info,
-    MoreHorizontal,
-    ChevronRight,
+  Edit3,
+  Eye,
+  Sparkles,
+  MessageSquare,
+  GitCompare,
+  Calendar,
 } from "lucide-react";
 
-interface EditorToolbarProps {
-    onOpenContextPanel: (
-        mode:
-            | "properties"
-            | "ai-summary"
-            | "ai-feedback"
-            | "ai-compare"
-            | "versions"
-            | "comments"
-            | "calendar"
-    ) => void;
-    contextPanelOpen: boolean;
+import IconButton from "@/app/components/ui/icon-button/IconButton";
+import VoiceRecorder from "@/app/components/layout/ai/VoiceRecorder";
+import DocumentCompare from "@/app/components/layout/ai/DocumentCompare";
+
+interface Props {
+  isEditing: boolean;
+  onToggleEdit: () => void;
+  onAIAction: (m: "summary" | "feedback" | "compare") => void;
+  onToggleRightPanel: () => void;
+  rightPanelOpen: boolean;
+  editorContent: string;
 }
 
 export default function EditorToolbar({
-                                          onOpenContextPanel,
-                                          contextPanelOpen,
-                                      }: EditorToolbarProps) {
-    return (
-        <div className="h-14 border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
-            <div className="h-full flex items-center justify-between px-6">
-                {/* 좌측: 텍스트 포맷팅 */}
-                <div className="flex items-center gap-1">
-                    <div className="flex items-center gap-0.5 pr-2 border-r border-border-light dark:border-border-dark">
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <Bold size={16} />
-                        </button>
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <Italic size={16} />
-                        </button>
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <Underline size={16} />
-                        </button>
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <Code size={16} />
-                        </button>
-                    </div>
+                                        isEditing,
+                                        onToggleEdit,
+                                        onAIAction,
+                                        onToggleRightPanel,
+                                        rightPanelOpen,
+                                        editorContent
+                                      }: Props) {
 
-                    <div className="flex items-center gap-0.5 px-2 border-r border-border-light dark:border-border-dark">
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <LinkIcon size={16} />
-                        </button>
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <List size={16} />
-                        </button>
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <ListOrdered size={16} />
-                        </button>
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <Quote size={16} />
-                        </button>
-                    </div>
-                </div>
+  const [voiceOpen, setVoiceOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
 
-                {/* 우측: AI 기능 & 컨텍스트 패널 */}
-                <div className="flex items-center gap-2">
-                    {/* AI 기능 그룹 */}
-                    <div className="flex items-center gap-1 pr-2 border-r border-border-light dark:border-border-dark">
-                        <button
-                            onClick={() => onOpenContextPanel("ai-summary")}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-accent-soft text-accent transition-colors text-sm font-medium"
-                        >
-                            <Sparkles size={14} />
-                            요약
-                        </button>
-                        <button
-                            onClick={() => onOpenContextPanel("ai-feedback")}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-accent-soft text-accent transition-colors text-sm font-medium"
-                        >
-                            <MessageSquare size={14} />
-                            피드백
-                        </button>
-                        <button
-                            onClick={() => onOpenContextPanel("ai-compare")}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-accent-soft text-accent transition-colors text-sm font-medium"
-                        >
-                            <GitCompare size={14} />
-                            비교
-                        </button>
-                    </div>
+  return (
+    <>
+      <div className="h-12 px-6 border-b border-border-light dark:border-border-dark flex items-center justify-between bg-background-light dark:bg-background-dark">
 
-                    {/* 컨텍스트 패널 토글 */}
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => onOpenContextPanel("versions")}
-                            className={`p-2 rounded transition-colors ${
-                                contextPanelOpen
-                                    ? "bg-accent text-white"
-                                    : "hover:bg-surface-hover dark:hover:bg-surface-input"
-                            }`}
-                            title="버전 기록"
-                        >
-                            <Clock size={16} />
-                        </button>
-                        <button
-                            onClick={() => onOpenContextPanel("comments")}
-                            className={`p-2 rounded transition-colors ${
-                                contextPanelOpen
-                                    ? "bg-accent text-white"
-                                    : "hover:bg-surface-hover dark:hover:bg-surface-input"
-                            }`}
-                            title="댓글"
-                        >
-                            <MessageCircle size={16} />
-                        </button>
-                        <button
-                            onClick={() => onOpenContextPanel("properties")}
-                            className={`p-2 rounded transition-colors ${
-                                contextPanelOpen
-                                    ? "bg-accent text-white"
-                                    : "hover:bg-surface-hover dark:hover:bg-surface-input"
-                            }`}
-                            title="속성"
-                        >
-                            <Info size={16} />
-                        </button>
-                        <button className="p-2 hover:bg-surface-hover dark:hover:bg-surface-input rounded transition-colors">
-                            <MoreHorizontal size={16} />
-                        </button>
-                    </div>
-                </div>
-            </div>
+        {/* 왼쪽 */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onToggleEdit}
+            className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2
+                            ${isEditing ? "bg-accent text-white" : "bg-surface-light dark:bg-surface-dark"}`}
+          >
+            {isEditing ? <Edit3 size={16} /> : <Eye size={16} />}
+            {isEditing ? "편집 중" : "보기"}
+          </button>
+
+          {isEditing && (
+            <button
+              className="px-4 py-2 rounded-md bg-accent/10 text-accent text-sm"
+              onClick={() => setVoiceOpen(true)}
+            >
+              음성 녹음
+            </button>
+          )}
         </div>
-    );
+
+        {/* 오른쪽 */}
+        <div className="flex items-center gap-2">
+
+          <button
+            className="px-3 py-1.5 rounded-md text-sm text-accent hover:bg-accent/10 flex items-center gap-1"
+            onClick={() => onAIAction("summary")}
+          >
+            <Sparkles size={14} /> 요약
+          </button>
+
+          <button
+            className="px-3 py-1.5 rounded-md text-sm text-accent hover:bg-accent/10 flex items-center gap-1"
+            onClick={() => onAIAction("feedback")}
+          >
+            <MessageSquare size={14} /> 피드백
+          </button>
+
+          <button
+            className="px-3 py-1.5 rounded-md text-sm text-purple-500 hover:bg-purple-500/10 flex items-center gap-1"
+            onClick={() => setCompareOpen(true)}
+          >
+            <GitCompare size={14} /> 비교
+          </button>
+
+          <div className="h-6 w-px bg-border-light dark:bg-border-dark" />
+
+          <IconButton
+            icon={<Calendar size={16} />}
+            onClick={onToggleRightPanel}
+            className={rightPanelOpen ? "bg-accent text-white" : ""}
+          />
+        </div>
+      </div>
+
+      {voiceOpen && (
+        <VoiceRecorder
+          onClose={() => setVoiceOpen(false)}
+          onTranscriptionComplete={() => {}}
+        />
+      )}
+
+      {compareOpen && (
+        <DocumentCompare
+          currentContent={editorContent}
+          onClose={() => setCompareOpen(false)}
+        />
+      )}
+    </>
+  );
 }
