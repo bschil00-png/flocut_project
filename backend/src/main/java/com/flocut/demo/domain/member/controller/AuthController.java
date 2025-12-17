@@ -26,6 +26,7 @@ public class AuthController {
     // 로그인
     // =========================
     @PostMapping("/login")
+
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         try {
             Member member = memberService.login(request.getEmail(), request.getPassword());
@@ -67,5 +68,6 @@ public class AuthController {
         Member member = memberService.findByEmail(email);
 
         return ResponseEntity.ok(memberMapper.toDto(member));
+
     }
 }
