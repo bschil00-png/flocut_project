@@ -3,7 +3,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 /**
- * 공통 fetch 래퍼 (REST)
+ * 공통 fetch 래퍼
  */
 export async function apiFetch<T>(
     url: string,
@@ -17,7 +17,6 @@ export async function apiFetch<T>(
             ...(options.headers || {}),
         },
     });
-
     if (!res.ok) {
         throw new Error(await res.text());
     }
