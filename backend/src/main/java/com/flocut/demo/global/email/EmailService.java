@@ -20,16 +20,13 @@ public class EmailService {
         message.setSubject("[Flocut] 이메일 인증을 완료해주세요");
         message.setText("아래 링크를 클릭하여 이메일 인증을 완료해주세요:\n" + verifyUrl);
 
-        mailSender.send(message);
-        System.out.println("📧 인증 메일 발송 시작: " + toEmail);
-        System.out.println("📧 인증 URL = " + verifyUrl);
 
         try {
             mailSender.send(message);
-            System.out.println("📧 메일 발송 성공!");
+            System.out.println("📧 메일 발송 성공: " + toEmail);
         } catch (Exception e) {
             System.out.println("❌ 메일 발송 실패: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("이메일 발송 실패");
         }
 
     }

@@ -20,27 +20,27 @@ public class GoogleLoginController {
 
     private final GoogleOAuthService googleOAuthService;
 
-    /** 🔥 GET 방식 */
-    @GetMapping("/login")
-    public ResponseEntity<LoginResponse> googleLoginGet(
-            @RequestParam("code") String code,
-            HttpServletResponse response
-    ) {
-        LoginResponse loginResponse = googleOAuthService.processGoogleLogin(code);
-
-        // === 쿠키 생성 ===
-        ResponseCookie cookie = ResponseCookie.from("token", loginResponse.getToken())
-                .httpOnly(true)
-                .secure(false)
-                .sameSite("None")
-                .path("/")
-                .maxAge(Duration.ofDays(1))
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return ResponseEntity.ok(loginResponse);
-    }
+//    /** 🔥 GET 방식 */
+//    @GetMapping("/login")
+//    public ResponseEntity<LoginResponse> googleLoginGet(
+//            @RequestParam("code") String code,
+//            HttpServletResponse response
+//    ) {
+//        LoginResponse loginResponse = googleOAuthService.processGoogleLogin(code);
+//
+//        // === 쿠키 생성 ===
+//        ResponseCookie cookie = ResponseCookie.from("token", loginResponse.getToken())
+//                .httpOnly(true)
+//                .secure(false)
+//                .sameSite("None")
+//                .path("/")
+//                .maxAge(Duration.ofDays(1))
+//                .build();
+//
+//        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+//
+//        return ResponseEntity.ok(loginResponse);
+//    }
 
     /** 🔥 POST 방식 */
     @PostMapping("/login")
@@ -55,6 +55,8 @@ public class GoogleLoginController {
         // === 쿠키 생성 ===
         ResponseCookie cookie = ResponseCookie.from("token", loginResponse.getToken())
                 .httpOnly(true)
+                .secure(false)        // 👉 로컬(http)이라 false
+                .sameSite("Lax")     // 👉 ⭐ 핵심
                 .path("/")
                 .maxAge(Duration.ofDays(1))
                 .build();

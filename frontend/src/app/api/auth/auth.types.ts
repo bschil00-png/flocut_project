@@ -7,9 +7,20 @@ export interface LoginRequest {
 }
 
 // 로그인 성공시 반환
+// export interface LoginResponse {
+//     memberId: number;
+//     email: string;
+//     name: string;
+// }
 export interface LoginResponse {
-  memberId: number;
-  accessToken: string;
+    success: boolean;
+}
+
+// 로그인 유지용
+export interface MeResponse {
+    memberId: number;
+    email: string;
+    name: string;
 }
 // 이메일 인증
 export interface EmailVerifyRequest {
