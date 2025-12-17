@@ -8,7 +8,7 @@ import { useState } from "react";
 interface Props {
   onSend: (text: string) => void;
 }
-
+// 챗봇
 export default function InputBar({ onSend }: Props) {
   const [input, setInput] = useState("");
 
