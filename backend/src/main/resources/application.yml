@@ -1,6 +1,6 @@
  spring:
   application:
-    name: demo   # 🔴 여기만 프로젝트명(폴더명)으로 수정
+    name: flocut_project   # 🔴 여기만 프로젝트명(폴더명)으로 수정
 
   config:
     import:
