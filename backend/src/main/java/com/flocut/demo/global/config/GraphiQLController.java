@@ -11,3 +11,5 @@ public class GraphiQLController {
         return "forward:/graphiql/index.html";
     }
 }
+
+//프론트에서 회원가입가능해지면 이 클래스 삭제해도 됨
