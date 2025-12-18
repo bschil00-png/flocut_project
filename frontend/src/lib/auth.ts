@@ -1,27 +1,17 @@
-import { apiFetch } from "./http";
-import {MeResponse} from "@/app/api/auth/auth.types";
+import { api } from "@/lib/axios";
+import { MeResponse } from "./auth.types";
 
-export async function login(email: string, password: string) {
-    const res = await fetch("http://localhost:8080/auth/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-    });
-
-    if (!res.ok) {
-        throw new Error("Login failed");
-    }
-
-    return res.json();
+// 로그인 (쿠키 발급)
+export function login(email: string, password: string): Promise<void> {
+    return api.post("/auth/login", { email, password });
 }
 
-export async function getMe(): Promise<MeResponse> {
-    return apiFetch("/auth/me");
+// 로그아웃
+export function logout(): Promise<void> {
+    return api.post("/auth/logout");
 }
-export async function logout() {
-    // 지금은 서버 logout API 없으니
-    // Redux clearAuth만 하면 됨
+
+// 로그인 사용자 조회
+export function getMe(): Promise<MeResponse> {
+    return api.get("/auth/me");
 }
