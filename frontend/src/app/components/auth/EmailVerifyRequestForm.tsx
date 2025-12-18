@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Button from "@/app/components/ui/button/Button";
-import { authApi } from "@/app/api/auth/authApi";
 import Input from "@/app/components/ui/form/Input";
 
 export default function EmailVerifyForm() {
@@ -12,7 +11,7 @@ export default function EmailVerifyForm() {
   const handleSend = async () => {
     setLoading(true);
     try {
-      await authApi.sendVerifyEmail({ email });
+      // await authApi.sendVerifyEmail({ email });
       alert("이메일 인증 메일이 발송되었습니다.");
     } finally {
       setLoading(false);
