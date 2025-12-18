@@ -1,6 +1,6 @@
 package com.flocut.demo.domain.member.resolver;
 
-import com.flocut.demo.domain.member.dto.LoginResponse;
+import com.flocut.demo.domain.member.dto.ResponseDTO.LoginResponseDTO;
 import com.flocut.demo.domain.member.dto.MemberDto;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.mapper.MemberMapper;
@@ -42,7 +42,7 @@ public class MemberResolver {
     // ❗ GraphQL 로그인 (쿠키 ❌)
     // =========================
     @MutationMapping
-    public LoginResponse login(
+    public LoginResponseDTO login(
             @Argument String email,
             @Argument String password
     ) {
@@ -50,7 +50,7 @@ public class MemberResolver {
         String token = jwtUtil.generateToken(email);
 
         // ❗ GraphQL에서는 쿠키를 절대 다루지 않는다
-        return new LoginResponse(memberMapper.toDto(member), token);
+        return new LoginResponseDTO(member.getMemberId(), token);
     }
 
     // =========================

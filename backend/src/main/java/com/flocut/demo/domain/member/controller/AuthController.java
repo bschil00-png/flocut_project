@@ -1,12 +1,14 @@
 package com.flocut.demo.domain.member.controller;
 
-import com.flocut.demo.domain.member.dto.LoginRequest;
-import com.flocut.demo.domain.member.dto.LoginResponse;
+import com.flocut.demo.domain.member.dto.RequestDTO.MemberRegisterRequestDTO;
+import com.flocut.demo.domain.member.dto.RequestDTO.LoginRequestDTO;
+import com.flocut.demo.domain.member.dto.ResponseDTO.LoginResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.mapper.MemberMapper;
 import com.flocut.demo.domain.member.service.MemberService;
 import com.flocut.demo.global.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
@@ -22,18 +24,38 @@ public class AuthController {
     private final MemberService memberService;
     private final MemberMapper memberMapper;
     private final JwtUtil jwtUtil;
+    // =========================
+    // 회원가입
+    // =========================
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody @Valid MemberRegisterRequestDTO request) {
+
+        Member member = Member.builder()
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .name(request.getName())
+                .build();
+
+        Member saved = memberService.register(member);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(memberMapper.toDto(saved));
+    }
+
+
 
     // =========================
     // 로그인
     // =========================
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         try {
             Member member = memberService.login(request.getEmail(), request.getPassword());
 
             String token = jwtUtil.generateToken(member.getEmail());
 
-            ResponseCookie cookie = ResponseCookie.from("token", token)
+            ResponseCookie cookie = ResponseCookie.from("accessToken", token)
                     .httpOnly(true)
                     .secure(false)        // 로컬 환경
                     .sameSite("Lax")
@@ -43,7 +65,7 @@ public class AuthController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(new LoginResponse(memberMapper.toDto(member), token));
+                    .body(new LoginResponseDTO(member.getMemberId(), token));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,7 +80,7 @@ public class AuthController {
     public ResponseEntity<Void> logout(HttpServletResponse response) {
 
         // ⭐ 기존 token 쿠키를 즉시 만료
-        ResponseCookie cookie = ResponseCookie.from("token", "")
+        ResponseCookie cookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(false)        // 로그인 때와 동일해야 함
                 .sameSite("Lax")
