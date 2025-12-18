@@ -1,7 +1,6 @@
 package com.flocut.demo.global.auth;
 
-import com.flocut.demo.domain.member.dto.LoginResponse;
-import com.flocut.demo.domain.member.dto.MemberDto;
+import com.flocut.demo.domain.member.dto.ResponseDTO.LoginResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.repository.MemberRepository;
 import com.flocut.demo.domain.member.mapper.MemberMapper;
@@ -32,7 +31,7 @@ public class GoogleOAuthService {
     @Value("${oauth.google.redirect-uri}")
     private String redirectUri;
 
-    public LoginResponse processGoogleLogin(String code) {
+    public LoginResponseDTO processGoogleLogin(String code) {
 
         // 1. code -> access_token 교환
         String tokenUrl = "https://oauth2.googleapis.com/token";
@@ -90,8 +89,8 @@ public class GoogleOAuthService {
         // 4. JWT 생성
         String token = jwtUtil.generateToken(email);
 
-        MemberDto memberDto = memberMapper.toDto(member);
+//        MemberDto memberDto = memberMapper.toDto(member);
 
-        return new LoginResponse(memberDto, token);
+        return new LoginResponseDTO(member.getMemberId(), token);
     }
 }

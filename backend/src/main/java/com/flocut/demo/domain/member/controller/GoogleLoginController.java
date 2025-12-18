@@ -1,6 +1,6 @@
 package com.flocut.demo.domain.member.controller;
 
-import com.flocut.demo.domain.member.dto.LoginResponse;
+import com.flocut.demo.domain.member.dto.ResponseDTO.LoginResponseDTO;
 import com.flocut.demo.global.auth.GoogleOAuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,16 +44,16 @@ public class GoogleLoginController {
 
     /** 🔥 POST 방식 */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> googleLoginPost(
+    public ResponseEntity<LoginResponseDTO> googleLoginPost(
             @RequestBody Map<String, String> body,
             HttpServletResponse response
     ) {
         String code = body.get("code");
 
-        LoginResponse loginResponse = googleOAuthService.processGoogleLogin(code);
+        LoginResponseDTO loginResponse = googleOAuthService.processGoogleLogin(code);
 
         // === 쿠키 생성 ===
-        ResponseCookie cookie = ResponseCookie.from("token", loginResponse.getToken())
+        ResponseCookie cookie = ResponseCookie.from("accessToken", loginResponse.getToken())
                 .httpOnly(true)
                 .secure(false)        // 👉 로컬(http)이라 false
                 .sameSite("Lax")     // 👉 ⭐ 핵심
