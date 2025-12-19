@@ -4,7 +4,7 @@ import type {NextRequest} from "next/server";
 
 export function middleware(request: NextRequest) {
     // 쿠키에서 엑세스 토큰
-    const accessToken = request.cookies.get("token")?.value;
+    const accessToken = request.cookies.get("accessToken")?.value;
 
     // 현재 요청 경로
     const pathname = request.nextUrl.pathname;

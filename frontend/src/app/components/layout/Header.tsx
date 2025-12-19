@@ -5,10 +5,18 @@ import DarkModeToggle from "./DarkModeToggle";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
+// 인증 액션은 훅을 통해서만 호출
+import { useAuth } from "@/hooks/useAuth";
+
 export default function Header() {
     const { isAuthenticated, user } = useSelector(
         (state: RootState) => state.auth
     );
+
+    // 로그아웃 로직은 useAuth가 책임진다
+    // - POST /auth/logout
+    // - Redux clearAuth
+    const { logout } = useAuth();
 
     return (
         <header
@@ -22,7 +30,6 @@ export default function Header() {
                 dark:border-border-dark
             "
         >
-            {/* 중앙 정렬 컨테이너 */}
             <div
                 className="
                     mx-auto max-w-7xl
@@ -31,7 +38,7 @@ export default function Header() {
                     flex items-center justify-between
                 "
             >
-                {/* ===== Left : Logo ===== */}
+                {/* Left : Logo */}
                 <div className="flex items-center gap-2">
                     <Link href="/">
                         <span
@@ -46,7 +53,7 @@ export default function Header() {
                     </Link>
                 </div>
 
-                {/* ===== Center : Navigation ===== */}
+                {/* Center : Navigation */}
                 <nav className="hidden md:flex items-center gap-8">
                     {[
                         { label: "회사 소개", href: "/about" },
@@ -72,9 +79,9 @@ export default function Header() {
                     ))}
                 </nav>
 
-                {/* ===== Right : Actions ===== */}
+                {/* Right : Actions */}
                 <div className="flex items-center gap-4">
-                    {/* 검색 인풋 */}
+                    {/* 검색 */}
                     <div className="hidden lg:block">
                         <input
                             type="text"
@@ -96,18 +103,36 @@ export default function Header() {
                         />
                     </div>
 
-                    {/* ===== 인증 상태 분기 ===== */}
+                    {/* 인증 상태 분기 */}
                     {isAuthenticated && user ? (
-                        <span
-                            className="
-                                text-sm font-medium
-                                text-text-primary-light
-                                dark:text-text-primary-dark
-                                whitespace-nowrap
-                            "
-                        >
-                            {user.name}님 환영합니다
-                        </span>
+                        <>
+                            {/* 로그인된 사용자 표시 */}
+                            <span
+                                className="
+                                    text-sm font-medium
+                                    text-text-primary-light
+                                    dark:text-text-primary-dark
+                                    whitespace-nowrap
+                                "
+                            >
+                                {user.name}님
+                            </span>
+
+                            {/* 로그아웃 버튼 */}
+                            <button
+                                onClick={logout}
+                                className="
+                                    text-sm font-medium
+                                    text-text-muted-light
+                                    dark:text-text-muted-dark
+                                    hover:text-text-primary-light
+                                    dark:hover:text-text-primary-dark
+                                    transition-colors
+                                "
+                            >
+                                로그아웃
+                            </button>
+                        </>
                     ) : (
                         <>
                             <Link
@@ -140,7 +165,6 @@ export default function Header() {
                         </>
                     )}
 
-                    {/* 다크모드 토글 */}
                     <DarkModeToggle />
                 </div>
             </div>
