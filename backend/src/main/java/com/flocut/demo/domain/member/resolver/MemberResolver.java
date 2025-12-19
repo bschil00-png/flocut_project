@@ -41,17 +41,17 @@ public class MemberResolver {
     // =========================
     // ❗ GraphQL 로그인 (쿠키 ❌)
     // =========================
-    @MutationMapping
-    public LoginResponseDTO login(
-            @Argument String email,
-            @Argument String password
-    ) {
-        Member member = memberService.login(email, password);
-        String token = jwtUtil.generateToken(email);
-
-        // ❗ GraphQL에서는 쿠키를 절대 다루지 않는다
-        return new LoginResponseDTO(member.getMemberId(), token);
-    }
+//    @MutationMapping
+//    public LoginResponseDTO login(
+//            @Argument String email,
+//            @Argument String password
+//    ) {
+//        Member member = memberService.login(email, password);
+//        String token = jwtUtil.generateToken(email);
+//
+//        // ❗ GraphQL에서는 쿠키를 절대 다루지 않는다
+//        return new LoginResponseDTO(member.getMemberId(), token);
+//    }
 
     // =========================
     // 회원 조회

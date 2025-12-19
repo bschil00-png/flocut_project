@@ -58,7 +58,7 @@ public class GoogleLoginController {
                 .secure(false)        // 👉 로컬(http)이라 false
                 .sameSite("Lax")     // 👉 ⭐ 핵심
                 .path("/")
-                .maxAge(Duration.ofDays(1))
+                .maxAge(Duration.ofMinutes(3))
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
