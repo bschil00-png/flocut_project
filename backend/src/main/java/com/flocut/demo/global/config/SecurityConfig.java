@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/login",
                                 "/auth/logout",
+                                "/auth/refresh",
                                 "/auth/verify",
                                 "/auth/me",
 

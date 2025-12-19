@@ -7,20 +7,22 @@ import com.flocut.demo.domain.member.mapper.MemberMapper;
 import com.flocut.demo.global.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class GoogleOAuthService {
 
     private final MemberRepository memberRepository;
-    private final MemberMapper memberMapper;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${oauth.google.client-id}")
     private String clientId;
@@ -33,7 +35,7 @@ public class GoogleOAuthService {
 
     public LoginResponseDTO processGoogleLogin(String code) {
 
-        // 1. code -> access_token 교환
+        // 1️⃣ Google access_token 요청
         String tokenUrl = "https://oauth2.googleapis.com/token";
 
         RestTemplate restTemplate = new RestTemplate();
@@ -52,45 +54,63 @@ public class GoogleOAuthService {
             throw new RuntimeException("구글 토큰 요청 실패");
         }
 
-        String accessToken = (String) tokenResponse.get("access_token");
+        String googleAccessToken = (String) tokenResponse.get("access_token");
 
-        // 2. access_token으로 사용자 정보 가져오기
+        // 2️⃣ 사용자 정보 요청
         String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
-
-        HttpEntity<Void> request = new HttpEntity<>(headers);
+        headers.add("Authorization", "Bearer " + googleAccessToken);
 
         ResponseEntity<Map> userInfoResponse =
-                restTemplate.exchange(userInfoUrl, HttpMethod.GET, request, Map.class);
+                restTemplate.exchange(
+                        userInfoUrl,
+                        HttpMethod.GET,
+                        new HttpEntity<>(headers),
+                        Map.class
+                );
 
         Map<String, Object> userInfo = userInfoResponse.getBody();
 
         if (userInfo == null || !userInfo.containsKey("email")) {
-            throw new RuntimeException("구글 사용자 정보를 가져오지 못했습니다.");
+            throw new RuntimeException("구글 사용자 정보 조회 실패");
         }
 
         String email = (String) userInfo.get("email");
         String name = (String) userInfo.get("name");
 
-        // 3. DB에서 회원 조회 / 없으면 자동 회원가입
+        // 3️⃣ 회원 조회 / 자동 가입
         Member member = memberRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    Member newMember = Member.builder()
-                            .email(email)
-                            .name(name)
-                            .emailVerified(true)   // 구글 이메일이면 이미 인증된 것으로 처리
-                            .password("")          // 소셜로그인이라 비밀번호는 비워둠
-                            .build();
-                    return memberRepository.save(newMember);
-                });
+                .orElseGet(() -> memberRepository.save(
+                        Member.builder()
+                                .email(email)
+                                .name(name)
+                                .emailVerified(true)
+                                .password("")   // 소셜 로그인
+                                .build()
+                ));
 
-        // 4. JWT 생성
-        String token = jwtUtil.generateToken(email);
+        // 4️⃣ 🔥 Access / Refresh Token 생성
+        String accessToken = jwtUtil.generateAccessToken(email);
+        String refreshToken = jwtUtil.generateRefreshToken(email);
 
-//        MemberDto memberDto = memberMapper.toDto(member);
+        // 5️⃣ 🔥 Redis 저장
+        redisTemplate.opsForValue().set(
+                "refresh:" + email,
+                refreshToken,
+//                7,
+//                TimeUnit.DAYS
+                3,
+                TimeUnit.MINUTES
+        );
 
-        return new LoginResponseDTO(member.getMemberId(), token);
+        // ❗ GoogleOAuthService는 "쿠키를 직접 다루지 않는다"
+        // → Controller에서 쿠키 설정
+
+        return new LoginResponseDTO(
+                member.getMemberId(),
+                accessToken,
+                refreshToken
+        );
     }
 }
