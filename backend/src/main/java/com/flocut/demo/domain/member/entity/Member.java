@@ -53,7 +53,7 @@ public class Member {
         this.regdate = LocalDate.now();
         this.moddate = LocalDate.now();
         this.emailVerified = false;
-        this.status = MemberStatus.ACTIVE;
+        this.status = MemberStatus.READY;
     }
 
     @PreUpdate

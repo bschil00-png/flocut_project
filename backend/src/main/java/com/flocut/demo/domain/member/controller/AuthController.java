@@ -2,14 +2,16 @@ package com.flocut.demo.domain.member.controller;
 
 import com.flocut.demo.domain.member.dto.RequestDTO.MemberRegisterRequestDTO;
 import com.flocut.demo.domain.member.dto.RequestDTO.LoginRequestDTO;
+import com.flocut.demo.domain.member.dto.ResponseDTO.ErrorResponseDTO;
 import com.flocut.demo.domain.member.dto.ResponseDTO.LoginResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.mapper.MemberMapper;
 import com.flocut.demo.domain.member.service.MemberService;
 import com.flocut.demo.global.jwt.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.WebUtils;
 
 import java.time.Duration;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -40,6 +43,9 @@ public class AuthController {
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .name(request.getName())
+                .status(MemberStatus.READY)
+                .emailVerified(false)
+                .emailVerifyToken(UUID.randomUUID().toString())
                 .build();
 
         Member saved = memberService.register(member);
@@ -55,7 +61,7 @@ public class AuthController {
     // 로그인
     // =========================
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO request) {
 
         try {
 
@@ -63,11 +69,8 @@ public class AuthController {
                     request.getEmail(), request.getPassword()
             );
 
-            String accessToken =
-                    jwtUtil.generateAccessToken(member.getEmail());
-
-            String refreshToken =
-                    jwtUtil.generateRefreshToken(member.getEmail());
+            String accessToken = jwtUtil.generateAccessToken(member.getEmail());
+            String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
             // 🔥 Redis 저장 (key = refresh:{email})
             redisTemplate.opsForValue().set(
@@ -100,11 +103,20 @@ public class AuthController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                     .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                    .body(new LoginResponseDTO(member.getMemberId(), null,null));
+                    .body(new LoginResponseDTO(member.getMemberId(), null,null)); //access토큰과 refresh토근 설정인데 일단 null로 설정
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); //  # 400=HttpStatus.BAD_REQUEST
+        } catch (IllegalArgumentException  e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); //  # 400=HttpStatus.BAD_REQUEST
+            // ⭐ Service에서 던진 메시지를 그대로 전달
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO(e.getMessage()));
+        }catch (Exception e) {
+            // 예상 못 한 서버 에러
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseDTO("서버 오류가 발생했습니다."));
         }
     }
 

@@ -1,6 +1,7 @@
 package com.flocut.demo.global.auth;
 
 import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ public class EmailVerifyController {
 
         // 3) 인증 완료 처리
         member.setEmailVerified(true);
+        member.setStatus(MemberStatus.ACTIVE);
         member.setEmailVerifyToken(null);
         memberRepository.save(member);
 
