@@ -106,8 +106,6 @@ public class AuthController {
                     .body(new LoginResponseDTO(member.getMemberId(), null,null)); //access토큰과 refresh토근 설정인데 일단 null로 설정
 
         } catch (IllegalArgumentException  e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); //  # 400=HttpStatus.BAD_REQUEST
             // ⭐ Service에서 던진 메시지를 그대로 전달
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
