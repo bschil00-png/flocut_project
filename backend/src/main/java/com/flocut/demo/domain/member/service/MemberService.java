@@ -43,33 +43,24 @@ public class MemberService {
 
     public Member login(String email, String password) {
 
-        System.out.println("=== LOGIN DEBUG START ===");
-        System.out.println("입력 email = " + email);
-        System.out.println("입력 password = " + password);
+
 
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    System.out.println("❌ 이메일로 회원을 찾지 못함");
-                    System.out.println("=== LOGIN DEBUG END ===");
-                    return new RuntimeException("회원이 존재하지 않습니다.");
+                    return new IllegalArgumentException("회원이 존재하지 않습니다.");
                 });
+        //RuntimeException은 너무 포괄적인 오류 IllegalArgumentException은 잘못된 파라미터를 던져줬다는 오류
 
-        System.out.println("DB 저장된 email = " + member.getEmail());
-        System.out.println("DB 저장된 password hash = " + member.getPassword());
 
         boolean match = passwordEncoder.matches(password, member.getPassword());
         System.out.println("비밀번호 비교 결과 = " + match);
 
         if (!match) {
-            System.out.println("❌ 비밀번호 불일치");
-            System.out.println("=== LOGIN DEBUG END ===");
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        if (!member.getEmailVerified()) {
-            System.out.println("❌ 이메일 인증 안됨");
-            System.out.println("=== LOGIN DEBUG END ===");
-            throw new RuntimeException("이메일 인증이 필요합니다.");
+        if (member.getStatus() != MemberStatus.ACTIVE) {
+            throw new IllegalArgumentException("이메일 인증이 필요합니다.");
         }
 
         System.out.println("✅ 로그인 성공: " + member.getEmail());
