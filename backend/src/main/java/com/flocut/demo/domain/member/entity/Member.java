@@ -23,7 +23,7 @@ public class Member {
     @Column(nullable = false, length = 255, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String password;
 
     @Column(nullable = false, length = 100)
@@ -52,8 +52,13 @@ public class Member {
     public void onCreate() {
         this.regdate = LocalDate.now();
         this.moddate = LocalDate.now();
-        this.emailVerified = false;
-        this.status = MemberStatus.READY;
+
+        if (this.emailVerified == null) {
+            this.emailVerified = false;
+        }
+        if (this.status == null) {
+            this.status = MemberStatus.READY;
+        }
     }
 
     @PreUpdate

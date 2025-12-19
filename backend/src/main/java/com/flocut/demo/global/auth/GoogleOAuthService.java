@@ -2,6 +2,7 @@ package com.flocut.demo.global.auth;
 
 import com.flocut.demo.domain.member.dto.ResponseDTO.LoginResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.repository.MemberRepository;
 import com.flocut.demo.domain.member.mapper.MemberMapper;
 import com.flocut.demo.global.jwt.JwtUtil;
@@ -50,6 +51,8 @@ public class GoogleOAuthService {
         Map<String, Object> tokenResponse =
                 restTemplate.postForObject(tokenUrl, params, Map.class);
 
+        System.out.println("tokenResponse = " + tokenResponse);
+
         if (tokenResponse == null || !tokenResponse.containsKey("access_token")) {
             throw new RuntimeException("구글 토큰 요청 실패");
         }
@@ -81,12 +84,22 @@ public class GoogleOAuthService {
 
         // 3️⃣ 회원 조회 / 자동 가입
         Member member = memberRepository.findByEmail(email)
+//                // 🔥 기존 회원이 READY라면 ACTIVE로 승격
+//                .map(existing -> {
+//                    if (existing.getStatus() != MemberStatus.ACTIVE) {
+//                        existing.setStatus(MemberStatus.ACTIVE);
+//                        existing.setEmailVerified(true);
+//                        return memberRepository.save(existing);
+//                    }
+//                    return existing;
+//                })
                 .orElseGet(() -> memberRepository.save(
                         Member.builder()
                                 .email(email)
                                 .name(name)
+                                .password(null)
                                 .emailVerified(true)
-                                .password("")   // 소셜 로그인
+                                .status(MemberStatus.ACTIVE)
                                 .build()
                 ));
 
