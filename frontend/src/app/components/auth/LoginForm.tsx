@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 // 인증 로직은 컴포넌트에서 직접 처리하지 않는다.
 // useAuth 훅이 로그인 → me 조회 → Redux 저장까지 책임진다.
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthActions } from "@/hooks/useAuthActions";
 
 // UI 컴포넌트 (디자인 변경 없음)
 import Card from "@/app/components/ui/card/Card";
@@ -21,7 +21,7 @@ export default function LoginForm() {
 
   // useAuth에서 login 함수만 가져온다
   // Redux dispatch, REST 호출, 쿠키 처리 전부 useAuth 내부에서 수행
-  const { login } = useAuth();
+  const { login } = useAuthActions();
 
   // 입력 상태
   const [email, setEmail] = useState("");

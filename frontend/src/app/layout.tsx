@@ -7,6 +7,7 @@ import {notoSans} from "@/app/font";
 import GlobalLoader from "@/app/components/layout/loading/GlobalLoader";
 
 // 전역 레이아웃
+// 환경 세팅만 담당
 export const metadata: Metadata = {
   title: "FLOCUT",
   description: "문서·음성 기반 AI 요약 플랫폼",

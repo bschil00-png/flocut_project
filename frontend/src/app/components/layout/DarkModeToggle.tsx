@@ -14,7 +14,7 @@ export default function DarkModeToggle() {
   useEffect(() => {
     setMounted(true);
 
-    // 🔹 저장된 컬러 테마 복원
+    // 저장된 컬러 테마 복원
     const saved = localStorage.getItem("color-theme") as ColorTheme | null;
     if (saved && saved !== "pink") {
       document.documentElement.classList.add(`theme-${saved}`);
