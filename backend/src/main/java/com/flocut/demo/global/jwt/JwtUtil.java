@@ -24,11 +24,30 @@ public class JwtUtil {
     }
 
     // JWT 생성
-    public String generateToken(String email) {
+//    public String generateToken(String email) {
+//        return Jwts.builder()
+//                .setSubject(email)
+//                .setIssuedAt(new Date())
+//                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+//                .signWith(key, SignatureAlgorithm.HS256)
+//                .compact();
+//    }
+
+    public String generateAccessToken(String email) {
+//        return createToken(email, 1000 * 60 * 15); // 15분
+        return createToken(email, 1000 * 60 * 1);
+    }
+
+    public String generateRefreshToken(String email) {
+//        return createToken(email, 1000 * 60 * 60 * 24 * 7); // 7일
+        return createToken(email, 1000 * 60 * 20 );
+    }
+
+    private String createToken(String email, long expireMs) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + expireMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

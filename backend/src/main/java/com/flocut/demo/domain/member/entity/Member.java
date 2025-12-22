@@ -23,7 +23,7 @@ public class Member {
     @Column(nullable = false, length = 255, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String password;
 
     @Column(nullable = false, length = 100)
@@ -37,6 +37,10 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserRole role;
 
     @Column(name = "email_verified")
     private Boolean emailVerified;
@@ -52,8 +56,17 @@ public class Member {
     public void onCreate() {
         this.regdate = LocalDate.now();
         this.moddate = LocalDate.now();
-        this.emailVerified = false;
-        this.status = MemberStatus.ACTIVE;
+
+        if (this.emailVerified == null) {
+            this.emailVerified = false;
+        }
+        if (this.status == null) {
+            this.status = MemberStatus.READY;
+        }
+        // 🔥 기본 권한은 USER
+        if (this.role == null) {
+            this.role = UserRole.USER;
+        }
     }
 
     @PreUpdate

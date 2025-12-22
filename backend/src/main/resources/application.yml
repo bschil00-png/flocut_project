@@ -10,6 +10,7 @@
       - optional:classpath:secret/oauth.yml
       - optional:classpath:secret/next.yml
       - optional:classpath:secret/solapi.yml
+      - optional:classpath:secret/redis.yml
 
 
   jpa:

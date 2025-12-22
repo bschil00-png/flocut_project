@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/login",
                                 "/auth/logout",
+                                "/auth/refresh",
                                 "/auth/verify",
                                 "/auth/me",
 
@@ -56,6 +57,7 @@ public class SecurityConfig {
                                 "/graphql/**",
                                 "/graphiql/**"
                         ).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // 그 외는 JWT 필요
                         .anyRequest().authenticated()
