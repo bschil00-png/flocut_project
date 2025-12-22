@@ -1,5 +1,5 @@
 // src/lib/axios.ts
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError } from "@/lib/axios";
 
 export const api = axios.create({
   baseURL: "/api/proxy",
