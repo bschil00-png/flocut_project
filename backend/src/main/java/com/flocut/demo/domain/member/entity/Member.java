@@ -38,6 +38,10 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserRole role;
+
     @Column(name = "email_verified")
     private Boolean emailVerified;
 
@@ -58,6 +62,10 @@ public class Member {
         }
         if (this.status == null) {
             this.status = MemberStatus.READY;
+        }
+        // 🔥 기본 권한은 USER
+        if (this.role == null) {
+            this.role = UserRole.USER;
         }
     }
 

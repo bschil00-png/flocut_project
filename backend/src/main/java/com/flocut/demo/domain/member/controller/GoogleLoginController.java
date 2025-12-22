@@ -46,7 +46,7 @@ public class GoogleLoginController {
                         .secure(false)
                         .sameSite("Lax")
                         .path("/")          // ⭐ 반드시 /
-                        .maxAge(Duration.ofMinutes(3))
+                        .maxAge(Duration.ofMinutes(20))
                         .build();
 
         return ResponseEntity.ok()

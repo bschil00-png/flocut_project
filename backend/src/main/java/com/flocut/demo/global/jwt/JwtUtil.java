@@ -40,7 +40,7 @@ public class JwtUtil {
 
     public String generateRefreshToken(String email) {
 //        return createToken(email, 1000 * 60 * 60 * 24 * 7); // 7일
-        return createToken(email, 1000 * 60 * 3 );
+        return createToken(email, 1000 * 60 * 20 );
     }
 
     private String createToken(String email, long expireMs) {

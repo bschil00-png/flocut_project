@@ -57,6 +57,7 @@ public class SecurityConfig {
                                 "/graphql/**",
                                 "/graphiql/**"
                         ).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // 그 외는 JWT 필요
                         .anyRequest().authenticated()
