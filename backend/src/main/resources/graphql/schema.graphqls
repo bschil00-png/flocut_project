@@ -1,3 +1,6 @@
+"""
+회원 정보
+"""
 type Member {
     memberId: ID!
     email: String!
@@ -5,41 +8,62 @@ type Member {
     tel: String
     profileImage: String
     status: String
+    role: String
     emailVerified: Boolean
     regdate: String
     moddate: String
 }
 
+"""
+회원가입 입력값
+"""
 input RegisterInput {
     email: String!
     password: String!
     name: String!
 }
 
-# ⭐ 로그인 응답 타입 추가
+"""
+GraphQL 로그인 응답 (토큰 반환용)
+"""
 type LoginResponse {
     member: Member!
     token: String!
 }
 
-type Mutation {
-    register(input: RegisterInput!): Member!
-
-    # ⭐ login 반환 타입 변경
-    login(email: String!, password: String!): LoginResponse!
+"""
+관리자 - 로그인 이력
+(Java Entity: LoginHistory 기준)
+"""
+type AdminLoginHistory {
+    loginHistoryId: ID!
+    memberId: ID!
+    ip: String!
+    device: String!
+    loginDate: String!
 }
 
+"""
+Mutation 정의
+"""
+type Mutation {
+    register(input: RegisterInput!): Member!
+}
+
+"""
+Query 정의
+"""
 type Query {
     member(id: ID!): Member
     me: Member
     adminLoginHistory(memberId: ID!): [AdminLoginHistory!]!
+    adminMembers(page: Int!, size: Int!): AdminMemberPage!
+
 }
 
-type AdminLoginHistory {
-  loginAt: String!
-  ip: String
-  userAgent: String
+type AdminMemberPage {
+    content: [Member!]!
+    totalElements: Int!
+    totalPages: Int!
+    pageNumber: Int!
 }
-
-
-

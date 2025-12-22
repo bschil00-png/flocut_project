@@ -28,10 +28,8 @@ public class SecurityConfig {
         http
                 // JWT 기반 인증이므로 CSRF 비활성화
                 .csrf(csrf -> csrf.disable())
-
                 // Next.js와 통신용 CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 // 세션 안 씀 (JWT)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -42,7 +40,7 @@ public class SecurityConfig {
                         // CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 인증 없이 접근해야 하는 엔드포인트
+//                         인증 없이 접근해야 하는 엔드포인트
                         .requestMatchers(
                                 "/auth/register",
                                 "/auth/login",
@@ -53,7 +51,10 @@ public class SecurityConfig {
 
                                 //  커스텀 구글 로그인
                                 "/auth/google/**",
+
+                                "/graphiql",
                                 "/graphql/**",
+                                "/graphql",
                                 "/graphiql/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

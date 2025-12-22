@@ -19,15 +19,6 @@ public class AdminMemberController {
 
     private final AdminMemberService adminMemberService;
 
-//    // 1️⃣ 회원 목록 조회
-//    @GetMapping
-//    public Page<AdminMemberResponseDTO> getMembers(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "20") int size
-//    ) {
-//        return adminMemberService.getMembers(page, size);
-//    }
-
     // 2️⃣ 회원 상태 변경
     @PatchMapping("/{memberId}/status")
     public void updateStatus(
@@ -53,14 +44,4 @@ public class AdminMemberController {
                 request.getReason()
         );
     }
-
-
-
-//    // 5️⃣ 로그인 이력 조회
-//    @GetMapping("/{memberId}/login-history")
-//    public List<AdminLoginHistoryResponseDTO> getLoginHistory(
-//            @PathVariable Long memberId
-//    ) {
-//        return adminMemberService.getLoginHistory(memberId);
-//    }
 }
