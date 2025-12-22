@@ -1,4 +1,6 @@
 // src/lib/rest/client.ts
+
+// 단순 REST 호출용 
 export async function restClient<T>(
     url: string,
     options: RequestInit = {}
