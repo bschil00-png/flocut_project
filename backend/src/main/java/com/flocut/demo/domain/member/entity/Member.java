@@ -17,7 +17,7 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
+    @Column(nullable = false,name = "member_id")
     private Long memberId;
 
     @Column(nullable = false, length = 255, unique = true)
@@ -36,6 +36,7 @@ public class Member {
     private String profileImage;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private MemberStatus status;
 
     @Enumerated(EnumType.STRING)

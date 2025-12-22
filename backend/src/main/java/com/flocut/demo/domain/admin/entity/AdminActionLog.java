@@ -1,4 +1,4 @@
-package com.flocut.demo.domain.admin.log;
+package com.flocut.demo.domain.admin.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,18 +14,32 @@ public class AdminActionLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "admin_action_log_id")
+    private Long adminActionLogId;
 
-    private Long adminId;          // 추후 SecurityContext에서 추출
+    @Column(name = "admin_id", nullable = false)
+    private Long adminId;
+
+    @Column(name = "target_member_id")
     private Long targetMemberId;
+
+    @Column(name = "action_type", nullable = false)
     private String actionType;
+
+    @Column(name = "before_value")
     private String beforeValue;
+
+    @Column(name = "after_value")
     private String afterValue;
+
+    @Column(name = "reason")
     private String reason;
 
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public static AdminActionLog create(
+            Long adminId,
             Long targetMemberId,
             String actionType,
             String beforeValue,
@@ -33,6 +47,7 @@ public class AdminActionLog {
             String reason
     ) {
         AdminActionLog log = new AdminActionLog();
+        log.adminId = adminId;
         log.targetMemberId = targetMemberId;
         log.actionType = actionType;
         log.beforeValue = beforeValue;
@@ -42,3 +57,4 @@ public class AdminActionLog {
         return log;
     }
 }
+

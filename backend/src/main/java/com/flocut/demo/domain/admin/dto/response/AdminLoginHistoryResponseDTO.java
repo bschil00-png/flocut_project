@@ -3,13 +3,13 @@ package com.flocut.demo.domain.admin.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
 public class AdminLoginHistoryResponseDTO {
-    private Date loginAt;
+    private LocalDate loginAt;
     private String ip;
-    private String userAgent;
+    private String device;
 }
 

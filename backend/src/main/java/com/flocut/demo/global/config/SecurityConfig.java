@@ -53,7 +53,6 @@ public class SecurityConfig {
 
                                 //  커스텀 구글 로그인
                                 "/auth/google/**",
-
                                 "/graphql/**",
                                 "/graphiql/**"
                         ).permitAll()
