@@ -1,5 +1,7 @@
 package com.flocut.demo.global.auth;
 
+import com.flocut.demo.domain.admin.entity.LoginHistory;
+import com.flocut.demo.domain.admin.repository.LoginHistoryRepository;
 import com.flocut.demo.domain.member.dto.ResponseDTO.LoginResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.MemberStatus;
@@ -24,6 +26,7 @@ public class GoogleOAuthService {
     private final MemberRepository memberRepository;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
+    private final LoginHistoryRepository loginHistoryRepository;
 
     @Value("${oauth.google.client-id}")
     private String clientId;
@@ -102,10 +105,28 @@ public class GoogleOAuthService {
                                 .status(MemberStatus.ACTIVE)
                                 .build()
                 ));
+        loginHistoryRepository.save(
+                LoginHistory.create(
+                        member.getMemberId(),
+                        null,
+                        "GOOGLE_LOGIN"
+                )
+        );
+
+
 
         // 4️⃣ 🔥 Access / Refresh Token 생성
-        String accessToken = jwtUtil.generateAccessToken(email);
-        String refreshToken = jwtUtil.generateRefreshToken(email);
+//        String accessToken = jwtUtil.generateAccessToken(email);
+//        String refreshToken = jwtUtil.generateRefreshToken(email);
+        String accessToken = jwtUtil.generateAccessToken(
+                member.getEmail(),
+                member.getRole().name()
+        );
+
+        String refreshToken = jwtUtil.generateRefreshToken(
+                member.getEmail(),
+                member.getRole().name()
+        );
 
         // 5️⃣ 🔥 Redis 저장
         redisTemplate.opsForValue().set(

@@ -32,6 +32,13 @@ type Mutation {
 type Query {
     member(id: ID!): Member
     me: Member
+    adminLoginHistory(memberId: ID!): [AdminLoginHistory!]!
+}
+
+type AdminLoginHistory {
+  loginAt: String!
+  ip: String
+  userAgent: String
 }
 
 

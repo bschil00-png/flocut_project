@@ -4,7 +4,7 @@ import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -15,6 +15,6 @@ public class AdminMemberResponseDTO {
     private String name;
     private MemberStatus status;
     private UserRole role;
-    private Date regdate;
+    private LocalDate regdate;
 }
 
