@@ -78,7 +78,7 @@ public class AuthController {
                     refreshToken,
 //                    7,
 //                    TimeUnit.DAYS
-                    3,
+                    20,
                     TimeUnit.MINUTES
             );
 
@@ -97,7 +97,7 @@ public class AuthController {
                     .sameSite("Lax")
                     .path("/") //
 //                    .maxAge(Duration.ofDays(7))
-                    .maxAge(Duration.ofMinutes(3))
+                    .maxAge(Duration.ofMinutes(20))
                     .build();
 
             return ResponseEntity.ok()

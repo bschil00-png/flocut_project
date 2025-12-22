@@ -113,7 +113,7 @@ public class GoogleOAuthService {
                 refreshToken,
 //                7,
 //                TimeUnit.DAYS
-                3,
+                20,
                 TimeUnit.MINUTES
         );
 
