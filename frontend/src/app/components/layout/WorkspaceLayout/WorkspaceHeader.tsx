@@ -29,9 +29,9 @@ export default function WorkspaceHeader() {
 
       {/* 오른쪽 - 환경설정 / 프로필 */}
       <div className="flex items-center gap-2">
-        <IconButton icon={<Settings size={18} />} />
 
         {/* 마이페이지 (프로필) */}
+        {/*  모달 창으로 */}
         <Link
           href="/profile"
           className="
@@ -40,7 +40,7 @@ export default function WorkspaceHeader() {
             hover:opacity-90 transition
           "
         >
-          N
+          F
         </Link>
       </div>
     </header>
