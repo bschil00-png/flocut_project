@@ -4,91 +4,102 @@ import { NextRequest, NextResponse } from "next/server";
 const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 async function proxy(request: NextRequest) {
-  const { pathname, search } = new URL(request.url);
+    const { pathname, search } = new URL(request.url);
 
-  // /api/proxy/auth/login -> /auth/login
-  const targetPath = pathname.replace("/api/proxy", "");
-  const targetUrl = `${BACKEND_BASE_URL}${targetPath}${search}`;
+    // /api/proxy/auth/login -> /auth/login
+    let targetPath = pathname.replace("/api/proxy", "");
 
-  console.log("\n========== PROXY REQUEST ==========");
-  console.log("TARGET URL:", targetUrl);
-  console.log("METHOD:", request.method);
+    //  더블 슬래시 제거
+    targetPath = targetPath.replace(/\/+/g, '/');
 
-  // 🔥 쿠키 헤더 생성
-  const cookies = request.cookies.getAll();
-  const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join("; ");
+    //  맨 앞에 슬래시가 없으면 추가
+    if (!targetPath.startsWith('/')) {
+        targetPath = '/' + targetPath;
+    }
 
-  console.log("REQUEST COOKIES:", cookies);
-  console.log("COOKIE HEADER:", cookieHeader);
+    //  BACKEND_BASE_URL 끝의 슬래시 제거
+    const cleanBaseUrl = BACKEND_BASE_URL.replace(/\/+$/, '');
+    const targetUrl = `${cleanBaseUrl}${targetPath}${search}`;
 
-  // 🔥 필요한 헤더만 선택적으로 전달
-  const headers: HeadersInit = {
-    "Content-Type": request.headers.get("content-type") || "application/json",
-  };
+    console.log("\n========== PROXY REQUEST ==========");
+    console.log("TARGET URL:", targetUrl);
+    console.log("METHOD:", request.method);
 
-  if (cookieHeader) {
-    headers["Cookie"] = cookieHeader;
-  }
+    // 쿠키 헤더 생성
+    const cookies = request.cookies.getAll();
+    const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join("; ");
 
-  // 🔥 body 처리
-  let body: string | undefined;
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    body = await request.text();
-    console.log("REQUEST BODY:", body);
-  }
+    console.log("REQUEST COOKIES:", cookies);
+    console.log("COOKIE HEADER:", cookieHeader);
 
-  // 백엔드 요청
-  const response = await fetch(targetUrl, {
-    method: request.method,
-    headers,
-    body,
-    credentials: "include",
-  });
+    //  필요한 헤더만 선택적으로 전달
+    const headers: HeadersInit = {
+        "Content-Type": request.headers.get("content-type") || "application/json",
+    };
 
-  console.log("RESPONSE STATUS:", response.status);
+    if (cookieHeader) {
+        headers["Cookie"] = cookieHeader;
+    }
 
-  // 🔥 응답 본문 읽기
-  const responseBody = await response.text();
-  console.log("RESPONSE BODY:", responseBody);
+    //  body 처리
+    let body: string | undefined;
+    if (request.method !== "GET" && request.method !== "HEAD") {
+        body = await request.text();
+        console.log("REQUEST BODY:", body);
+    }
 
-  // 🔥 응답 생성
-  const result = new NextResponse(responseBody, {
-    status: response.status,
-    headers: {
-      "Content-Type": response.headers.get("content-type") || "application/json",
-    },
-  });
-
-  // 🔥 Set-Cookie 헤더 처리 (중요!)
-  const setCookieHeaders = response.headers.getSetCookie?.() || [];
-  console.log("SET-COOKIE FROM BACKEND:", setCookieHeaders);
-
-  if (setCookieHeaders.length > 0) {
-    setCookieHeaders.forEach((cookie) => {
-      result.headers.append("Set-Cookie", cookie);
-      console.log("✅ FORWARDING SET-COOKIE:", cookie);
+    // 백엔드 요청
+    const response = await fetch(targetUrl, {
+        method: request.method,
+        headers,
+        body,
+        credentials: "include",
     });
-  } else {
-    console.log("⚠️ NO SET-COOKIE HEADERS");
-  }
 
-  console.log("========== END PROXY ==========\n");
+    console.log("RESPONSE STATUS:", response.status);
 
-  return result;
+    // 응답 본문 읽기
+    const responseBody = await response.text();
+    console.log("RESPONSE BODY:", responseBody);
+
+    // 응답 생성
+    const result = new NextResponse(responseBody, {
+        status: response.status,
+        headers: {
+            "Content-Type": response.headers.get("content-type") || "application/json",
+        },
+    });
+
+    // Set-Cookie 헤더 처리 (중요!)
+    const setCookieHeaders = response.headers.getSetCookie?.() || [];
+    console.log("SET-COOKIE FROM BACKEND:", setCookieHeaders);
+
+    if (setCookieHeaders.length > 0) {
+        setCookieHeaders.forEach((cookie) => {
+            result.headers.append("Set-Cookie", cookie);
+            console.log(" FORWARDING SET-COOKIE:", cookie);
+        });
+    } else {
+        console.log("️ NO SET-COOKIE HEADERS");
+    }
+
+    console.log("========== END PROXY ==========\n");
+
+    return result;
 }
 
 export async function GET(req: NextRequest) {
-  return proxy(req);
+    return proxy(req);
 }
 export async function POST(req: NextRequest) {
-  return proxy(req);
+    return proxy(req);
 }
 export async function PUT(req: NextRequest) {
-  return proxy(req);
+    return proxy(req);
 }
 export async function PATCH(req: NextRequest) {
-  return proxy(req);
+    return proxy(req);
 }
 export async function DELETE(req: NextRequest) {
-  return proxy(req);
+    return proxy(req);
 }
