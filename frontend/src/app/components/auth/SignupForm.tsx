@@ -69,15 +69,38 @@ export default function SignupForm() {
 
       <Card padding="lg">
         {success ? (
-          <div className="text-center space-y-4">
-            <p className="text-sm">
-              입력하신 이메일로 인증 메일을 보냈습니다.
-            </p>
-            <p className="text-xs text-gray-500">
-              이메일 인증을 완료하신 후 로그인할 수 있습니다.
-            </p>
+          <div className="flex flex-col items-center text-center space-y-5 py-4">
+            {/* 상태 아이콘 */}
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-gray-700"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+
+            {/* 메시지 */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-900">
+                인증 메일을 보냈습니다
+              </p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                입력하신 이메일로 인증 메일을 발송했습니다.<br />
+                인증을 완료하신 후 로그인을 진행하실 수 있습니다.
+              </p>
+            </div>
           </div>
         ) : (
+
           <Form loading={loading} onSubmit={handleSubmit}>
             <Input
               label="이메일"

@@ -1,3 +1,4 @@
+// src/app/api/proxy/[...path]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -9,24 +10,71 @@ async function proxy(request: NextRequest) {
   const targetPath = pathname.replace("/api/proxy", "");
   const targetUrl = `${BACKEND_BASE_URL}${targetPath}${search}`;
 
-  console.log("PROXY ROUTE HIT");
+  console.log("\n========== PROXY REQUEST ==========");
   console.log("TARGET URL:", targetUrl);
+  console.log("METHOD:", request.method);
 
+  // 🔥 쿠키 헤더 생성
+  const cookies = request.cookies.getAll();
+  const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join("; ");
+
+  console.log("REQUEST COOKIES:", cookies);
+  console.log("COOKIE HEADER:", cookieHeader);
+
+  // 🔥 필요한 헤더만 선택적으로 전달
+  const headers: HeadersInit = {
+    "Content-Type": request.headers.get("content-type") || "application/json",
+  };
+
+  if (cookieHeader) {
+    headers["Cookie"] = cookieHeader;
+  }
+
+  // 🔥 body 처리
+  let body: string | undefined;
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    body = await request.text();
+    console.log("REQUEST BODY:", body);
+  }
+
+  // 백엔드 요청
   const response = await fetch(targetUrl, {
     method: request.method,
-    headers: request.headers,
-    body:
-      request.method === "GET" || request.method === "HEAD"
-        ? undefined
-        : request.body,
-    duplex: "half", // 이것이 핵심
+    headers,
+    body,
     credentials: "include",
   });
 
-  return new NextResponse(response.body, {
+  console.log("RESPONSE STATUS:", response.status);
+
+  // 🔥 응답 본문 읽기
+  const responseBody = await response.text();
+  console.log("RESPONSE BODY:", responseBody);
+
+  // 🔥 응답 생성
+  const result = new NextResponse(responseBody, {
     status: response.status,
-    headers: response.headers,
+    headers: {
+      "Content-Type": response.headers.get("content-type") || "application/json",
+    },
   });
+
+  // 🔥 Set-Cookie 헤더 처리 (중요!)
+  const setCookieHeaders = response.headers.getSetCookie?.() || [];
+  console.log("SET-COOKIE FROM BACKEND:", setCookieHeaders);
+
+  if (setCookieHeaders.length > 0) {
+    setCookieHeaders.forEach((cookie) => {
+      result.headers.append("Set-Cookie", cookie);
+      console.log("✅ FORWARDING SET-COOKIE:", cookie);
+    });
+  } else {
+    console.log("⚠️ NO SET-COOKIE HEADERS");
+  }
+
+  console.log("========== END PROXY ==========\n");
+
+  return result;
 }
 
 export async function GET(req: NextRequest) {
