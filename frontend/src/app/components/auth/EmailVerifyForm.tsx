@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Button from "@/app/components/ui/button/Button";
-import Input from "@/app/components/ui/form/Input";
-import { sendVerifyEmail } from "@/lib/rest/auth.rest";
+import Input from "../ui/input/Input";
+import { sendVerifyEmail } from "../../../lib/rest/auth/auth.rest";
 
 export default function EmailVerifyForm() {
   const [email, setEmail] = useState("");

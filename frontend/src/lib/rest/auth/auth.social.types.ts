@@ -8,3 +8,4 @@ export interface SocialLoginWindowOptions {
   height?: number;
   name?: string;
 }
+=

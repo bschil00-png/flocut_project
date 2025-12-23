@@ -7,11 +7,11 @@ import { useAuthActions } from "@/hooks/useAuthActions";
 // UI 컴포넌트
 import Card from "@/app/components/ui/card/Card";
 import Form from "@/app/components/ui/form/Form";
-import Input from "@/app/components/ui/form/Input";
+import Input from "../ui/input/Input";
 import Button from "@/app/components/ui/button/Button";
 
 // 소셜 로그인 핸들러
-import { googleLoginHandler } from "@/lib/rest/auth.social";
+import { googleLoginHandler } from "../../../lib/rest/auth/auth.social";
 
 export default function LoginForm() {
     const router = useRouter();

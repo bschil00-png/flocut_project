@@ -1,19 +1,25 @@
 "use client";
 
+import { ReactNode } from "react";
+import { Provider as ReduxProvider } from "react-redux";
+import { ThemeProvider } from "next-themes";
+import { ApolloProvider } from "@apollo/client/react";
 
-import {ReactNode} from "react";
-import {Provider as ReduxProvider} from "react-redux";
-import {ThemeProvider} from "next-themes";
-import {Toaster} from "sonner";
+import { index as store } from "@/store";
+import { apolloClient } from "@/lib/apollo/clients";
+import { AuthProvider } from "@/provider/AuthProvider";
+import useInitUITheme from "@/hooks/ui/useInitUITheme";
 
-import {apolloClient} from "@/lib/apollo/clients";
-import {ApolloProvider} from "@apollo/client/react";
-import {index as store} from "@/store";
-import {AuthProvider} from "@/provider/AuthProvider";
+function UIInitializer() {
+    // 앱 시작 시 UI 테마 초기화
+    useInitUITheme();
+    return null;
+}
 
-export function Providers({children}: { children: ReactNode }) {
+export function Providers({ children }: { children: ReactNode }) {
     return (
         <ReduxProvider store={store}>
+            <UIInitializer />
             <AuthProvider>
                 <ApolloProvider client={apolloClient}>
                     <ThemeProvider
@@ -22,7 +28,6 @@ export function Providers({children}: { children: ReactNode }) {
                         enableSystem
                     >
                         {children}
-                        <Toaster position="top-right" richColors/>
                     </ThemeProvider>
                 </ApolloProvider>
             </AuthProvider>

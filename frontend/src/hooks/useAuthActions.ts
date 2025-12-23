@@ -1,6 +1,6 @@
 import {useDispatch} from "react-redux";
 import {setAuthUser, clearAuth} from "@/store/slice/authSlice";
-import * as authRest from "@/lib/rest/auth.rest";
+import * as authRest from "../lib/rest/auth/auth.rest";
 import {useCallback} from "react";
 // 인증 관련 행위를 하나의 인터페이스로 제공
 //  컴포넌트는 api나 리덕스를 알 필요가 없음
