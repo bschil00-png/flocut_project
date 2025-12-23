@@ -48,6 +48,7 @@ public class AuthController {
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .name(request.getName())
+                .tel(request.getTel())
                 .status(MemberStatus.READY)
                 .emailVerified(false)
                 .emailVerifyToken(UUID.randomUUID().toString())
