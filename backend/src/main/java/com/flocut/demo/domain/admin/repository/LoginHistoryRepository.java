@@ -8,5 +8,6 @@ import java.util.List;
 public interface LoginHistoryRepository
         extends JpaRepository<LoginHistory, Long> {
 
-    List<LoginHistory> findByMemberIdOrderByLoginDateDesc(Long memberId);
+    List<LoginHistory> findByMember_MemberIdOrderByLoginDateDesc(Long memberId);
+
 }

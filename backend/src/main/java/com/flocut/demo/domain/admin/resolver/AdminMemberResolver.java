@@ -1,6 +1,7 @@
 package com.flocut.demo.domain.admin.resolver;
 
 import com.flocut.demo.domain.admin.dto.response.AdminLoginHistoryResponseDTO;
+import com.flocut.demo.domain.admin.dto.response.AdminMemberPageDTO;
 import com.flocut.demo.domain.admin.dto.response.AdminMemberResponseDTO;
 import com.flocut.demo.domain.admin.service.AdminMemberService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class AdminMemberResolver {
 
     // 1️⃣ 관리자 회원 목록 조회
     @QueryMapping
-    public AdminMemberPage adminMembers(
+    public AdminMemberPageDTO adminMembers(
             @Argument int page,
             @Argument int size
     ) {
@@ -40,7 +41,7 @@ public class AdminMemberResolver {
         Page<AdminMemberResponseDTO> result =
                 adminMemberService.getMembers(page, size);
 
-        return new AdminMemberPage(
+        return new AdminMemberPageDTO(
                 result.getContent(),
                 result.getTotalElements(),
                 result.getTotalPages(),
