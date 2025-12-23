@@ -1,5 +1,6 @@
 package com.flocut.demo.domain.member.service;
 
+import com.flocut.demo.domain.member.dto.ResponseDTO.MemberProfileResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.repository.MemberRepository;
@@ -80,6 +81,36 @@ public class MemberService {
 
         return member;
     }
+    public MemberProfileResponseDTO getMyProfile() {
+
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new IllegalStateException("인증 정보 없음");
+        }
+
+        String email = auth.getName();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("회원 없음"));
+
+        if (member.getStatus() == MemberStatus.DELETED) {
+            throw new IllegalStateException("탈퇴한 회원입니다.");
+        }
+
+        return new MemberProfileResponseDTO(
+                member.getMemberId(),
+                member.getEmail(),
+                member.getName(),
+                member.getTel(),
+                member.getProfileImage()
+        );
+    }
+
+
+
+
     @Transactional
     public void updateMyProfile(
             String name,

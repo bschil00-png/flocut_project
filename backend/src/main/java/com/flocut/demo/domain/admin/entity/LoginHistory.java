@@ -1,5 +1,6 @@
 package com.flocut.demo.domain.admin.entity;
 
+import com.flocut.demo.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,14 @@ public class LoginHistory {
     @Column(name = "login_history_id", nullable = false)
     private Long loginHistoryId;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    // 🔥 FK 연관관계
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "member_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_login_history_member")
+    )
+    private Member member;
 
     @Column(name = "ip", nullable = false)
     private String ip;
@@ -30,17 +37,13 @@ public class LoginHistory {
     private LocalDateTime loginDate;
 
 
-
-
-
-
     public static LoginHistory create(
-            Long memberId,
+            Member member,
             String ip,
             String device
     ) {
         LoginHistory history = new LoginHistory();
-        history.memberId = memberId;
+        history.member = member;
         history.loginDate = LocalDateTime.now();
         history.ip = ip;
         history.device = device;

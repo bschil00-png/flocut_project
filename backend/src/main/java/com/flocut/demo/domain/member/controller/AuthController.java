@@ -78,7 +78,7 @@ public class AuthController {
             );
             loginHistoryRepository.save(
                     LoginHistory.create(
-                            member.getMemberId(),
+                            member,
                             httpRequest.getRemoteAddr(),
                             httpRequest.getHeader("User-Agent")
                     )

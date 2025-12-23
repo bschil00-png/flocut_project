@@ -87,15 +87,6 @@ public class GoogleOAuthService {
 
         // 3️⃣ 회원 조회 / 자동 가입
         Member member = memberRepository.findByEmail(email)
-//                // 🔥 기존 회원이 READY라면 ACTIVE로 승격
-//                .map(existing -> {
-//                    if (existing.getStatus() != MemberStatus.ACTIVE) {
-//                        existing.setStatus(MemberStatus.ACTIVE);
-//                        existing.setEmailVerified(true);
-//                        return memberRepository.save(existing);
-//                    }
-//                    return existing;
-//                })
                 .orElseGet(() -> memberRepository.save(
                         Member.builder()
                                 .email(email)
@@ -107,7 +98,7 @@ public class GoogleOAuthService {
                 ));
         loginHistoryRepository.save(
                 LoginHistory.create(
-                        member.getMemberId(),
+                        member,
                         null,
                         "GOOGLE_LOGIN"
                 )

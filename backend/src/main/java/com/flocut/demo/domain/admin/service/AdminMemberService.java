@@ -68,11 +68,11 @@ public class AdminMemberService {
         saveAdminLog(memberId, "ROLE_CHANGE", before.name(), role.name(), reason);
     }
 
-    // 5️⃣ 로그인 이력 조회 (예시)
+    // 5️⃣ 로그인 이력 조회
     public List<AdminLoginHistoryResponseDTO> getLoginHistory(Long memberId) {
         // 로그인 이력 테이블 생긴 뒤 구현
         return loginHistoryRepository
-                .findByMemberIdOrderByLoginDateDesc(memberId)
+                .findByMember_MemberIdOrderByLoginDateDesc(memberId)
                 .stream()
                 .map(h -> new AdminLoginHistoryResponseDTO(
                         h.getLoginDate().toLocalDate(),
