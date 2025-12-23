@@ -55,10 +55,12 @@ public class AuthController {
                 .build();
 
         Member saved = memberService.register(member);
+        System.out.println("REGISTER TEL = [" + request.getTel() + "]");
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(memberMapper.toDto(saved));
+
     }
 
 
