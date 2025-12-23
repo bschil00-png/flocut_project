@@ -36,6 +36,7 @@ export interface MemberRegisterRequest {
   email: string;
   password: string;
   name: string;
+  tel?: string;
   agreeTerms: boolean;
   profileImage?: string;
 }
