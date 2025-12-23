@@ -246,18 +246,18 @@ public class AuthController {
     // =========================
     // 로그인 유지 확인
     // =========================
-    @GetMapping("/me")
-    public ResponseEntity<?> me(Authentication authentication) {
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("로그인이 필요합니다.");
-        }
-
-        String email = authentication.getName();
-        Member member = memberService.findByEmail(email);
-
-        return ResponseEntity.ok(memberMapper.toDto(member));
-    }
+//    @GetMapping("/me")
+//    public ResponseEntity<?> me(Authentication authentication) {
+//
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            return ResponseEntity
+//                    .status(HttpStatus.UNAUTHORIZED)
+//                    .body("로그인이 필요합니다.");
+//        }
+//
+//        String email = authentication.getName();
+//        Member member = memberService.findByEmail(email);
+//
+//        return ResponseEntity.ok(memberMapper.toDto(member));
+//    }
 }
