@@ -1,12 +1,17 @@
 package com.flocut.demo.domain.member.service;
 
+import com.flocut.demo.domain.member.dto.ResponseDTO.MemberProfileResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.repository.MemberRepository;
 import com.flocut.demo.global.email.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+
 
 import java.util.UUID;
 
@@ -52,6 +57,14 @@ public class MemberService {
         //RuntimeException은 너무 포괄적인 오류 IllegalArgumentException은 잘못된 파라미터를 던져줬다는 오류
 
 
+        if (member.getStatus() == MemberStatus.DELETED) {
+            throw new IllegalArgumentException("탈퇴한 회원입니다.");
+        }
+
+        if (member.getStatus() == MemberStatus.DISABLED) {
+            throw new IllegalArgumentException("차단된 회원입니다.");
+        }
+
         boolean match = passwordEncoder.matches(password, member.getPassword());
         System.out.println("비밀번호 비교 결과 = " + match);
 
@@ -68,14 +81,92 @@ public class MemberService {
 
         return member;
     }
+    public MemberProfileResponseDTO getMyProfile() {
 
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
 
-
-
-        public void test() {
-            System.out.println(passwordEncoder.encode("12345678"));
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new IllegalStateException("인증 정보 없음");
         }
 
+        String email = auth.getName();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("회원 없음"));
+
+        if (member.getStatus() == MemberStatus.DELETED) {
+            throw new IllegalStateException("탈퇴한 회원입니다.");
+        }
+
+        return new MemberProfileResponseDTO(
+                member.getMemberId(),
+                member.getEmail(),
+                member.getName(),
+                member.getTel(),
+                member.getProfileImage()
+        );
+    }
+
+
+
+
+    @Transactional
+    public void updateMyProfile(
+            String name,
+            String tel,
+            String profileImage
+    ) {
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = auth.getName();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("회원 없음"));
+
+        // 🔹 null이 아닌 것만 수정
+        if (name != null && !name.isBlank()) {
+            member.setName(name);
+        }
+
+        if (tel != null) {
+            member.setTel(tel);
+        }
+
+        if (profileImage != null) {
+            member.setProfileImage(profileImage);
+        }
+
+    }
+
+    @Transactional
+    public void deleteMyAccount() {
+
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new IllegalStateException("인증 정보 없음");
+        }
+
+        String email = auth.getName();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("회원 없음"));
+
+        // 이미 탈퇴한 경우 방어
+        if (member.getStatus() == MemberStatus.DELETED) {
+            return;
+        }
+
+        // 🔥 소프트 삭제
+        member.setStatus(MemberStatus.DELETED);
+
+        // 선택: 개인정보 최소화 (권장)
+        member.setTel(null);
+        member.setProfileImage(null);
+    }
 
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)

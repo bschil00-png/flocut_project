@@ -19,6 +19,8 @@ public class MemberRegisterRequestDTO {
     @NotBlank
     private String name;
 
+    private String tel;
+
     @AssertTrue(message = "약관 동의는 필수입니다.")
     private boolean agreeTerms;
 

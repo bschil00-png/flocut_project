@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.*;
 
 import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -26,23 +27,23 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // JWT 기반 인증이므로 CSRF 비활성화
+                // JWT 기반 → CSRF 비활성화
                 .csrf(csrf -> csrf.disable())
 
-                // Next.js와 통신용 CORS
+                // CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // 세션 안 씀 (JWT)
+                // 세션 미사용
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // CORS preflight
+                        // Preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 인증 없이 접근해야 하는 엔드포인트
+                        // 인증 없이 접근
                         .requestMatchers(
                                 "/auth/register",
                                 "/auth/login",
@@ -50,16 +51,22 @@ public class SecurityConfig {
                                 "/auth/refresh",
                                 "/auth/verify",
                                 "/auth/me",
+                                "/auth/google/**"
+                        ).permitAll()
 
-                                //  커스텀 구글 로그인
-                                "/auth/google/**",
-
-                                "/graphql/**",
+                        // GraphiQL (개발용 UI)
+                        .requestMatchers(
+                                "/graphiql",
                                 "/graphiql/**"
                         ).permitAll()
+
+                        // 🔒 GraphQL 엔드포인트는 인증 필수
+                        .requestMatchers("/graphql").authenticated()
+
+                        // 🔒 관리자 REST API
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // 그 외는 JWT 필요
+                        // 그 외
                         .anyRequest().authenticated()
                 );
 

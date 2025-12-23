@@ -14,5 +14,5 @@ public class MemberProfileResponseDTO {
     private String name;                // 이름
     private String tel;                 // 전화번호
     private String profileImage;        // 프로필
-    private List<ProviderInfoDTO> providerList; // 소셜 연동 목록
+//    private List<ProviderInfoDTO> providerList; // 소셜 연동 목록
 }

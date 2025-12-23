@@ -33,19 +33,20 @@ public class JwtUtil {
 //                .compact();
 //    }
 
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(String email, String role) {
 //        return createToken(email, 1000 * 60 * 15); // 15분
-        return createToken(email, 1000 * 60 * 1);
+        return createToken(email, role, 1000 * 60 * 5);
     }
 
-    public String generateRefreshToken(String email) {
+    public String generateRefreshToken(String email, String role) {
 //        return createToken(email, 1000 * 60 * 60 * 24 * 7); // 7일
-        return createToken(email, 1000 * 60 * 20 );
+        return createToken(email, role, 1000 * 60 * 20 );
     }
 
-    private String createToken(String email, long expireMs) {
+    private String createToken(String email, String role, long expireMs) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim("role", role) // 🔥 핵심
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expireMs))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -80,5 +81,18 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
+    }
+
+    // 🔥 role 추출
+    public String getRoleFromToken(String token) {
+        return getClaims(token).get("role", String.class);
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

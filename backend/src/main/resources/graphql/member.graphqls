@@ -1,0 +1,106 @@
+# ========================
+# 회원 / 인증 / 마이페이지
+# GraphQL Schema
+# ========================
+
+"""
+회원 상태
+"""
+enum MemberStatus {
+  READY
+  ACTIVE
+  DISABLED
+  DELETED
+}
+
+"""
+회원 기본 정보 (인증 / 헤더 / 권한 체크)
+"""
+type Member {
+  memberId: ID!
+  email: String!
+  name: String!
+  profileImage: String
+  status: MemberStatus!
+  regdate: String!
+}
+
+"""
+로그인 히스토리
+"""
+type LoginHistory {
+  loginHistoryId: ID!
+  ip: String!
+  device: String!
+  loginDate: String!
+}
+
+"""
+마이페이지 - 문서 아이템
+"""
+type MyPageDocument {
+  fileId: ID!
+  fileName: String!
+  uploadDate: String!
+}
+
+"""
+마이페이지 - 음성 아이템
+"""
+type MyPageAudio {
+  fileId: ID!
+  durationSec: Int!
+}
+
+"""
+마이페이지 - 비교 아이템
+"""
+type MyPageCompare {
+  compareRequestId: ID!
+  regdate: String!
+}
+
+"""
+마이페이지 - 세션 아이템
+"""
+type MyPageSession {
+  sessionId: ID!
+  sessionTitle: String!
+}
+
+"""
+마이페이지 전체 응답
+"""
+type MyPageOverview {
+  documents: [MyPageDocument!]!
+  audios: [MyPageAudio!]!
+  compares: [MyPageCompare!]!
+  sessions: [MyPageSession!]!
+  totalDocumentCount: Int!
+  totalAudioCount: Int!
+  totalCompareCount: Int!
+}
+
+"""
+Query 정의
+"""
+type Query {
+
+  """
+  현재 로그인된 사용자 정보
+  - 헤더 표시
+  - 권한 체크
+  - 프론트 상태 초기화
+  """
+  me: Member!
+
+  """
+  마이페이지 대시보드 데이터
+  """
+  myPage: MyPageOverview!
+
+  """
+  로그인 히스토리 조회
+  """
+  loginHistory: [LoginHistory!]!
+}
