@@ -118,7 +118,7 @@ export default function SignupForm() {
 
                         <Input
                             label="전화번호"
-                            // placeholder="전화번호를 입력해주세요"
+                            placeholder="일단 선택"
                             value={form.tel ?? ""}
                             onChange={handleChange("tel")}
                         />
