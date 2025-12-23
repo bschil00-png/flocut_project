@@ -2,15 +2,9 @@ package com.flocut.demo.domain.admin.controller;
 
 import com.flocut.demo.domain.admin.dto.request.AdminMemberRoleUpdateRequest;
 import com.flocut.demo.domain.admin.dto.request.AdminMemberStatusUpdateRequest;
-import com.flocut.demo.domain.admin.dto.request.AdminTwoFactorResetRequest;
-import com.flocut.demo.domain.admin.dto.response.AdminLoginHistoryResponseDTO;
-import com.flocut.demo.domain.admin.dto.response.AdminMemberResponseDTO;
 import com.flocut.demo.domain.admin.service.AdminMemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/members")

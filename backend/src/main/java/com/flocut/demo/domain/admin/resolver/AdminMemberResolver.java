@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -17,11 +19,24 @@ public class AdminMemberResolver {
 
     private final AdminMemberService adminMemberService;
 
+    // 🔒 공통 관리자 권한 체크
+    private void checkAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new RuntimeException("관리자 권한 필요");
+        }
+    }
+
+    // 1️⃣ 관리자 회원 목록 조회
     @QueryMapping
     public AdminMemberPage adminMembers(
             @Argument int page,
             @Argument int size
     ) {
+        checkAdmin(); // 🔥 핵심
+
         Page<AdminMemberResponseDTO> result =
                 adminMemberService.getMembers(page, size);
 
@@ -33,10 +48,12 @@ public class AdminMemberResolver {
         );
     }
 
+    // 2️⃣ 관리자 로그인 이력 조회
     @QueryMapping
     public List<AdminLoginHistoryResponseDTO> adminLoginHistory(
             @Argument Long memberId
     ) {
+        checkAdmin(); // 🔥 핵심
         return adminMemberService.getLoginHistory(memberId);
     }
 }
