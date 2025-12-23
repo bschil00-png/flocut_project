@@ -19,14 +19,15 @@ export const UPLOAD_DOCUMENT_MUTATION = gql`
 
 //  문서요약 생성 요청
 //  기존요약이 있어도 항상 새 summaty 생성
-export const CREATE_DOCUMENT_MUTATION = gql`
-  mutation createDocument(
-  $file: Long!,
-  $sessionId: Long!
-  $roundNo: Int!
-  $option: String!
-  $topic: String!
-  ) createDocumentSummary(
+export const CREATE_DOCUMENT_SUMMARY_MUTATION = gql`
+  mutation createDocumentSummary(
+    $fileId: Long!
+    $sessionId: Long!
+    $roundNo: Int!
+    $option: String
+    $topic: String
+  ) {
+    createDocumentSummary(
       fileId: $fileId
       sessionId: $sessionId
       roundNo: $roundNo

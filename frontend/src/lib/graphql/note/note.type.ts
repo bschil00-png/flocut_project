@@ -64,3 +64,16 @@ export interface NoteUpdateInput {
     content?: string;        // 본문 수정
     status?: NoteStatus;     // 상태 변경
 }
+
+// 아직 DB에 저장되지 않은 임시 노트
+// compare 결과, 요약 결과 미리보기 용도
+// 프론트 상태
+export interface NoteDraft {
+    title: string;
+    content: string;
+
+    sourceType: "COMPARE" | "DOCUMENT" | "AUDIO";
+    sourceId: number;
+
+    sessionId: number;
+}
