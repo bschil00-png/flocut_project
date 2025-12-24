@@ -37,5 +37,6 @@ public class MemberResolver {
     @QueryMapping
     public MemberProfileResponseDTO me() {
         return memberService.getMyProfile();
+
     }
 }

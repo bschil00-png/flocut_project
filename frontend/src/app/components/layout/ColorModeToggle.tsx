@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 type ColorTheme = "pink" | "blue" | "navy";
 
-export default function DarkModeToggle() {
+export default function ColorModeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [color, setColor] = useState<ColorTheme>("pink");

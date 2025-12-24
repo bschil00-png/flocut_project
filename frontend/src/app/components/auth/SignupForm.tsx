@@ -3,11 +3,11 @@
 import {useCallback, useState} from "react";
 import Card from "@/app/components/ui/card/Card";
 import Form from "@/app/components/ui/form/Form";
-import Input from "@/app/components/ui/form/Input";
+import Input from "../ui/input/Input";
 import Checkbox from "@/app/components/ui/form/Checkbox";
 import Button from "@/app/components/ui/button/Button";
 import {MemberRegisterRequest} from "@/app/api/auth/auth.types";
-import {register} from "@/lib/rest/auth.rest";
+import {register} from "../../../lib/rest/auth/auth.rest";
 
 export default function SignupForm() {
     // 서버로 보낼 데이터

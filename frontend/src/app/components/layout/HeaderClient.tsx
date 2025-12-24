@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import Link from "next/link";
 import { useAuthActions } from "@/hooks/useAuthActions";
-import DarkModeToggle from "./DarkModeToggle";
+import ColorModeToggle from "./ColorModeToggle";
 import {useAuthState} from "@/hooks/useAuthState";
 
 
@@ -72,8 +72,8 @@ export default function HeaderClient() {
           </Link>
         </>
       )}
-
-      <DarkModeToggle />
+      {/*테스트 용*/}
+      {/*<ColorModeToggle />*/}
     </div>
   );
 }
