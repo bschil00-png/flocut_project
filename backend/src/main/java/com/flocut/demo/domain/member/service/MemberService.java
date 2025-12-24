@@ -24,22 +24,22 @@ public class MemberService {
     private final EmailService emailService;
 
     public Member register(Member member) {
-        // ✅ 1) 이메일 중복 체크
+        //   이메일 중복 체크
         memberRepository.findByEmail(member.getEmail())
                 .ifPresent(m -> {
                     throw new RuntimeException("이미 사용 중인 이메일입니다.");
                 });
 
-        // ✅ 2) 비밀번호 암호화
+        //  비밀번호 암호화
         member.setPassword(passwordEncoder.encode(member.getPassword()));
 
-        // ✅ 3) 이메일 인증 관련 값 설정
+        //  이메일 인증 관련 값 설정
         member.setEmailVerified(false);                        // 처음은 미인증 상태
         member.setEmailVerifyToken(UUID.randomUUID().toString());   // 랜덤 토큰 생성
 
         Member saved = memberRepository.save(member);
 
-        // 📩 이메일 발송
+        //  이메일 발송
         emailService.sendVerificationEmail(saved.getEmail(), saved.getEmailVerifyToken());
         System.out.println("=== REGISTER SERVICE CALLED ===");
 
