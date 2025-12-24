@@ -1,6 +1,5 @@
 # ========================
 # 회원 / 인증 / 마이페이지
-# GraphQL Schema
 # ========================
 
 """
@@ -14,7 +13,7 @@ enum MemberStatus {
 }
 
 """
-회원 기본 정보 (인증 / 헤더 / 권한 체크)
+회원 기본 정보
 """
 type Member {
   memberId: ID!
@@ -81,16 +80,14 @@ type MyPageOverview {
   totalCompareCount: Int!
 }
 
-"""
-Query 정의
-"""
-type Query {
+# ========================
+# Queries (EXTEND)
+# ========================
+
+extend type Query {
 
   """
   현재 로그인된 사용자 정보
-  - 헤더 표시
-  - 권한 체크
-  - 프론트 상태 초기화
   """
   me: Member!
 
