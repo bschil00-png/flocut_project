@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class SessionUpdateRequestDTO {
-    private Long sessionId;
     private String sessionTitle;
     private String description;
 }

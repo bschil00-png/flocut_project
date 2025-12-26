@@ -60,6 +60,8 @@ public class SecurityConfig {
                                 "/graphiql/**"
                         ).permitAll()
 
+
+                        .requestMatchers("/api/sessions/**").authenticated()
                         // 🔒 GraphQL 엔드포인트는 인증 필수
                         .requestMatchers("/graphql").authenticated()
 

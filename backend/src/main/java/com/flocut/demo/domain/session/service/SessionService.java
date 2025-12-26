@@ -86,9 +86,10 @@ public class SessionService {
      */
     public SessionResponseDTO updateSession(
             Long memberId,
+            Long sessionId,
             SessionUpdateRequestDTO dto
     ) {
-        Session session = sessionRepository.findById(dto.getSessionId())
+        Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
 
         validateOwner(session, memberId);

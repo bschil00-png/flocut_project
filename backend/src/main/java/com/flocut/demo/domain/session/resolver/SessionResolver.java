@@ -2,16 +2,12 @@ package com.flocut.demo.domain.session.resolver;
 
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.service.MemberService;
-import com.flocut.demo.domain.session.dto.request.SessionCreateRequestDTO;
-import com.flocut.demo.domain.session.dto.request.SessionDeleteRequestDTO;
-import com.flocut.demo.domain.session.dto.request.SessionUpdateRequestDTO;
-import com.flocut.demo.domain.session.dto.response.SessionDeleteResponseDTO;
+
 import com.flocut.demo.domain.session.dto.response.SessionDetailResponseDTO;
 import com.flocut.demo.domain.session.dto.response.SessionResponseDTO;
 import com.flocut.demo.domain.session.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -25,16 +21,14 @@ public class SessionResolver {
     private final SessionService sessionService;
     private final MemberService memberService;
 
-    /* =========================
-       Query
-       ========================= */
-
+    // 세션 목록 조회
     @QueryMapping
     public List<SessionResponseDTO> sessions(Authentication authentication) {
         Member member = memberService.findByEmail(authentication.getName());
         return sessionService.getMySessions(member.getMemberId());
     }
 
+    //세션 상세 조회
     @QueryMapping
     public SessionDetailResponseDTO session(
             @Argument Long sessionId,
@@ -46,46 +40,4 @@ public class SessionResolver {
                 sessionId
         );
     }
-
-    /* =========================
-       Mutation
-       ========================= */
-
-    @MutationMapping
-    public SessionResponseDTO createSession(
-            @Argument SessionCreateRequestDTO input,
-            Authentication authentication
-    ) {
-        Member member = memberService.findByEmail(authentication.getName());
-        return sessionService.createSession(
-                member.getMemberId(),
-                input
-        );
-    }
-
-    @MutationMapping
-    public SessionResponseDTO updateSession(
-            @Argument SessionUpdateRequestDTO input,
-            Authentication authentication
-    ) {
-        Member member = memberService.findByEmail(authentication.getName());
-        return sessionService.updateSession(
-                member.getMemberId(),
-                input
-        );
-    }
-
-    @MutationMapping
-    public SessionDeleteResponseDTO deleteSession(
-            @Argument SessionDeleteRequestDTO input,
-            Authentication authentication
-    ) {
-        Member member = memberService.findByEmail(authentication.getName());
-
-        return sessionService.deleteSession(
-                member.getMemberId(),
-                input
-        );
-    }
-
 }
