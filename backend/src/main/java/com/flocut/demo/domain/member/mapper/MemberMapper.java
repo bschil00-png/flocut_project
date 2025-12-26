@@ -9,6 +9,11 @@ import org.mapstruct.Mapping;
 public interface MemberMapper {
 
     // Entity -> DTO
+
+    @Mapping(
+            target = "role",
+            expression = "java(member.getRole() != null ? member.getRole().name() : null)"
+    )
     @Mapping(target = "status", expression = "java(member.getStatus() != null ? member.getStatus().name() : null)")
     @Mapping(target = "regdate", expression = "java(member.getRegdate() != null ? member.getRegdate().toString() : null)")
     @Mapping(target = "moddate", expression = "java(member.getModdate() != null ? member.getModdate().toString() : null)")

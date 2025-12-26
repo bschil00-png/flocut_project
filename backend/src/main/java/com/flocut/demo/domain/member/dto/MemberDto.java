@@ -17,5 +17,5 @@ public class MemberDto {
     private Boolean emailVerified;
     private String regdate;
     private String moddate;
-    private UserRole role;
+    private String role;
 }
