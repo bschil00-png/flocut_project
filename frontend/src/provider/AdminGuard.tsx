@@ -1,49 +1,46 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthActions } from "@/hooks/useAuthActions";
 import { useAuthState } from "@/hooks/useAuthState";
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
-    const { ensureAuth } = useAuthActions();
-    const { user, loading } = useAuthState();
-    const router = useRouter();
+  const { ensureAuth } = useAuthActions();
+  const { user, loading } = useAuthState();
+  const router = useRouter();
 
-    // 최초 1회 인증 동기화
-    useEffect(() => {
-        ensureAuth();
-    }, []);
+  // ensureAuth가 한 번만 실행되도록 ref 사용
+  const initializedRef = useRef(false);
 
-    // 상태 변화 감지 후 라우팅 처리
-    useEffect(() => {
-        if (loading) return;
+  useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
 
-        if (!user) {
-            router.replace("/login");
-            return;
-        }
+    ensureAuth();
+  }, [ensureAuth]);
 
-        if (user.role !== "ADMIN") {
-            router.replace("/403");
-            return;
-        }
-    }, [loading, user, router]);
+  // 아직 인증 확인 중
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        권한 확인 중...
+      </div>
+    );
+  }
 
-    // 로딩 중
-    if (loading) {
-        return (
-            <div className="h-screen flex items-center justify-center">
-                권한 확인 중...
-            </div>
-        );
-    }
+  // 비로그인
+  if (!user) {
+    router.replace("/login");
+    return null;
+  }
 
-    // 리다이렉트 대기 중
-    if (!user || user.role !== "ADMIN") {
-        return null;
-    }
+  // 관리자 아님
+  if (user.role !== "ADMIN") {
+    router.replace("/403");
+    return null;
+  }
 
-    // 통과
-    return <>{children}</>;
+  // 통과
+  return <>{children}</>;
 }

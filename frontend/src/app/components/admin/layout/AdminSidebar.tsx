@@ -3,6 +3,24 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import {LayoutDashboard, Users} from "lucide-react";
+import Link from "next/link";
+
+// 어드민 사이드바 메뉴 정의
+// href 기준으로 active 상태 판단
+const adminNavItems = [
+  {
+    label: "Dashboard",
+    href: "/admin/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Members",
+    href: "/admin/members",
+    icon: Users,
+  },
+];
+
 
 export default function AdminSidebar() {
     const pathname = usePathname();
@@ -24,28 +42,28 @@ export default function AdminSidebar() {
 
             {/* 메뉴 */}
             <nav className="flex-1 px-4 py-4 space-y-1">
-              {/*  {adminNavItems.map((item) => {*/}
-              {/*      const active = pathname.startsWith(item.href);*/}
+                {adminNavItems.map((item) => {
+                    const active = pathname.startsWith(item.href);
 
-              {/*      return (*/}
-              {/*          <Link*/}
-              {/*              key={item.href}*/}
-              {/*              href={item.href}*/}
-              {/*              className={`*/}
-              {/*  flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium*/}
-              {/*  transition-colors*/}
-              {/*  ${*/}
-              {/*                  active*/}
-              {/*                      ? "bg-gray-100 text-gray-900"*/}
-              {/*                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"*/}
-              {/*              }*/}
-              {/*`}*/}
-              {/*          >*/}
-              {/*              <item.icon className="w-[18px] h-[18px]" />*/}
-              {/*              {item.label}*/}
-              {/*          </Link>*/}
-              {/*      );*/}
-              {/*  })}*/}
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`
+                flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                transition-colors
+                ${
+                                active
+                                    ? "bg-gray-100 text-gray-900"
+                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            }
+              `}
+                        >
+                            <item.icon className="w-[18px] h-[18px]" />
+                            {item.label}
+                        </Link>
+                    );
+                })}
             </nav>
 
             {/* 하단 사용자 */}
