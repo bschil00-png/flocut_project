@@ -23,6 +23,7 @@ export function useAuthActions() {
         memberId: me.memberId,
         email: me.email,
         name: me.name,
+        role: me.role,
       })
     );
   }

@@ -1,6 +1,5 @@
 package com.flocut.demo.domain.member.dto;
 
-import com.flocut.demo.domain.member.entity.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +16,4 @@ public class MemberDto {
     private Boolean emailVerified;
     private String regdate;
     private String moddate;
-    private UserRole role;
 }
