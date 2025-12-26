@@ -82,6 +82,7 @@ public class AdminMemberService {
                 .toList();
     }
 
+    // 요청을 보낸사람이 진짜 관리자인지 검증
     private Long getCurrentAdminId() {
 
         Authentication authentication =

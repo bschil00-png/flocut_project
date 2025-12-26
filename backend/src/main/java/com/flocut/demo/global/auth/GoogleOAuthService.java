@@ -87,15 +87,32 @@ public class GoogleOAuthService {
 
         // 3️⃣ 회원 조회 / 자동 가입
         Member member = memberRepository.findByEmail(email)
-                .orElseGet(() -> memberRepository.save(
-                        Member.builder()
-                                .email(email)
-                                .name(name)
-                                .password(null)
-                                .emailVerified(true)
-                                .status(MemberStatus.ACTIVE)
-                                .build()
-                ));
+                .orElse(null);
+
+        if (member == null) {
+            // ✅ 최초 가입
+            member = memberRepository.save(
+                    Member.builder()
+                            .email(email)
+                            .name(name)
+                            .password(null)
+                            .emailVerified(true)
+                            .status(MemberStatus.ACTIVE)
+                            .build()
+            );
+        } else {
+            // 🔥 기존 회원 상태 분기
+            if (member.getStatus() == MemberStatus.DELETED) {
+                // ✅ 재가입 처리
+                member.reactivate();   // status = ACTIVE
+                memberRepository.save(member);
+            }
+
+            if (member.getStatus() != MemberStatus.ACTIVE) {
+                // 예: SUSPENDED, BLOCKED 등
+                throw new RuntimeException("현재 계정은 로그인할 수 없습니다.");
+            }
+        }
         loginHistoryRepository.save(
                 LoginHistory.create(
                         member,
