@@ -1,5 +1,8 @@
 package com.flocut.demo.global.jwt;
 
+import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.member.entity.MemberStatus;
+import com.flocut.demo.domain.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -19,9 +22,11 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
+    public JwtAuthFilter(JwtUtil jwtUtil, MemberRepository memberRepository) {
         this.jwtUtil = jwtUtil;
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -63,7 +68,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             String email = jwtUtil.getEmailFromToken(token);
             String role = jwtUtil.getRoleFromToken(token);
-            System.out.println("🔥 JWT ROLE = " + role);
+
+            Member member = memberRepository.findByEmail(email)
+                    .orElse(null);
+
+            if (member == null || member.getStatus() != MemberStatus.ACTIVE) {
+                //  인증 세팅 안 함 → 사실상 차단
+                filterChain.doFilter(request, response);
+                return;
+            }
+
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(

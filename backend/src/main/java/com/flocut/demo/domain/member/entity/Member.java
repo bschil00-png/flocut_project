@@ -74,4 +74,8 @@ public class Member {
     public void onUpdate() {
         this.moddate = LocalDate.now();
     }
+
+    public void reactivate() {
+        this.status = MemberStatus.ACTIVE;
+    }
 }
