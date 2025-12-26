@@ -9,16 +9,15 @@ import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.entity.UserRole;
 import com.flocut.demo.domain.member.repository.MemberRepository;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -30,23 +29,39 @@ public class AdminMemberService {
     private final AdminActionLogRepository adminActionLogRepository;
     private final LoginHistoryRepository loginHistoryRepository;
 
-    // 1️⃣ 회원 목록 조회
-    public Page<AdminMemberResponseDTO> getMembers(int page, int size) {
-        return memberRepository.findAll(
-                PageRequest.of(page, size, Sort.by("regdate").descending())
-        ).map(member ->
-                new AdminMemberResponseDTO(
-                        member.getMemberId(),
-                        member.getEmail(),
-                        member.getName(),
-                        member.getStatus(),
-                        member.getRole(),
-                        member.getRegdate()
+    /**
+     * 1️⃣ 관리자 회원 목록 조회
+     * Page → PageResponseDTO 변환
+     */
+    public PageResponseDTO<AdminMemberResponseDTO> getMembers(int page, int size) {
+
+        Page<Member> result = memberRepository.findAll(
+                PageRequest.of(
+                        page,
+                        size,
+                        Sort.by(Sort.Direction.DESC, "regdate")
                 )
+        );
+
+        List<AdminMemberResponseDTO> content =
+                result.getContent()
+                        .stream()
+                        .map(this::toAdminMemberResponse)
+                        .toList();
+
+        return new PageResponseDTO<>(
+                content,
+                result.getTotalElements(),
+                result.getTotalPages(),
+                result.getNumber(),
+                result.getSize(),
+                result.hasNext()
         );
     }
 
-    // 2️⃣ 회원 상태 변경
+    /**
+     * 2️⃣ 회원 상태 변경
+     */
     @Transactional
     public void updateMemberStatus(Long memberId, MemberStatus status, String reason) {
         Member member = getMember(memberId);
@@ -54,10 +69,18 @@ public class AdminMemberService {
 
         member.setStatus(status);
 
-        saveAdminLog(memberId, "STATUS_CHANGE", before.name(), status.name(), reason);
+        saveAdminLog(
+                memberId,
+                "STATUS_CHANGE",
+                before.name(),
+                status.name(),
+                reason
+        );
     }
 
-    // 3️⃣ 회원 권한 변경
+    /**
+     * 3️⃣ 회원 권한 변경
+     */
     @Transactional
     public void updateMemberRole(Long memberId, UserRole role, String reason) {
         Member member = getMember(memberId);
@@ -65,12 +88,19 @@ public class AdminMemberService {
 
         member.setRole(role);
 
-        saveAdminLog(memberId, "ROLE_CHANGE", before.name(), role.name(), reason);
+        saveAdminLog(
+                memberId,
+                "ROLE_CHANGE",
+                before.name(),
+                role.name(),
+                reason
+        );
     }
 
-    // 5️⃣ 로그인 이력 조회
+    /**
+     * 4️⃣ 관리자 로그인 이력 조회
+     */
     public List<AdminLoginHistoryResponseDTO> getLoginHistory(Long memberId) {
-        // 로그인 이력 테이블 생긴 뒤 구현
         return loginHistoryRepository
                 .findByMember_MemberIdOrderByLoginDateDesc(memberId)
                 .stream()
@@ -82,7 +112,9 @@ public class AdminMemberService {
                 .toList();
     }
 
-    // 요청을 보낸사람이 진짜 관리자인지 검증
+    // ======================
+    // 🔒 관리자 검증 (2차 방어선)
+    // ======================
     private Long getCurrentAdminId() {
 
         Authentication authentication =
@@ -104,7 +136,9 @@ public class AdminMemberService {
         return admin.getMemberId();
     }
 
-    // ===== 공통 메서드 =====
+    // ======================
+    // 🔧 내부 공통 메서드
+    // ======================
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
@@ -117,11 +151,11 @@ public class AdminMemberService {
             String afterValue,
             String reason
     ) {
-        Long adminId = getCurrentAdminId(); // 🔥 핵심
+        Long adminId = getCurrentAdminId(); // 🔥 관리자 재검증
 
         AdminActionLog log = AdminActionLog.create(
-                adminId,                // 관리자
-                targetMemberId,          // 대상 회원
+                adminId,
+                targetMemberId,
                 actionType,
                 beforeValue,
                 afterValue,
@@ -129,5 +163,16 @@ public class AdminMemberService {
         );
 
         adminActionLogRepository.save(log);
+    }
+
+    private AdminMemberResponseDTO toAdminMemberResponse(Member member) {
+        return new AdminMemberResponseDTO(
+                member.getMemberId(),
+                member.getEmail(),
+                member.getName(),
+                member.getStatus(),
+                member.getRole(),
+                member.getRegdate()
+        );
     }
 }
