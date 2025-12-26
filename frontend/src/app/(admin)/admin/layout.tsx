@@ -1,8 +1,6 @@
-// app/(admin)/admin/layout.tsx
 "use client";
 
-import AdminHeader from "@/app/components/layout/admin/AdminHeader";
-import AdminSidebar from "@/app/components/layout/admin/AdminSidebar";
+import AdminSidebar from "@/app/components/admin/layout/AdminSidebar";
 
 export default function AdminLayout({
                                         children,
@@ -10,11 +8,14 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="h-screen flex">
+        <div className="h-screen flex bg-background-light dark:bg-background-dark">
+            {/* 좌측 사이드바 */}
             <AdminSidebar />
-            <div className="flex-1 flex flex-col">
-                <AdminHeader />
-                <main className="flex-1 overflow-y-auto p-6">
+
+            {/* 우측 메인 영역 */}
+            <div className="flex flex-1 flex-col overflow-hidden">
+                {/* 페이지 콘텐츠 */}
+                <main className="flex-1 overflow-y-auto p-8">
                     {children}
                 </main>
             </div>
