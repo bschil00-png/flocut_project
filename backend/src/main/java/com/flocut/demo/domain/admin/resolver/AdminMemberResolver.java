@@ -1,13 +1,12 @@
 package com.flocut.demo.domain.admin.resolver;
 
 import com.flocut.demo.domain.admin.dto.response.AdminLoginHistoryResponseDTO;
-import com.flocut.demo.domain.admin.dto.response.AdminMemberPageDTO;
 import com.flocut.demo.domain.admin.dto.response.AdminMemberResponseDTO;
 import com.flocut.demo.domain.admin.service.AdminMemberService;
 import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.entity.UserRole;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -23,7 +22,7 @@ public class AdminMemberResolver {
 
     private final AdminMemberService adminMemberService;
 
-    // 🔒 공통 관리자 권한 체크
+    // 🔒 1차 방어선: Resolver 레벨 관리자 체크
     private void checkAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -33,65 +32,55 @@ public class AdminMemberResolver {
         }
     }
 
-    //  관리자 회원 목록 조회
+    /**
+     * 관리자 회원 목록 조회
+     */
     @QueryMapping
-    public AdminMemberPageDTO adminMembers(
+    public PageResponseDTO<AdminMemberResponseDTO> adminMembers(
             @Argument int page,
             @Argument int size
     ) {
-        checkAdmin(); // 🔥 핵심
+        checkAdmin(); // 🔥 유지 (중요)
 
-        Page<AdminMemberResponseDTO> result =
-                adminMemberService.getMembers(page, size);
-
-        return new AdminMemberPageDTO(
-                result.getContent(),
-                result.getTotalElements(),
-                result.getTotalPages(),
-                result.getNumber()
-        );
+        return adminMemberService.getMembers(page, size);
     }
 
-    //  관리자 로그인 이력 조회
+    /**
+     * 관리자 로그인 이력 조회
+     */
     @QueryMapping
     public List<AdminLoginHistoryResponseDTO> adminLoginHistory(
             @Argument Long memberId
     ) {
-        checkAdmin(); // 🔥 핵심
+        checkAdmin(); // 🔥 유지
         return adminMemberService.getLoginHistory(memberId);
     }
 
-    // 상태(status) 변경
+    /**
+     * 회원 상태 변경
+     */
     @MutationMapping
     public Boolean adminUpdateMemberStatus(
             @Argument Long memberId,
             @Argument MemberStatus status,
             @Argument String reason
     ) {
-        checkAdmin();
-
-        adminMemberService.updateMemberStatus(
-                memberId,
-                status,
-                reason
-        );
+        checkAdmin(); // 🔥 유지
+        adminMemberService.updateMemberStatus(memberId, status, reason);
         return true;
     }
-    // 권한(role) 변경
+
+    /**
+     * 회원 권한 변경
+     */
     @MutationMapping
     public Boolean adminUpdateMemberRole(
             @Argument Long memberId,
             @Argument UserRole role,
             @Argument String reason
     ) {
-        checkAdmin();
-
-        adminMemberService.updateMemberRole(
-                memberId,
-                role,
-                reason
-        );
+        checkAdmin(); // 🔥 유지
+        adminMemberService.updateMemberRole(memberId, role, reason);
         return true;
     }
-
 }

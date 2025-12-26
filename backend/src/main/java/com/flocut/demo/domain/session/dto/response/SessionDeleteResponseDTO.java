@@ -4,15 +4,10 @@ import com.flocut.demo.domain.session.entity.SessionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @AllArgsConstructor
-public class SessionResponseDTO {
+public class SessionDeleteResponseDTO {
     private Long sessionId;
-    private String sessionTitle;
-    private String description;
+    private boolean deleted;
     private SessionStatus status;
-    private LocalDateTime regdate;
-    private LocalDateTime moddate;
 }
