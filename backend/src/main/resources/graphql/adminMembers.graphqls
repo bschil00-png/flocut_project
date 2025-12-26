@@ -1,0 +1,26 @@
+
+
+query AdminMembers($page: Int!, $size: Int!) {
+  adminMembers(page: $page, size: $size) {
+    content {
+      memberId
+      email
+      name
+      status
+      role
+      regdate
+    }
+    totalElements
+    totalPages
+    pageNumber
+  }
+}
+
+
+query AdminLoginHistory($memberId: ID!) {
+  adminLoginHistory(memberId: $memberId) {
+    loginAt
+    ip
+    device
+  }
+}
