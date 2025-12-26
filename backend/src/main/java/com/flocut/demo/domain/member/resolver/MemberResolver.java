@@ -1,6 +1,5 @@
 package com.flocut.demo.domain.member.resolver;
 
-import com.flocut.demo.domain.member.dto.MemberDto;
 import com.flocut.demo.domain.member.dto.ResponseDTO.MemberProfileResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.MemberStatus;
