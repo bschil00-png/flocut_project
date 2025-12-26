@@ -1,12 +1,11 @@
 package com.flocut.demo.domain.member.dto;
 
-import com.flocut.demo.domain.member.entity.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MemberDto {
+public class MemberDTO {
 
     private Long memberId;
     private String email;

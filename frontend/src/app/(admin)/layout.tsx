@@ -1,13 +1,11 @@
-
 "use client";
 
-import { ReactNode } from "react";
 import { AdminGuard } from "@/provider/AdminGuard";
 
-export default function AdminGroupLayout({
-                                             children,
-                                         }: {
-    children: ReactNode;
+export default function AdminAccessLayout({
+                                              children,
+                                          }: {
+    children: React.ReactNode;
 }) {
     return <AdminGuard>{children}</AdminGuard>;
 }

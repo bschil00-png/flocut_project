@@ -1,12 +1,23 @@
-// src/app/(admin)/admin/layout.tsx
+// app/(admin)/admin/layout.tsx
 "use client";
 
-import AdminLayout from "@/app/components/layout/admin/AdminLayout";
+import AdminHeader from "@/app/components/layout/admin/AdminHeader";
+import AdminSidebar from "@/app/components/layout/admin/AdminSidebar";
 
-export default function AdminRootLayout({
-                                            children,
-                                        }: {
+export default function AdminLayout({
+                                        children,
+                                    }: {
     children: React.ReactNode;
 }) {
-    return <AdminLayout>{children}</AdminLayout>;
+    return (
+        <div className="h-screen flex">
+            <AdminSidebar />
+            <div className="flex-1 flex flex-col">
+                <AdminHeader />
+                <main className="flex-1 overflow-y-auto p-6">
+                    {children}
+                </main>
+            </div>
+        </div>
+    );
 }

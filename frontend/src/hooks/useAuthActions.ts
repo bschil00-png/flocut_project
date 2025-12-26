@@ -45,6 +45,7 @@ export function useAuthActions() {
           memberId: me.memberId,
           email: me.email,
           name: me.name,
+            role: me.role,
         })
       );
     } catch {
@@ -65,6 +66,7 @@ export function useAuthActions() {
           memberId: me.memberId,
           email: me.email,
           name: me.name,
+            role: me.role,
         })
       );
       return true; // 인증 성공

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 export default function NotFoundPage() {
   return (
@@ -18,6 +19,15 @@ export default function NotFoundPage() {
         p-10
         text-center
       ">
+          <div className="mb-6 flex justify-center">
+              <Image
+                  src="/images/errors/404.png"
+                  alt="페이지를 찾을 수 없음"
+                  width={260}
+                  height={180}
+                  priority
+              />
+          </div>
         <p className="text-sm text-text-muted-light dark:text-text-muted-dark mb-2">
           404 ERROR
         </p>

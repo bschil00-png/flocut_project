@@ -10,12 +10,12 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuthState();
     const router = useRouter();
 
-    // 최초 진입 시 인증 동기화
+    // 최초 1회 인증 동기화
     useEffect(() => {
         ensureAuth();
     }, []);
 
-    // 2 인증 + 권한 판단
+    // 상태 변화 감지 후 라우팅 처리
     useEffect(() => {
         if (loading) return;
 
@@ -28,10 +28,10 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
             router.replace("/403");
             return;
         }
-    }, [loading, user]);
+    }, [loading, user, router]);
 
-    // 3 로딩 UI
-    if (loading || !user) {
+    // 로딩 중
+    if (loading) {
         return (
             <div className="h-screen flex items-center justify-center">
                 권한 확인 중...
@@ -39,6 +39,11 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         );
     }
 
-    // 4통과
+    // 리다이렉트 대기 중
+    if (!user || user.role !== "ADMIN") {
+        return null;
+    }
+
+    // 통과
     return <>{children}</>;
 }
