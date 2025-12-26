@@ -18,7 +18,8 @@ type SessionItem {
   sessionId: ID!
   sessionTitle: String!
   description: String
-  createdDate: String!
+  regdate: String!
+  moddate: String
   status: SessionStatus!
 }
 
@@ -29,7 +30,8 @@ type SessionDetail {
   sessionId: ID!
   sessionTitle: String!
   description: String
-  createdDate: String!
+  regdate: String!
+  moddate: String
   status: SessionStatus!
 
   documentCount: Int!
@@ -51,6 +53,7 @@ type SessionListResponse {
 세션 삭제 결과
 """
 type SessionDeleteResult {
+  sessionId: ID!
   deleted: Boolean!
   message: String
 }
@@ -58,6 +61,10 @@ type SessionDeleteResult {
 # =========================
 # Input Types
 # =========================
+
+input SessionDeleteInput {
+  sessionId: ID!
+}
 
 input SessionCreateInput {
   sessionTitle: String!
@@ -79,16 +86,12 @@ extend type Query {
   """
   로그인한 사용자가 생성한 세션 목록 조회
   """
-  mySessions(
-    page: Int
-    size: Int
-    sort: String
-  ): SessionListResponse!
+  sessions: [SessionItem!]!
 
   """
   특정 세션 상세 조회
   """
-  sessionDetail(sessionId: ID!): SessionDetail!
+  session(sessionId: ID!): SessionDetail!
 }
 
 # =========================
@@ -110,5 +113,5 @@ extend type Mutation {
   """
   세션 삭제 (Soft Delete)
   """
-  deleteSession(sessionId: ID!): SessionDeleteResult!
+  deleteSession(input: SessionDeleteInput!): SessionDeleteResult!
 }

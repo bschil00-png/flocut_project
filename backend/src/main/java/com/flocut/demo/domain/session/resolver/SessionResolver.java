@@ -3,7 +3,9 @@ package com.flocut.demo.domain.session.resolver;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.service.MemberService;
 import com.flocut.demo.domain.session.dto.request.SessionCreateRequestDTO;
+import com.flocut.demo.domain.session.dto.request.SessionDeleteRequestDTO;
 import com.flocut.demo.domain.session.dto.request.SessionUpdateRequestDTO;
+import com.flocut.demo.domain.session.dto.response.SessionDeleteResponseDTO;
 import com.flocut.demo.domain.session.dto.response.SessionDetailResponseDTO;
 import com.flocut.demo.domain.session.dto.response.SessionResponseDTO;
 import com.flocut.demo.domain.session.service.SessionService;
@@ -29,8 +31,7 @@ public class SessionResolver {
 
     @QueryMapping
     public List<SessionResponseDTO> sessions(Authentication authentication) {
-        String email = authentication.getName();
-        Member member = memberService.findByEmail(email);
+        Member member = memberService.findByEmail(authentication.getName());
         return sessionService.getMySessions(member.getMemberId());
     }
 
@@ -39,8 +40,7 @@ public class SessionResolver {
             @Argument Long sessionId,
             Authentication authentication
     ) {
-        String email = authentication.getName();
-        Member member = memberService.findByEmail(email);
+        Member member = memberService.findByEmail(authentication.getName());
         return sessionService.getSessionDetail(
                 member.getMemberId(),
                 sessionId
@@ -52,39 +52,40 @@ public class SessionResolver {
        ========================= */
 
     @MutationMapping
-    public Boolean createSession(
-            @Argument String sessionTitle,
-            @Argument String description,
+    public SessionResponseDTO createSession(
+            @Argument SessionCreateRequestDTO input,
             Authentication authentication
     ) {
-        String email = authentication.getName();
-        Member member = memberService.findByEmail(email);
-
-        SessionCreateRequestDTO dto =
-                new SessionCreateRequestDTO(sessionTitle, description);
-
-        sessionService.createSession(member.getMemberId(), dto);
-        return true;
+        Member member = memberService.findByEmail(authentication.getName());
+        return sessionService.createSession(
+                member.getMemberId(),
+                input
+        );
     }
 
     @MutationMapping
-    public Boolean updateSession(
-            @Argument Long sessionId,
-            @Argument String sessionTitle,
-            @Argument String description,
+    public SessionResponseDTO updateSession(
+            @Argument SessionUpdateRequestDTO input,
             Authentication authentication
     ) {
-        String email = authentication.getName();
-        Member member = memberService.findByEmail(email);
-
-        SessionUpdateRequestDTO dto =
-                new SessionUpdateRequestDTO(sessionTitle, description);
-
-        sessionService.updateSession(
+        Member member = memberService.findByEmail(authentication.getName());
+        return sessionService.updateSession(
                 member.getMemberId(),
-                sessionId,
-                dto
+                input
         );
-        return true;
     }
+
+    @MutationMapping
+    public SessionDeleteResponseDTO deleteSession(
+            @Argument SessionDeleteRequestDTO input,
+            Authentication authentication
+    ) {
+        Member member = memberService.findByEmail(authentication.getName());
+
+        return sessionService.deleteSession(
+                member.getMemberId(),
+                input
+        );
+    }
+
 }

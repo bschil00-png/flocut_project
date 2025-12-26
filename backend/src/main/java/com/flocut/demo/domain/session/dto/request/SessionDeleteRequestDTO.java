@@ -5,8 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class SessionUpdateRequestDTO {
+public class SessionDeleteRequestDTO {
     private Long sessionId;
-    private String sessionTitle;
-    private String description;
 }
