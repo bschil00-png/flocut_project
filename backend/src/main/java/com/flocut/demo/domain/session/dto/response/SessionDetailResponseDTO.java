@@ -6,6 +6,8 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+
+// 나중에 상세목록에 추가할경우를 대비해서 DTO 나눔
 @Getter
 @AllArgsConstructor
 public class SessionDetailResponseDTO {

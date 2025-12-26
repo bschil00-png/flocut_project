@@ -3,12 +3,9 @@ package com.flocut.demo.domain.admin.resolver;
 import com.flocut.demo.domain.admin.dto.response.AdminLoginHistoryResponseDTO;
 import com.flocut.demo.domain.admin.dto.response.AdminMemberResponseDTO;
 import com.flocut.demo.domain.admin.service.AdminMemberService;
-import com.flocut.demo.domain.member.entity.MemberStatus;
-import com.flocut.demo.domain.member.entity.UserRole;
 import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.security.core.Authentication;
@@ -54,33 +51,5 @@ public class AdminMemberResolver {
     ) {
         checkAdmin(); // 🔥 유지
         return adminMemberService.getLoginHistory(memberId);
-    }
-
-    /**
-     * 회원 상태 변경
-     */
-    @MutationMapping
-    public Boolean adminUpdateMemberStatus(
-            @Argument Long memberId,
-            @Argument MemberStatus status,
-            @Argument String reason
-    ) {
-        checkAdmin(); // 🔥 유지
-        adminMemberService.updateMemberStatus(memberId, status, reason);
-        return true;
-    }
-
-    /**
-     * 회원 권한 변경
-     */
-    @MutationMapping
-    public Boolean adminUpdateMemberRole(
-            @Argument Long memberId,
-            @Argument UserRole role,
-            @Argument String reason
-    ) {
-        checkAdmin(); // 🔥 유지
-        adminMemberService.updateMemberRole(memberId, role, reason);
-        return true;
     }
 }
