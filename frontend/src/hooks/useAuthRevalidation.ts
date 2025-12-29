@@ -1,4 +1,4 @@
-// useAuthRevalidation.ts
+// hooks/useAuthRevalidation.ts
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -7,9 +7,9 @@ import { usePathname } from "next/navigation";
 export function useAuthRevalidation() {
     const pathname = usePathname();
     const lastCheck = useRef(0);
-    const MIN_INTERVAL = 60_000;
+    const MIN_INTERVAL = 60_000; // 1분
 
-    //  로그인/콜백 페이지에서는 작동 금지
+    // 로그인/콜백 페이지에서는 작동 금지
     const DISABLED_PATHS = [
         "/login",
         "/signup",
@@ -23,8 +23,7 @@ export function useAuthRevalidation() {
     useEffect(() => {
         if (isDisabled) return;
 
-        const handleVisibility = async () => {
-            if (document.visibilityState !== "visible") return;
+        const checkAuth = async () => {
             if (Date.now() - lastCheck.current < MIN_INTERVAL) return;
 
             lastCheck.current = Date.now();
@@ -47,8 +46,24 @@ export function useAuthRevalidation() {
             }
         };
 
+        // 1. 탭 전환 시
+        const handleVisibility = async () => {
+            if (document.visibilityState !== "visible") return;
+            await checkAuth();
+        };
+
+        // 2. 네트워크 복구 시
+        const handleOnline = async () => {
+            console.log("[useAuthRevalidation] 네트워크 복구 감지, 인증 체크");
+            await checkAuth();
+        };
+
         document.addEventListener("visibilitychange", handleVisibility);
-        return () =>
+        window.addEventListener("online", handleOnline);
+
+        return () => {
             document.removeEventListener("visibilitychange", handleVisibility);
+            window.removeEventListener("online", handleOnline);
+        };
     }, [isDisabled]);
 }
