@@ -13,33 +13,36 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   // ensureAuth가 한 번만 실행되도록 ref 사용
   const initializedRef = useRef(false);
 
-  useEffect(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
+    useEffect(() => {
+        if (initializedRef.current) return;
+        initializedRef.current = true;
 
-    ensureAuth();
-  }, [ensureAuth]);
+        ensureAuth();
+    }, [ensureAuth]);
+
+    //  인증 결과에 따른 이동
+    useEffect(() => {
+        if (loading) return;
+
+        if (!user) {
+            router.replace("/login");
+            return;
+        }
+
+        if (user.role !== "ADMIN") {
+            router.replace("/403");
+            return;
+        }
+    }, [loading, user, router]);
 
   // 아직 인증 확인 중
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        권한 확인 중...
-      </div>
-    );
-  }
-
-  // 비로그인
-  if (!user) {
-    router.replace("/login");
-    return null;
-  }
-
-  // 관리자 아님
-  if (user.role !== "ADMIN") {
-    router.replace("/403");
-    return null;
-  }
+    if (loading || !user || user.role !== "ADMIN") {
+        return (
+            <div className="h-screen flex items-center justify-center">
+                권한 확인 중...
+            </div>
+        );
+    }
 
   // 통과
   return <>{children}</>;
