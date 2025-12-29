@@ -1,0 +1,47 @@
+# Admin Query
+
+extend type Query {
+
+  # 관리자 회원 목록 조회
+  adminMembers(
+    page: Int!
+    size: Int!
+  ): AdminMemberPage!
+}
+
+extend type Query {
+  adminMember(memberId: ID!): AdminMemberDetail!
+}
+
+
+# Admin Member Types
+
+type AdminMemberPage {
+  content: [AdminMember!]!
+  totalElements: Int!
+  totalPages: Int!
+  pageNumber: Int!
+  pageSize: Int!
+  hasNext: Boolean!
+}
+
+type AdminMember {
+  memberId: ID!
+  email: String!
+  name: String!
+  status: MemberStatus!
+  role: String!
+  regdate: String!
+}
+type AdminMemberDetail {
+  memberId: ID!
+  email: String!
+  name: String!
+  status: MemberStatus!
+  role: String!
+  regdate: String!
+
+  loginHistories: [LoginHistory!]!
+}
+
+

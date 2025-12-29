@@ -1,5 +1,4 @@
 // src/api/session/session.api.ts
-import { apiFetch } from "@/lib/api";
 import {
   CreateSessionRequest,
   SessionResponse,
