@@ -1,43 +1,47 @@
 "use client";
 
-import HeroSection from "@/app/components/home/HeroSection";
-import MascotHighlightSection from "@/app/components/home/MascotHighlightSection";
-import NoticeSection from "@/app/components/home/NoticeSection";
-import FlowExplainSection from "@/app/components/home/FlowExplainSection";
-import ReplaceWorkSection from "@/app/components/home/ReplaceWorkSection";
-import FreeTrialSection from "@/app/components/home/FreeTrialSection";
-import AiFeatureShowcaseSection from "@/app/components/home/AiFeatureShowcaseSection";
-import Section from "@/app/components/layout/Section";
+import Header from "@/app/components/layout/Header";
+import Footer from "@/app/components/layout/Footer";
+
+import HeroSection from "@/app/components/sections/HeroSection";
+import AiFeatureShowcaseSection from "@/app/components/sections/AiFeatureShowcaseSection";
+import FlowExplainSection from "@/app/components/sections/FlowExplainSection";
+import ReplaceWorkSection from "@/app/components/sections/ReplaceWorkSection";
+import MidCTASection from "@/app/components/sections/MidCTASection";
+import MascotHighlightSection from "@/app/components/sections/MascotHighlightSection";
+import ImageShowcaseSection from "@/app/components/sections/ImageShowcaseSection";
+import NoticeSection from "@/app/components/sections/NoticeSection";
+
 export default function HomePage() {
-  return (
-    <>
-      <Section>
-        <HeroSection />
-      </Section>
+    return (
+        <>
+            {/*  Header  */}
+            <Header />
 
-      <Section variant="surface">
-        <AiFeatureShowcaseSection />
-      </Section>
+            <main className="pt-16">
+                {/*  Hero  */}
+                <HeroSection />
 
-      <Section variant="accent">
-        <MascotHighlightSection />
-      </Section>
+                {/*  Main Feature Showcase (이미지 중심)  */}
+                <ImageShowcaseSection />
 
-      <Section>
-        <NoticeSection />
-      </Section>
+                {/*  How It Works (Flow)  */}
+                <FlowExplainSection />
 
-      {/*<Section variant="gradient">*/}
-      {/*  <FlowExplainSection />*/}
-      {/*</Section>*/}
+                {/*  Problem → Solution  */}
+                <ReplaceWorkSection />
 
-      <Section>
-        <ReplaceWorkSection />
-      </Section>
+                <NoticeSection />
 
-      <Section variant="surface">
-        <FreeTrialSection />
-      </Section>
-    </>
-  );
+                {/*  Mid CTA  */}
+                <MidCTASection />
+
+                {/*  Brand Emotion  */}
+                {/*<MascotHighlightSection />*/}
+            </main>
+
+            {/*  Footer  */}
+            <Footer />
+        </>
+    );
 }

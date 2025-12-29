@@ -1,4 +1,3 @@
-// src/provider/Providers.tsx
 "use client";
 
 import { ReactNode } from "react";
@@ -11,24 +10,28 @@ import { apolloClient } from "@/lib/apollo/clients";
 import { AuthProvider } from "@/provider/AuthProvider";
 import AuthInitializer from "@/provider/AuthInitializer";
 import useInitUITheme from "@/hooks/ui/useInitUITheme";
-import {useAuthRevalidation} from "@/hooks/useAuthRevalidation";
+import { useAuthRevalidation } from "@/hooks/useAuthRevalidation";
+import {OfflineBanner} from "@/app/components/layout/OfflineBanner";
 
 function UIInitializer() {
     useInitUITheme();
     return null;
 }
 
-export function Providers({ children }: { children: ReactNode }) {
-
+function AuthRevalidator() {
     useAuthRevalidation();
+    return null;
+}
 
+export function Providers({ children }: { children: ReactNode }) {
     return (
         <ReduxProvider store={store}>
-
             <UIInitializer />
             <AuthProvider>
                 <ApolloProvider client={apolloClient}>
                     <AuthInitializer />
+                    <AuthRevalidator />
+                    <OfflineBanner />
                     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                         {children}
                     </ThemeProvider>
