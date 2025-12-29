@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import IconButton from "@/app/components/ui/icon-button/IconButton";
-import { useRouter } from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 
 type PanelModalProps = {
     children: React.ReactNode;
@@ -10,9 +10,16 @@ type PanelModalProps = {
 
 export default function PanelModal({ children }: PanelModalProps) {
     const router = useRouter();
+    const params = useSearchParams();
+
+    const from = params.get("from");
 
     function handleClose() {
-        router.back(); // settings 진입 전 화면으로 복귀
+        if (from) {
+            router.replace(from);
+        } else {
+            router.replace("/workspace");
+        }
     }
 
     return (

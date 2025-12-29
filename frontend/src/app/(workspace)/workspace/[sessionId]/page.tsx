@@ -4,17 +4,14 @@
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-export default function WorkspacePage() {
-    // URL에서 sessionId 추출
+export default function SessionEntryPage() {
     const { sessionId } = useParams<{ sessionId: string }>();
     const router = useRouter();
 
     useEffect(() => {
-        // 기본 진입 시 notes 탭으로 이동
         router.replace(`/workspace/${sessionId}/notes`);
     }, [router, sessionId]);
 
-    // 리다이렉트 중 잠깐 보여줄 화면
     return (
         <div className="h-full flex items-center justify-center text-sm text-text-muted-light">
             워크스페이스 로딩 중...

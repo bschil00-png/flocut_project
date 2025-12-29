@@ -1,4 +1,4 @@
-// app/calendar/page.tsx
+// app/calendar/layout.tsx
 "use client";
 
 import { useState } from "react";

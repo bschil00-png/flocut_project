@@ -61,20 +61,38 @@ export function useAuthActions() {
     // 새로고침 동기화
     const sync = useCallback(async () => {
         try {
+            // ️ accessToken 없을 수도 있으니, me 시도
             const me = await getMeByGraphQL();
 
-            dispatch(
-                setAuthUser({
+            dispatch(setAuthUser({
+                memberId: me.memberId,
+                email: me.email,
+                name: me.name,
+                role: me.role,
+            }));
+        } catch {
+            //  여기서 refresh 직접 시도
+            try {
+                await fetch("/api/proxy/auth/refresh", {
+                    method: "POST",
+                    credentials: "include",
+                });
+
+                // refresh 성공했으면 me 재시도
+                const me = await getMeByGraphQL();
+
+                dispatch(setAuthUser({
                     memberId: me.memberId,
                     email: me.email,
                     name: me.name,
                     role: me.role,
-                })
-            );
-        } catch {
-            dispatch(clearAuth());
+                }));
+            } catch {
+                dispatch(clearAuth());
+            }
         }
     }, [dispatch]);
+
 
     // 보호된 페이지 인증 보장
     const ensureAuth = useCallback(async () => {

@@ -38,8 +38,7 @@ export default function Header() {
           "
         >
           <Link href="/about">회사 소개</Link>
-          <Link href="/documents">문서</Link>
-          <Link href="/notes">스튜디오</Link>
+          <Link href="/workspace">스튜디오</Link>
           <Link href="/calendar">캘린더</Link>
           <Link href="/support">고객지원</Link>
         </nav>

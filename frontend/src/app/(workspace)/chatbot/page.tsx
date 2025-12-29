@@ -1,4 +1,4 @@
-// 경로: /src/app/chatbot/page.tsx
+// 경로: /src/app/chatbot/layout.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
