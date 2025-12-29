@@ -1,9 +1,6 @@
-// src/app/(public)/layout.tsx
-import type { Metadata } from "next";
-import { cookies } from "next/headers";
 
+import type { Metadata } from "next";
 import Header from "@/app/components/layout/Header";
-import ClientUIShell from "@/app/components/layout/ClientUIShell";
 
 export const metadata: Metadata = {
   title: "FLOCUT",
@@ -19,11 +16,8 @@ export default async function PublicLayout({
   return (
     <>
       <Header  />
-
       <main className="min-h-screen pt-16">
-        <ClientUIShell>
           {children}
-        </ClientUIShell>
       </main>
     </>
   );

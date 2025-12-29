@@ -1,3 +1,4 @@
+// src/app/auth/google/callback/page.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -7,48 +8,45 @@ import { useAuthActions } from "@/hooks/useAuthActions";
 export default function GoogleCallbackPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { sync } = useAuthActions();
+    const { ensureAuth } = useAuthActions();
 
     useEffect(() => {
         (async () => {
             try {
                 const code = searchParams.get("code");
-
                 if (!code) {
                     router.replace("/login");
-                    alert("인증 코드가 없습니다.");
                     return;
                 }
 
-                // 백엔드로 code 전송하여 JWT 쿠키 받기
                 const response = await fetch("/api/proxy/auth/google/login", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ code }),
                     credentials: "include",
                 });
 
                 if (!response.ok) {
                     router.replace("/login");
-                    alert("구글 로그인에 실패했습니다.");
                     return;
                 }
 
-                // 쿠키가 설정되었으므로 Redux 동기화
-                await sync();
+                const ok = await ensureAuth();
+                if (!ok) {
+                    router.replace("/login");
+                    return;
+                }
 
-                // 메인 페이지로 이동
+                //  여기서 자동 로그인 차단 해제
+                sessionStorage.removeItem("auth_block_silent_login");
+
                 router.replace("/");
             } catch (error) {
                 console.error("Google login error:", error);
                 router.replace("/login");
-                alert("구글 로그인 중 오류가 발생했습니다.");
             }
         })();
-    }, [searchParams, sync, router]);
+    }, [searchParams, ensureAuth, router]);
 
-    // 로딩 중 아무것도 표시하지 않음
     return null;
 }

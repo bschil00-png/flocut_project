@@ -11,7 +11,7 @@ import Input from "../ui/input/Input";
 import Button from "@/app/components/ui/button/Button";
 
 // 소셜 로그인 핸들러
-import { googleLoginHandler } from "../../../lib/rest/auth/auth.social";
+import { googleLoginHandler } from "@/lib/rest/auth/auth.social";
 
 export default function LoginForm() {
     const router = useRouter();
@@ -22,11 +22,11 @@ export default function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    // UI 제어용 상태
+    // UI 제어 상태
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    //  Google 로그인 에러 처리
+    // 구글 에러
     useEffect(() => {
         const errorParam = searchParams.get("error");
 
@@ -38,27 +38,43 @@ export default function LoginForm() {
             setError("구글 로그인 중 오류가 발생했습니다.");
         }
 
-        // URL에서 error 파라미터 제거 (깔끔하게)
+        // URL 정리
         if (errorParam) {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, "", newUrl);
         }
     }, [searchParams]);
 
+    // 기본 로그인
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        //  로그인 중에는 auth revalidation 중단
+        sessionStorage.setItem("auth_in_progress", "1");
 
         setLoading(true);
         setError(null);
 
         try {
             await login(email, password);
+
+            // 로그인 성공 → 플래그 제거
+            sessionStorage.removeItem("auth_in_progress");
+
             router.replace("/");
         } catch {
+            sessionStorage.removeItem("auth_in_progress");
             setError("이메일 또는 비밀번호가 올바르지 않습니다.");
         } finally {
             setLoading(false);
         }
+    }
+
+    // 구글 로그인
+    function handleGoogleLogin() {
+        //  사용자가 명시적으로 클릭한 로그인 → silent login 허용
+        sessionStorage.removeItem("auth_block_silent_login");
+        googleLoginHandler();
     }
 
     return (
@@ -72,6 +88,7 @@ export default function LoginForm() {
                     <Input
                         label="이메일"
                         value={email}
+                        required
                         onChange={(e) => setEmail(e.target.value)}
                     />
 
@@ -79,6 +96,7 @@ export default function LoginForm() {
                         label="비밀번호"
                         type="password"
                         value={password}
+                        required
                         onChange={(e) => setPassword(e.target.value)}
                     />
 
@@ -100,7 +118,7 @@ export default function LoginForm() {
                         type="button"
                         variant="oauth"
                         className="w-full"
-                        onClick={googleLoginHandler}
+                        onClick={handleGoogleLogin}
                     >
                         Google로 로그인
                     </Button>

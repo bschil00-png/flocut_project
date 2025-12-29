@@ -1,3 +1,4 @@
+// src/provider/Providers.tsx
 "use client";
 
 import { ReactNode } from "react";
@@ -8,25 +9,27 @@ import { ApolloProvider } from "@apollo/client/react";
 import { index as store } from "@/store";
 import { apolloClient } from "@/lib/apollo/clients";
 import { AuthProvider } from "@/provider/AuthProvider";
+import AuthInitializer from "@/provider/AuthInitializer";
 import useInitUITheme from "@/hooks/ui/useInitUITheme";
+import {useAuthRevalidation} from "@/hooks/useAuthRevalidation";
 
 function UIInitializer() {
-    // 앱 시작 시 UI 테마 초기화
     useInitUITheme();
     return null;
 }
 
 export function Providers({ children }: { children: ReactNode }) {
+
+    useAuthRevalidation();
+
     return (
         <ReduxProvider store={store}>
+
             <UIInitializer />
             <AuthProvider>
                 <ApolloProvider client={apolloClient}>
-                    <ThemeProvider
-                        attribute="class"
-                        defaultTheme="system"
-                        enableSystem
-                    >
+                    <AuthInitializer />
+                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                         {children}
                     </ThemeProvider>
                 </ApolloProvider>

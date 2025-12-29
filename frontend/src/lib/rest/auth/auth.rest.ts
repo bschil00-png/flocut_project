@@ -16,27 +16,6 @@ export function logout(): Promise<void> {
     return api.post("/auth/logout");
 }
 
-// // 로그인된 사용자 조회 -> 그래프큐엘로 대체
-// export function getMe(): Promise<MeResponse> {
-//   if (isFetchingMe && meFetchPromise) {
-//     console.log(" getMe already in progress, reusing promise");
-//     return meFetchPromise;
-//   }
-//
-//   console.log("getMe request started");
-//   isFetchingMe = true;
-//
-//   meFetchPromise = api
-//     .get<MeResponse>("/auth/me")
-//     .finally(() => {
-//       console.log("getMe request finished");
-//       isFetchingMe = false;
-//       meFetchPromise = null;
-//     });
-//
-//   return meFetchPromise;
-// }
-
 
 // 회원가입
 export function register(data: MemberRegisterRequest): Promise<void> {
