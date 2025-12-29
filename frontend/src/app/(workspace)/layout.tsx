@@ -8,6 +8,7 @@ import { useAuthActions } from "@/hooks/useAuthActions";
 
 import GlobalNav from "@/app/components/layout/WorkspaceLayout/GlobalNav";
 import WorkspaceHeader from "@/app/components/layout/WorkspaceLayout/WorkspaceHeader";
+import SessionSidebar from "@/app/components/layout/WorkspaceLayout/sessionSidebar/SessionSidebar";
 
 export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -75,6 +76,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
           collapsed={collapsed}
           onToggleCollapse={() => setCollapsed(!collapsed)}
         />
+
 
         <main className="flex-1 overflow-hidden">
           {children}
