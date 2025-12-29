@@ -1,5 +1,6 @@
 package com.flocut.demo.domain.file.service;
 
+import com.flocut.demo.domain.document.service.DocumentTextService;
 import com.flocut.demo.domain.file.dto.response.FileItemResponse;
 import com.flocut.demo.domain.file.dto.response.FileUploadResponse;
 import com.flocut.demo.domain.file.entity.File;
@@ -21,6 +22,7 @@ public class FileService {
 
     private final FileRepository fileRepository;
     private final MemberRepository memberRepository;
+    private final DocumentTextService documentTextService;
 
     public FileUploadResponse upload(MultipartFile file, Long memberId) {
 
@@ -44,6 +46,8 @@ public class FileService {
         );
 
         fileRepository.save(saved);
+
+        documentTextService.createEmptyText(saved);
 
         return new FileUploadResponse(
                 saved.getFileId(),

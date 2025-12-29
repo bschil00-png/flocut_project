@@ -1,0 +1,31 @@
+package com.flocut.demo.domain.ai.controller;
+
+import com.flocut.demo.domain.ai.dto.request.AiSummaryFailRequest;
+import com.flocut.demo.domain.ai.dto.request.AiSummaryResultRequest;
+import com.flocut.demo.domain.ai.service.AiSummaryCallbackService;
+import com.flocut.demo.domain.document.entity.DocumentSummary;
+import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/ai")
+@RequiredArgsConstructor
+public class AiCallbackController {
+
+    private final AiSummaryCallbackService callbackService;
+
+    @PostMapping("/summary/callback")
+    public void receiveSummaryResult(
+            @RequestBody AiSummaryResultRequest request
+    ) {
+        callbackService.handleSummaryResult(request);
+    }
+
+    @PostMapping("/summary/fail")
+    public void receiveSummaryFail(
+            @RequestBody AiSummaryFailRequest request
+    ) {
+        callbackService.handleSummaryFail(request);
+    }
+}
