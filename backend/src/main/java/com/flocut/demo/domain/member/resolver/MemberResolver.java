@@ -1,5 +1,6 @@
 package com.flocut.demo.domain.member.resolver;
 
+import com.flocut.demo.domain.member.dto.MemberDTO;
 import com.flocut.demo.domain.member.dto.ResponseDTO.MemberProfileResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.MemberStatus;
@@ -24,11 +25,11 @@ public class MemberResolver {
     // =========================
     // 회원 조회
     // =========================
-//    @QueryMapping
-//    public MemberDto member(@Argument Long id) {
-//        Member member = memberService.getMember(id);
-//        return memberMapper.toDto(member);
-//    }
+    @QueryMapping
+    public MemberDTO member(@Argument Long id) {
+        Member member = memberService.getMember(id);
+        return memberMapper.toDto(member);
+    }
 
     // =========================
     // 🔥 마이페이지 조회 (GraphQL)

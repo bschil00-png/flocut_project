@@ -1,67 +1,44 @@
-import {gql} from '@apollo/client';
+import { gql } from "@apollo/client";
 
 
-// 인증 처리 도메인은 RestAPI (로그인/ 회원가입/ 로그아웃)
-// 현재 로그인된 사용자의 조회 전용 데이터
 
-// 지금 DTO  설계 기준으로 MemberResponse, Profile, mypageOverView, history
+// 관리자: 회원 목록 조회
+export const ADMIN_MEMBERS_QUERY = gql`
+  query adminMembers($page: Int!, $size: Int!) {
+    adminMembers(page: $page, size: $size) {
+      content {
+        memberId
+        email
+        name
+        status
+        role
+        regdate
+      }
+      totalElements
+      totalPages
+      pageNumber
+      pageSize
+      hasNext
+    }
+  }
+`;
 
-// MemberResponse
-// MeResponse
-// 헤더, 마이페이지 , 권한 체크, 리덕스 초기화에 사용 예정
-export const ME_QUERY = gql`
-  query me {
-    me {
+// 관리자: 회원 상세 조회
+export const ADMIN_MEMBER_DETAIL_QUERY = gql`
+  query adminMember($memberId: ID!) {
+    adminMember(memberId: $memberId) {
       memberId
       email
       name
-      profileImage
       status
+      role
       regdate
-    }
-  }
-`;
-
-
-// 마이페이지용
-//MyPageOverviewResponse
-export const MY_PAGE_OVERVIEW_QUERY = gql`
-  query myPageOverview {
-    myPage {
-      documents {
-        fileId
-        fileName
-        uploadDate
+      loginHistories {
+        loginHistoryId
+        ip
+        device
+        loginDate
       }
-      audios {
-        fileId
-        durationSec
-      }
-      compares {
-        compareRequestId
-        regdate
-      }
-      sessions {
-        sessionId
-        sessionTitle
-      }
-      totalDocumentCount
-      totalAudioCount
-      totalCompareCount
-    }
-  }
-`;
-
-
-// 로그인 히스토리 (로그인 내역)
-// MemberLoginHistoryResponse
-export const LOGIN_HISTORY_QUERY = gql`
-  query loginHistory {
-    loginHistory {
-      loginHistoryId
-      ip
-      device
-      loginDate
     }
   }
 `;

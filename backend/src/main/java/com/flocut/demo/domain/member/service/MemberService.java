@@ -3,6 +3,7 @@ package com.flocut.demo.domain.member.service;
 import com.flocut.demo.domain.member.dto.ResponseDTO.MemberProfileResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.MemberStatus;
+import com.flocut.demo.domain.member.mapper.MemberMapper;
 import com.flocut.demo.domain.member.repository.MemberRepository;
 import com.flocut.demo.global.email.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final MemberMapper memberMapper;
 
     public Member register(Member member) {
         //   이메일 중복 체크
@@ -47,7 +49,6 @@ public class MemberService {
     }
 
     public Member login(String email, String password) {
-
 
 
         Member member = memberRepository.findByEmail(email)
@@ -81,6 +82,8 @@ public class MemberService {
 
         return member;
     }
+
+    //     마이페이지용 멤버 조회
     public MemberProfileResponseDTO getMyProfile() {
 
         Authentication auth =
@@ -99,16 +102,8 @@ public class MemberService {
             throw new IllegalStateException("탈퇴한 회원입니다.");
         }
 
-        return new MemberProfileResponseDTO(
-                member.getMemberId(),
-                member.getEmail(),
-                member.getName(),
-                member.getTel(),
-                member.getProfileImage()
-        );
+        return memberMapper.toProfileDto(member);
     }
-
-
 
 
     @Transactional

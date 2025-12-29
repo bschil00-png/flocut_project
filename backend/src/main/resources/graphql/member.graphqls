@@ -2,9 +2,6 @@
 # 회원 / 인증 / 마이페이지
 # ========================
 
-"""
-회원 상태
-"""
 enum MemberStatus {
   READY
   ACTIVE
@@ -13,7 +10,7 @@ enum MemberStatus {
 }
 
 """
-회원 기본 정보
+회원 기본 정보 (도메인 / 관리자 / 내부 조회용)
 """
 type Member {
   memberId: ID!
@@ -25,6 +22,22 @@ type Member {
 }
 
 """
+현재 로그인한 사용자 정보 (인증 컨텍스트)
+"""
+type MyProfile {
+  memberId: ID!
+  email: String!
+  name: String!
+  tel: String
+  profileImage: String
+
+  role: String!
+  status: String!
+  regdate: String!
+}
+
+
+"""
 로그인 히스토리
 """
 type LoginHistory {
@@ -32,39 +45,6 @@ type LoginHistory {
   ip: String!
   device: String!
   loginDate: String!
-}
-
-"""
-마이페이지 - 문서 아이템
-"""
-type MyPageDocument {
-  fileId: ID!
-  fileName: String!
-  uploadDate: String!
-}
-
-"""
-마이페이지 - 음성 아이템
-"""
-type MyPageAudio {
-  fileId: ID!
-  durationSec: Int!
-}
-
-"""
-마이페이지 - 비교 아이템
-"""
-type MyPageCompare {
-  compareRequestId: ID!
-  regdate: String!
-}
-
-"""
-마이페이지 - 세션 아이템
-"""
-type MyPageSession {
-  sessionId: ID!
-  sessionTitle: String!
 }
 
 """
@@ -81,15 +61,15 @@ type MyPageOverview {
 }
 
 # ========================
-# Queries (EXTEND)
+# Queries
 # ========================
 
 extend type Query {
 
   """
-  현재 로그인된 사용자 정보
+  현재 로그인한 사용자 정보 (단일 진입점)
   """
-  me: Member!
+  me: MyProfile!
 
   """
   마이페이지 대시보드 데이터
