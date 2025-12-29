@@ -14,6 +14,7 @@ spring:
       - optional:classpath:secret/next.yml
       - optional:classpath:secret/solapi.yml
       - optional:classpath:secret/redis.yml
+      - optional:classpath:secret/application.yml
 
   jpa:
     hibernate:

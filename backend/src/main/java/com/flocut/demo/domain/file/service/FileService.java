@@ -23,7 +23,7 @@ public class FileService {
     private final FileRepository fileRepository;
     private final MemberRepository memberRepository;
     private final DocumentTextService documentTextService;
-
+    private final S3UploadService s3UploadService;
     public FileUploadResponse upload(MultipartFile file, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
@@ -33,8 +33,12 @@ public class FileService {
             throw new IllegalArgumentException("빈 파일");
         }
 
-        // 🔥 지금은 S3 mock
-        String s3Key = "files/" + file.getOriginalFilename();
+        // ✅ S3 key 생성 (지금 구조에 딱 맞음)
+        String s3Key = "member/%d/document/%s"
+                .formatted(memberId, file.getOriginalFilename());
+
+        // ✅ 실제 S3 업로드
+        s3UploadService.upload(file, s3Key);
 
         File saved = File.create(
                 member,
@@ -46,7 +50,6 @@ public class FileService {
         );
 
         fileRepository.save(saved);
-
         documentTextService.createEmptyText(saved);
 
         return new FileUploadResponse(
