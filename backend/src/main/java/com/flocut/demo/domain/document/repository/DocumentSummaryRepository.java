@@ -10,6 +10,9 @@ import java.util.Optional;
 public interface DocumentSummaryRepository
         extends JpaRepository<DocumentSummary, Long> {
 
+    Optional<DocumentSummary>
+    findTopByFileFileIdOrderBySummaryIdDesc(Long fileId);
+
     @Query("""
         SELECT ds
         FROM DocumentSummary ds

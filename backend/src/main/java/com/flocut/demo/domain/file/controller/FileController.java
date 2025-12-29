@@ -19,7 +19,10 @@ public class FileController {
     private final FileService fileService;
     private final MemberService memberService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+            value = "/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ResponseEntity<FileUploadResponse> upload(
             @RequestParam("file") MultipartFile file,
             Authentication authentication

@@ -9,16 +9,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "tbl_document_summary",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = {"session_id", "round_no", "version_no"}
-                )
-        }
-)
 @Getter
 @NoArgsConstructor
+@Table(name = "tbl_document_summary")
 public class DocumentSummary {
 
     @Id
@@ -67,17 +60,13 @@ public class DocumentSummary {
             File file,
             Session session,
             int roundNo,
-            int versionNo,
-            String summaryText,
-            String modelVersion
+            int versionNo
     ) {
         DocumentSummary s = new DocumentSummary();
         s.file = file;
         s.session = session;
         s.roundNo = roundNo;
         s.versionNo = versionNo;
-        s.summaryText = summaryText;
-        s.modelVersion = modelVersion;
         s.status = SummaryStatus.REQUESTED;
         s.regdate = LocalDateTime.now();
         return s;
@@ -90,6 +79,7 @@ public class DocumentSummary {
     }
 
     public void fail(String reason) {
+        this.summaryText = reason;
         this.status = SummaryStatus.FAILED;
     }
 
