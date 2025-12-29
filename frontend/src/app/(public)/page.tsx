@@ -15,8 +15,7 @@ import NoticeSection from "@/app/components/sections/NoticeSection";
 export default function HomePage() {
     return (
         <>
-            {/*  Header  */}
-            <Header />
+
 
             <main className="pt-16">
                 {/*  Hero  */}
@@ -40,8 +39,7 @@ export default function HomePage() {
                 {/*<MascotHighlightSection />*/}
             </main>
 
-            {/*  Footer  */}
-            <Footer />
+
         </>
     );
 }
