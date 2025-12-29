@@ -84,15 +84,20 @@ public class MemberService {
     }
 
     //     마이페이지용 멤버 조회
+    // 마이페이지용 멤버 조회
     public MemberProfileResponseDTO getMyProfile() {
 
         Authentication auth =
                 SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new IllegalStateException("인증 정보 없음");
+        if (auth == null
+                || !auth.isAuthenticated()
+                || "anonymousUser".equals(auth.getPrincipal())) {
+            throw new IllegalStateException("UNAUTHENTICATED");
         }
 
+        // 여기까지 왔다는 건
+        // JwtAuthFilter에서 accessToken으로 인증 세팅이 된 상태
         String email = auth.getName();
 
         Member member = memberRepository.findByEmail(email)
@@ -104,7 +109,6 @@ public class MemberService {
 
         return memberMapper.toProfileDto(member);
     }
-
 
     @Transactional
     public void updateMyProfile(

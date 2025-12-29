@@ -1,4 +1,4 @@
-// // app/guide/page.tsx
+// // app/guide/layout.tsx
 // "use client";
 //
 // import { useState } from "react";

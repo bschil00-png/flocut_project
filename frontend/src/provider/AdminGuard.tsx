@@ -17,7 +17,9 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         if (initializedRef.current) return;
         initializedRef.current = true;
 
-        ensureAuth();
+        (async () => {
+            await ensureAuth();
+        })();
     }, [ensureAuth]);
 
     //  인증 결과에 따른 이동

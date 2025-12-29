@@ -11,6 +11,7 @@ import {
     Archive,
     Folder,
     Plus,
+    Settings,
     ChevronLeft,
     ChevronRight,
     Menu,
@@ -25,31 +26,23 @@ import SessionNavItem from "./SessionNavItem";
 
 export default function GlobalNav() {
     const pathname = usePathname();
-
-    // 반응형 네비 상태 (모바일 여부, 접힘 여부)
     const { isCollapsed, isMobile, setCollapsed } = useResponsiveNav();
 
-    // 모바일 네비 열림 상태
     const [openMobile, setOpenMobile] = useState(false);
-
-    // 세션 생성 모달 상태
     const [openCreate, setOpenCreate] = useState(false);
 
-    // 세션 목록 조회 (GraphQL)
-    const { sessions, loading, refetch } = useSessions();
+    const { sessions, refetch } = useSessions();
 
-    // 전역 메뉴 (세션과 무관한 메뉴)
     const globalNav = [
-        { href: "/", name: "홈", icon: Home },
-        { href: "/recent", name: "최근 문서", icon: Clock },
-        { href: "/favorites", name: "즐겨찾기", icon: Star },
-        { href: "/notes", name: "모든 노트", icon: FileText },
-        { href: "/shared", name: "공유 문서", icon: Users },
-        { href: "/archive", name: "보관함", icon: Archive },
+        { href: "/", label: "홈", icon: Home },
+        { href: "/recent", label: "최근 문서", icon: Clock },
+        { href: "/favorites", label: "즐겨찾기", icon: Star },
+        { href: "/notes", label: "모든 노트", icon: FileText },
+        { href: "/shared", label: "공유 문서", icon: Users },
+        { href: "/archive", label: "보관함", icon: Archive },
     ];
 
-    // 전역 메뉴 렌더 함수
-    const renderGlobalItem = (
+    const renderItem = (
         href: string,
         label: string,
         Icon: any,
@@ -63,10 +56,12 @@ export default function GlobalNav() {
                 href={href}
                 onClick={() => closeMobile && setOpenMobile(false)}
                 className={`
-                    flex items-center gap-3 px-3 py-2 rounded-md text-sm
-                    ${active ? "bg-accent-soft text-accent" : "hover:bg-accent-soft"}
-                    ${isCollapsed && !isMobile ? "justify-center" : ""}
-                `}
+          flex items-center gap-3 px-3 py-2 rounded-md text-sm
+          text-text-muted-light dark:text-text-muted-dark
+          hover:bg-accent-soft
+          ${active ? "bg-accent-soft text-accent" : ""}
+          ${isCollapsed && !isMobile ? "justify-center" : ""}
+        `}
             >
                 <Icon size={18} />
                 {(!isCollapsed || isMobile) && <span>{label}</span>}
@@ -74,15 +69,20 @@ export default function GlobalNav() {
         );
     };
 
-    // 모바일 네비게이션
+    /* =========================
+       모바일
+       ========================= */
     if (isMobile) {
         return (
             <>
-                {/* 모바일 햄버거 버튼 */}
                 {!openMobile && (
                     <button
                         onClick={() => setOpenMobile(true)}
-                        className="fixed top-3 left-3 z-40 p-2 rounded-md border bg-surface-light"
+                        className="
+              fixed top-3 left-3 z-40 p-2 rounded-md
+              bg-surface-light dark:bg-surface-dark
+              border border-border-light dark:border-border-dark
+            "
                     >
                         <Menu size={20} />
                     </button>
@@ -90,70 +90,50 @@ export default function GlobalNav() {
 
                 <aside
                     className={`
-                        fixed top-0 left-0 z-50 h-full w-64
-                        bg-surface-light border-r
-                        transition-transform duration-300
-                        ${openMobile ? "translate-x-0" : "-translate-x-full"}
-                    `}
+            fixed inset-y-0 left-0 z-50 w-64
+            bg-surface-light dark:bg-surface-dark
+            border-r border-border-light dark:border-border-dark
+            transition-transform
+            ${openMobile ? "translate-x-0" : "-translate-x-full"}
+          `}
                 >
-                    {/* 헤더 */}
-                    <div className="h-14 px-3 flex items-center border-b">
-                        <span className="font-semibold text-sm">개인 워크스페이스</span>
-                        <button
-                            onClick={() => setOpenMobile(false)}
-                            className="ml-auto p-2"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
-                    </div>
-
-                    <nav className="px-2 py-3 space-y-4">
-                        {/* 전역 메뉴 */}
+                    <nav className="flex flex-col h-full px-2 py-3">
                         <div className="space-y-1">
                             {globalNav.map((item) =>
-                                renderGlobalItem(
-                                    item.href,
-                                    item.name,
-                                    item.icon,
-                                    true
-                                )
+                                renderItem(item.href, item.label, item.icon, true)
                             )}
                         </div>
 
-                        {/* 세션 영역 */}
-                        <div>
-                            <p className="px-3 text-xs text-text-muted-light">
-                                워크스페이스
-                            </p>
-
-                            {loading && (
-                                <p className="px-3 text-xs text-text-muted-light">
-                                    불러오는 중...
-                                </p>
-                            )}
-
-                            {/* 모바일에서는 세션 수정/삭제 없이 이동만 */}
+                        <div className="mt-4">
                             {sessions.map((s) => (
                                 <Link
                                     key={s.sessionId}
                                     href={`/workspace/${s.sessionId}`}
                                     onClick={() => setOpenMobile(false)}
-                                    className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-accent-soft"
+                                    className="
+                    flex items-center gap-3 px-3 py-2 rounded-md text-sm
+                    text-text-muted-light dark:text-text-muted-dark
+                    hover:bg-accent-soft
+                  "
                                 >
                                     <Folder size={16} />
-                                    <span className="truncate">
-                                        {s.sessionTitle}
-                                    </span>
+                                    <span className="truncate">{s.sessionTitle}</span>
                                 </Link>
                             ))}
+                        </div>
 
-                            <button
-                                onClick={() => setOpenCreate(true)}
-                                className="flex items-center gap-2 px-3 py-2 text-xs hover:text-accent"
+                        <div className="mt-auto border-t border-border-light dark:border-border-dark pt-2">
+                            <Link
+                                href="/settings/profile"
+                                className="
+                  flex items-center gap-3 px-3 py-2 text-sm
+                  text-text-muted-light dark:text-text-muted-dark
+                  hover:bg-accent-soft
+                "
                             >
-                                <Plus size={14} />
-                                새 세션
-                            </button>
+                                <Settings size={18} />
+                                설정
+                            </Link>
                         </div>
                     </nav>
                 </aside>
@@ -166,86 +146,67 @@ export default function GlobalNav() {
         );
     }
 
-    // 데스크탑 네비게이션
+    /* =========================
+       데스크탑
+       ========================= */
     return (
         <aside
             className={`
-                h-screen flex-shrink-0 border-r
-                bg-surface-light transition-all
-                ${isCollapsed ? "w-16" : "w-60"}
-            `}
+        h-full flex-shrink-0
+        bg-surface-light dark:bg-surface-dark
+        border-r border-border-light dark:border-border-dark
+        transition-all
+        ${isCollapsed ? "w-16" : "w-60"}
+      `}
         >
-            {/* 헤더 */}
-            <div className="h-14 px-3 flex items-center border-b">
-                {!isCollapsed && (
-                    <span className="font-semibold text-sm">
-                        개인 워크스페이스
-                    </span>
-                )}
-            </div>
-
-            <nav className="flex-1 px-2 py-3 space-y-4 overflow-y-auto">
-                {/* 전역 메뉴 */}
+            <nav className="flex flex-col h-full px-2 py-3">
                 <div className="space-y-1">
                     {globalNav.map((item) =>
-                        renderGlobalItem(item.href, item.name, item.icon)
+                        renderItem(item.href, item.label, item.icon)
                     )}
                 </div>
 
-                {/* 세션 제목 */}
-                {!isCollapsed && (
-                    <p className="px-3 text-xs text-text-muted-light">
-                        워크스페이스
-                    </p>
-                )}
+                <div className="mt-4 space-y-1">
+                    {sessions.map((s) => (
+                        <SessionNavItem
+                            key={s.sessionId}
+                            sessionId={s.sessionId}
+                            title={s.sessionTitle}
+                            active={pathname.startsWith(`/workspace/${s.sessionId}`)}
+                            collapsed={isCollapsed}
+                            onUpdated={refetch}
+                            onDeleted={refetch}
+                        />
+                    ))}
+                </div>
 
-                {/* 세션 리스트 */}
-                <div className="space-y-1">
-                    {sessions.map((s) => {
-                        const active = pathname.startsWith(
-                            `/workspace/${s.sessionId}`
-                        );
+                <div className="mt-auto border-t border-border-light dark:border-border-dark pt-2 space-y-2">
+                    <Link
+                        href={`/settings/profile?from=${encodeURIComponent(pathname)}`}
+                        className={`
+              flex items-center gap-3 px-3 py-2 rounded-md text-sm
+              text-text-muted-light dark:text-text-muted-dark
+              hover:bg-accent-soft
+              ${isCollapsed ? "justify-center" : ""}
+            `}
+                    >
+                        <Settings size={18} />
+                        {!isCollapsed && <span>설정</span>}
+                    </Link>
 
-                        return (
-                            <SessionNavItem
-                                key={s.sessionId}
-                                sessionId={s.sessionId}
-                                title={s.sessionTitle}
-                                active={active}
-                                collapsed={isCollapsed}
-                                onUpdated={refetch}
-                                onDeleted={refetch}
-                            />
-                        );
-                    })}
-
-                    {/* 세션 생성 버튼 */}
-                    {!isCollapsed && (
-                        <button
-                            onClick={() => setOpenCreate(true)}
-                            className="flex items-center gap-2 px-3 py-2 text-xs hover:text-accent"
-                        >
-                            <Plus size={14} />
-                            새 세션
-                        </button>
-                    )}
+                    <IconButton
+                        icon={
+                            isCollapsed ? (
+                                <ChevronRight size={18} />
+                            ) : (
+                                <ChevronLeft size={18} />
+                            )
+                        }
+                        onClick={() => setCollapsed(!isCollapsed)}
+                        className="w-10 h-10 mx-auto"
+                    />
                 </div>
             </nav>
-
-            {/* 접기 버튼 */}
-            <div className="border-t p-2">
-                <IconButton
-                    icon={
-                        isCollapsed ? (
-                            <ChevronRight size={18} />
-                        ) : (
-                            <ChevronLeft size={18} />
-                        )
-                    }
-                    onClick={() => setCollapsed(!isCollapsed)}
-                    className="w-10 h-10 mx-auto"
-                />
-            </div>
 
             <CreateSessionModal
                 open={openCreate}

@@ -19,11 +19,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.WebUtils;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -96,7 +100,7 @@ public class AuthController {
                     member.getRole().name()
             );
 
-            // 🔥 Redis 저장 (key = refresh:{email})
+            //  Redis 저장 (key = refresh:{email})
             redisTemplate.opsForValue().set(
                     "refresh:" + member.getEmail(),
                     refreshToken,
@@ -149,47 +153,42 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(HttpServletRequest request) {
 
-        //1️⃣ refreshtoken 꺼냄
         Cookie cookie = WebUtils.getCookie(request, "refreshToken");
-
-        //refreshtoken자체가 없으면 401 Unauthorized
         if (cookie == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        //2️⃣ refreshToken 값을 추출 쿠키 값 = JWT 문자열
         String refreshToken = cookie.getValue();
 
-        //3️⃣ JWT 자체 검증 (위조 / 만료)
         if (!jwtUtil.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        //4️⃣ refreshToken에서 사용자 식별자 추출
-        //Redis에 refreshToken을 refresh:{email}형태로 저장했기 때문 email이 Redis 조회 key
         String email = jwtUtil.getEmailFromToken(refreshToken);
+        String savedToken = redisTemplate.opsForValue().get("refresh:" + email);
 
-        //5️⃣ Redis에 저장된 refreshToken 조회
-        String savedToken =
-                redisTemplate.opsForValue().get("refresh:" + email);
-
-        //6️⃣ 요청 토큰 vs 서버 토큰 비교
         if (!refreshToken.equals(savedToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // DB에서 최신 Member 조회
         Member member = memberService.findByEmail(email);
 
-        //7️⃣ 새 accessToken 발급
-
-//
-        String newAccessToken  = jwtUtil.generateAccessToken(
+        //  새 accessToken 발급
+        String newAccessToken = jwtUtil.generateAccessToken(
                 member.getEmail(),
                 member.getRole().name()
         );
 
-        //8️⃣ 새 accessToken을 쿠키로 만든다
+        //  여기 핵심: SecurityContext 세팅
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        member.getEmail(),
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + member.getRole().name()))
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         ResponseCookie newAccessCookie =
                 ResponseCookie.from("accessToken", newAccessToken)
                         .httpOnly(true)
@@ -203,6 +202,7 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, newAccessCookie.toString())
                 .build();
     }
+
 
     // =========================
     // 로그아웃
