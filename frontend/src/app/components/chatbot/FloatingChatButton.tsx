@@ -10,7 +10,7 @@ export default function FloatingChatButton() {
     return (
         <button
             onClick={() => dispatch(toggleChat())}
-            aria-label="Open FloCut AI Assistant"
+            aria-label=" FloCut AI "
             className="
         fixed bottom-6 right-6 z-50
         flex items-center justify-center

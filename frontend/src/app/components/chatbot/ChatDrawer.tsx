@@ -51,6 +51,7 @@ export default function ChatDrawer() {
                 addMessage({
                     role: "assistant",
                     content: data.content,
+                    cta: data.content.includes("워크스페이스") ? "workspace" : undefined,
                 })
             );
         } catch {

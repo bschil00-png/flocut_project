@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface ChatMessage {
     role: "user" | "assistant";
     content: string;
+    cta?: "workspace";
 }
 
 interface ChatState {

@@ -22,7 +22,7 @@ export default function ChatContainer({
             {messages.length === 0 && !loading && (
                 <EmptyState
                     icon={<MessageCircle size={24} />}
-                    title="FloCut 퍼블릭 AI 도우미"
+                    title="FLOCUT  AI 도우미"
                     description="문서·음성 요약 사용법 안내와 짧은 텍스트 요약을 체험해보세요."
                 />
             )}
@@ -32,8 +32,10 @@ export default function ChatContainer({
                     key={idx}
                     role={msg.role}
                     content={msg.content}
+                    cta={msg.cta}
                 />
             ))}
+
 
             {loading && <TypingIndicator />}
 
