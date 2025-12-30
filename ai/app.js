@@ -1,73 +1,101 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
-const multer = require("multer");
 const FormData = require("form-data");
-
-require("dotenv").config(); // 🔐 env 사용
+const AWS = require("aws-sdk");
+require("dotenv").config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+// 🔐 ENV
+const {
+  N8N_WEBHOOK_URL,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_REGION,
+  AWS_S3_BUCKET,
+} = process.env;
 
-// 🔐 n8n Webhook URL (필수)
-const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
+if (!N8N_WEBHOOK_URL || !AWS_S3_BUCKET) {
 
-if (!N8N_WEBHOOK_URL) {
-  console.error("❌ N8N_WEBHOOK_URL is not defined in .env");
+  console.error("❌ Required env missing");
   process.exit(1);
 }
 
-// multer 설정
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB
+// 🔐 AWS S3 설정
+AWS.config.update({
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  region: AWS_REGION,
 });
+
+const s3 = new AWS.S3();
 
 // 🟢 헬스체크
 app.get("/", (req, res) => {
-  res.send("Node AI Relay Server is running");
+  res.send("Node AI Relay Server (S3-based) is running");
 });
 
-// 🔥 파일 → n8n 전달
-app.post("/api/ai-file", upload.single("data"), async (req, res) => {
+// 🔥 요약 요청 엔드포인트 (JSON)
+app.post("/api/ai/document-summary", async (req, res) => {
+  console.log("🔥 ENTER document-summary at", new Date().toISOString());
   try {
-    console.log("📂 File received");
-    console.log(" - name:", req.file?.originalname);
-    console.log(" - size:", req.file?.size);
+    const {
+      s3Key,
+      filename,
+      contentType,
+      sessionId,
+      roundNo,
+      versionNo,
+    } = req.body;
 
-    if (!req.file) {
+    if (!s3Key) {
       return res.status(400).json({
         success: false,
-        error: "No file uploaded (key must be 'data')",
+        error: "s3Key is required",
       });
     }
 
-    // multipart/form-data 구성
+    console.log("📥 Summary request received");
+    console.log(" - s3Key:", s3Key);
+
+    // 1️⃣ S3 파일 다운로드
+    const s3Object = await s3
+      .getObject({
+        Bucket: AWS_S3_BUCKET,
+        Key: s3Key,
+      })
+      .promise();
+      console.log("S3 ContentType:", s3Object.ContentType);
+      console.log("Filename:", filename);
+
+    // 2️⃣ n8n으로  전달
     const form = new FormData();
-    form.append("data", req.file.buffer, {
-      filename: req.file.originalname,
-      contentType: req.file.mimetype,
+    form.append("data", s3Object.Body, {
+      filename,
+      contentType,
     });
 
-    // n8n webhook 호출
-    const n8nRes = await axios.post(
-      N8N_WEBHOOK_URL,
-      form,
-      {
-        headers: form.getHeaders(),
-        timeout: 300000,
-      }
-    );
+
+    // 메타데이터도 함께 전달 (n8n에서 사용 가능)
+    form.append("sessionId", sessionId);
+    form.append("roundNo", roundNo);
+    form.append("versionNo", versionNo);
+
+    const n8nRes = await axios.post(N8N_WEBHOOK_URL, form, {
+      headers: form.getHeaders(),
+      timeout: 300000,
+    });
 
     return res.json({
       success: true,
-      message: "AI processing started (n8n webhook called)",
+      message: "AI processing started via n8n",
       n8nResponse: n8nRes.data ?? null,
     });
 
   } catch (err) {
-    console.error("❌ n8n webhook error:", err.message);
+    console.error("❌ AI Relay Error:", err);
 
     return res.status(500).json({
       success: false,
