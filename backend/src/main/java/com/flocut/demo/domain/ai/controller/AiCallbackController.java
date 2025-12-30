@@ -20,6 +20,7 @@ public class AiCallbackController {
             @RequestBody AiSummaryResultRequest request
     ) {
         callbackService.handleSummaryResult(request);
+        System.out.println("🔥 CALLBACK RECEIVED");
     }
 
     @PostMapping("/summary/fail")

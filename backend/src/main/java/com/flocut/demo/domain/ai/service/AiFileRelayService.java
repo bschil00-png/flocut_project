@@ -1,5 +1,6 @@
 package com.flocut.demo.domain.ai.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -12,43 +13,42 @@ import java.io.IOException;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class AiFileRelayService {
+
+    private static final String NODE_AI_URL =
+            "http://localhost:8081/api/ai/document-summary";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // 🔥 Node AI Relay 서버
-    private static final String NODE_AI_URL =
-            "http://localhost:8081/api/ai-file";
+    public void requestSummary(
+            String s3Key,
+            String filename,
+            String contentType,
+            Long sessionId,
+            int roundNo,
+            int versionNo
+    ) {
+        Map<String, Object> body = Map.of(
+                "s3Key", s3Key,
+                "filename", filename,
+                "contentType", contentType,
+                "sessionId", sessionId,
+                "roundNo", roundNo,
+                "versionNo", versionNo
+        );
 
-    public Map<String, Object> sendFileToAi(MultipartFile file) throws IOException {
-
-        // 1️⃣ multipart body 생성
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-
-        ByteArrayResource fileResource = new ByteArrayResource(file.getBytes()) {
-            @Override
-            public String getFilename() {
-                return file.getOriginalFilename();
-            }
-        };
-
-        body.add("data", fileResource);
-
-        // 2️⃣ Header 설정
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<MultiValueMap<String, Object>> requestEntity =
+        HttpEntity<Map<String, Object>> request =
                 new HttpEntity<>(body, headers);
 
-        // 3️⃣ Node 서버 호출
-        ResponseEntity<Map> response =
-                restTemplate.postForEntity(
-                        NODE_AI_URL,
-                        requestEntity,
-                        Map.class
-                );
-
-        return response.getBody();
+        restTemplate.postForEntity(
+                NODE_AI_URL,
+                request,
+                Void.class
+        );
     }
 }
+
