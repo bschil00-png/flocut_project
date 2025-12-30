@@ -13,6 +13,7 @@ public class MockAiSummaryRequester implements AiSummaryRequester {
             Long sessionId,
             int roundNo,
             int versionNo
+
     ) {
         log.info(
                 "[MOCK AI REQUEST] fileId={}, sessionId={}, round={}, version={}",
