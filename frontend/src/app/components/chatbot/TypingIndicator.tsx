@@ -1,6 +1,3 @@
-// 경로: /src/components/chat/TypingIndicator.tsx
-// AI가 타이핑 중일 때 보여주는 UI
-
 "use client";
 
 export default function TypingIndicator() {

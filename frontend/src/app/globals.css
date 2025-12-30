@@ -45,6 +45,25 @@ html, body {
     --accent-hover: #a4bce0;
     --accent-soft: rgba(138, 164, 200, 0.18);
 }
+
+
+/*챗봇 애니메이션 효과*/
+@keyframes avatar-float {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.animate-avatar-float {
+    animation: avatar-float 3.8s ease-in-out infinite;
+}
+
 /*애니메이션 효과 -> 사용 미정 정의만  */
 @keyframes fadeIn {
     from { opacity: 0 }
