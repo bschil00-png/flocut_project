@@ -58,14 +58,10 @@ export default function ActionModal({
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* header */}
-                    {(title || true) && (
+                    {title && (
                         <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark">
-                            {title && (
-                                <h2 className="text-sm font-semibold">
-                                    {title}
-                                </h2>
-                            )}
-                            <IconButton icon={<X size={16} />} onClick={onClose} />
+                          <h2 className="text-sm font-semibold">{title}</h2>
+                          <IconButton icon={<X size={16} />} onClick={onClose} />
                         </div>
                     )}
 
