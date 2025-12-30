@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   });
 
   await transporter.sendMail({
-    from: `"FloCut 문의" <${process.env.CONTACT_EMAIL}>`,
+    from: `"FLOCUT 문의" <${process.env.CONTACT_EMAIL}>`,
     to: process.env.CONTACT_EMAIL,
     replyTo: email,
     subject: `[FLOCUT 문의] ${title}`,

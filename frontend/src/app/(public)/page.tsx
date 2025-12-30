@@ -11,6 +11,7 @@ import MidCTASection from "@/app/components/sections/MidCTASection";
 import MascotHighlightSection from "@/app/components/sections/MascotHighlightSection";
 import ImageShowcaseSection from "@/app/components/sections/ImageShowcaseSection";
 import NoticeSection from "@/app/components/sections/NoticeSection";
+import ChatContainer from "@/app/components/chatbot/ChatContainer";
 
 export default function HomePage() {
     return (
@@ -19,24 +20,25 @@ export default function HomePage() {
 
             <main className="pt-16">
                 {/*  Hero  */}
-                <HeroSection />
+                <HeroSection/>
 
                 {/*  Main Feature Showcase (이미지 중심)  */}
-                <ImageShowcaseSection />
+                <ImageShowcaseSection/>
 
                 {/*  How It Works (Flow)  */}
-                <FlowExplainSection />
+                <FlowExplainSection/>
 
                 {/*  Problem → Solution  */}
-                <ReplaceWorkSection />
+                <ReplaceWorkSection/>
 
-                <NoticeSection />
+                <NoticeSection/>
 
                 {/*  Mid CTA  */}
-                <MidCTASection />
+                <MidCTASection/>
 
                 {/*  Brand Emotion  */}
                 {/*<MascotHighlightSection />*/}
+                {/* 챗봇*/}
             </main>
 
 

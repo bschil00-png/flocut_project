@@ -108,7 +108,7 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
               <Sparkles size={16} className="text-blue-600" />
-              <span className="text-sm font-medium text-blue-600">About FloCut</span>
+              <span className="text-sm font-medium text-blue-600">About FLOCUT</span>
             </div>
             <h1 className="text-6xl font-bold text-slate-900 dark:text-white mb-6">
               문서 이해의
@@ -118,7 +118,7 @@ export default function AboutPage() {
               </span>
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              FloCut은 AI 기반 문서 분석 기술로 여러분의 업무와 학습 효율을 높입니다.
+              FLOCUT은 AI 기반 문서 분석 기술로 여러분의 업무와 학습 효율을 높입니다.
               <br />
               요약, 비교, 피드백까지 하나의 플랫폼에서 제공합니다.
             </p>
@@ -153,7 +153,7 @@ export default function AboutPage() {
             핵심 기능
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            FloCut이 제공하는 강력한 AI 기반 문서 처리 기능
+            FLOCUT이 제공하는 강력한 AI 기반 문서 처리 기능
           </p>
         </div>
 
@@ -212,7 +212,7 @@ export default function AboutPage() {
                   우리의 비전
                 </h2>
                 <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-                  FloCut은 정보 과부하 시대에 사용자가 더 효율적으로 학습하고 이해할 수 있도록 돕는
+                  FLOCUT은 정보 과부하 시대에 사용자가 더 효율적으로 학습하고 이해할 수 있도록 돕는
                   <br />
                   <span className="text-blue-600 font-semibold">지능형 문서 보조 플랫폼</span>을 구축하는 것을 목표로 합니다.
                 </p>
@@ -268,7 +268,7 @@ export default function AboutPage() {
                   우리 팀
                 </h2>
                 <p className="text-lg text-slate-600 dark:text-slate-400">
-                  열정과 전문성을 갖춘 FloCut 팀을 소개합니다
+                  열정과 전문성을 갖춘 FLOCUT 팀을 소개합니다
                 </p>
               </div>
 
@@ -306,7 +306,7 @@ export default function AboutPage() {
                   우리의 가치와 접근
                 </h2>
                 <p className="text-lg text-slate-600 dark:text-slate-400">
-                  FloCut 프로젝트가 추구하는 핵심 가치
+                  FLOCUT 프로젝트가 추구하는 핵심 가치
                 </p>
               </div>
 
@@ -342,7 +342,7 @@ export default function AboutPage() {
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-purple-500 p-12 text-center">
           <div className="relative z-10">
             <h2 className="text-4xl font-bold text-white mb-4">
-              FloCut 프로젝트 알아보기
+              FLOCUT 프로젝트 알아보기
             </h2>
             <p className="text-lg text-white/90 mb-8">
               프로젝트의 진행 상황과 최신 기능을 확인해보세요

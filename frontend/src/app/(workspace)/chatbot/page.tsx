@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import InputBar from "@/app/components/chat/InputBar";
+import InputBar from "@/app/components/chatbot/InputBar";
 
 import {
   addMessage,
@@ -12,7 +12,7 @@ import {
   clearChat,
   setCharacterMode,
   ChatMessage,
-} from "@/store/slice/chatSlice";
+} from "@/store/slice/publicChatSlice";
 
 
 import dynamic from "next/dynamic";
@@ -21,7 +21,7 @@ import {AppDispatch, RootState} from "@/store";
 
 //  ChatContainer SSR 비활성화
 const ChatContainer = dynamic(
-  () => import("@/app/components/chat/ChatContainer"),
+  () => import("@/app/components/chatbot/ChatContainer"),
   { ssr: false }
 );
 
@@ -92,7 +92,7 @@ export default function ChatbotPage() {
       <div className="flex h-screen w-full overflow-hidden">
         <div className="hidden md:flex w-[320px] bg-[#f5f5f5] items-center justify-center border-r border-neutral-300">
           <img
-            src="/bot.png"
+            src="/src/app/favicon.ico"
             alt="chatbot character"
             className="w-48 h-auto animate-bounce-slow"
           />
