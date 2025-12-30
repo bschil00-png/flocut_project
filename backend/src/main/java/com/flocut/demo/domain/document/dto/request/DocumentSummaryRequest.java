@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DocumentSummaryMockRequest {
+public class DocumentSummaryRequest {
     private Long fileId;
     private Long sessionId;
     private int roundNo;

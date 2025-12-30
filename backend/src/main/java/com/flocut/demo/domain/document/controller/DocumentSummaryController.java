@@ -2,7 +2,7 @@ package com.flocut.demo.domain.document.controller;
 
 
 import com.flocut.demo.domain.document.service.DocumentSummaryService;
-import com.flocut.demo.domain.document.dto.request.DocumentSummaryMockRequest;
+import com.flocut.demo.domain.document.dto.request.DocumentSummaryRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ public class DocumentSummaryController {
 
     @PostMapping("/request")
     public ResponseEntity<Long> requestSummary(
-            @RequestBody DocumentSummaryMockRequest request
+            @RequestBody DocumentSummaryRequest request
     ) {
         Long summaryId =
                 summaryService.requestSummary(
