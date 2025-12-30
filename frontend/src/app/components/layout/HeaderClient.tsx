@@ -8,67 +8,46 @@ export default function HeaderClient() {
     const { isAuthenticated, user, initialized } = useAuthState();
     const { logout } = useAuthActions();
 
-    // 초기화 전 스켈레톤
     if (!initialized) {
         return (
-            <div className="flex items-center gap-4">
-                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="flex items-center gap-3">
+                <div className="h-9 w-20 bg-surface-light dark:bg-surface-dark rounded-lg animate-pulse" />
+                <div className="h-9 w-20 bg-surface-light dark:bg-surface-dark rounded-lg animate-pulse" />
             </div>
         );
     }
 
     return (
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
             {isAuthenticated ? (
                 <>
                     {user?.name && (
-                        <span className="text-sm text-text-muted-light dark:text-text-muted-dark">
-              {user.name}
-            </span>
+                        <div className="px-3 py-1.5 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
+                            <span className="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+                                {user.name}
+                            </span>
+                        </div>
                     )}
 
                     <button
                         onClick={logout}
-                        className="
-              text-sm
-              text-text-muted-light
-              dark:text-text-muted-dark
-              hover:text-text-primary-light
-              dark:hover:text-text-primary-dark
-              transition-colors
-            "
+                        className="px-4 py-2 rounded-lg text-sm font-medium text-text-muted-light dark:text-text-muted-dark hover:text-accent hover:bg-accent/5 transition-all"
                     >
                         로그아웃
                     </button>
                 </>
             ) : (
                 <>
-                    {/* 로그인 */}
                     <Link
                         href="/login"
-                        className="
-              text-sm
-              text-text-muted-light
-              dark:text-text-muted-dark
-              hover:text-accent
-              dark:hover:text-text-primary-dark
-              transition-colors
-            "
+                        className="px-4 py-2 rounded-lg text-sm font-medium text-text-muted-light dark:text-text-muted-dark hover:text-accent hover:bg-accent/5 transition-all"
                     >
                         로그인
                     </Link>
 
-                    {/* 회원가입 */}
                     <Link
                         href="/signup"
-                        className="
-              text-sm font-medium
-              text-text-muted-light
-              dark:text-text-muted-dark
-               dark:hover:text-text-primary-dark
-              hover:text-accent
-              transition-colors
-            "
+                        className="px-5 py-2 rounded-lg text-sm font-semibold bg-accent hover:bg-accent-hover text-white shadow-lg shadow-accent/25 transition-all"
                     >
                         회원가입
                     </Link>

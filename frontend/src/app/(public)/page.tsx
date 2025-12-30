@@ -1,17 +1,12 @@
 "use client";
 
-import Header from "@/app/components/layout/Header";
-import Footer from "@/app/components/layout/Footer";
+import ImageShowcaseSection from "@/app/components/sections/ImageShowcaseSection";
 
-import HeroSection from "@/app/components/sections/HeroSection";
-import AiFeatureShowcaseSection from "@/app/components/sections/AiFeatureShowcaseSection";
 import FlowExplainSection from "@/app/components/sections/FlowExplainSection";
 import ReplaceWorkSection from "@/app/components/sections/ReplaceWorkSection";
 import MidCTASection from "@/app/components/sections/MidCTASection";
-import MascotHighlightSection from "@/app/components/sections/MascotHighlightSection";
-import ImageShowcaseSection from "@/app/components/sections/ImageShowcaseSection";
-import NoticeSection from "@/app/components/sections/NoticeSection";
-import ChatContainer from "@/app/components/chatbot/ChatContainer";
+import HeroSection from "@/app/components/sections/HeroSection";
+import SupportSection from "@/app/components/sections/SupportSection";
 
 export default function HomePage() {
     return (
@@ -20,7 +15,7 @@ export default function HomePage() {
 
             <main className="pt-16">
                 {/*  Hero  */}
-                <HeroSection/>
+                <HeroSection />
 
                 {/*  Main Feature Showcase (이미지 중심)  */}
                 <ImageShowcaseSection/>
@@ -31,14 +26,11 @@ export default function HomePage() {
                 {/*  Problem → Solution  */}
                 <ReplaceWorkSection/>
 
-                <NoticeSection/>
+                <SupportSection/>
 
                 {/*  Mid CTA  */}
                 <MidCTASection/>
 
-                {/*  Brand Emotion  */}
-                {/*<MascotHighlightSection />*/}
-                {/* 챗봇*/}
             </main>
 
 
