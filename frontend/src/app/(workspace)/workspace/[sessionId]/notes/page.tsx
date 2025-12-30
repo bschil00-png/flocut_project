@@ -1,7 +1,7 @@
 "use client";
 
 import {use, useState} from "react";
-import NotesHeader from "@/app/components/notes/NotesHeader";
+import UploadHeader from "@/app/components/header/UploadHeader";
 import NotesFilterBar from "@/app/components/notes/NotesFilterBar";
 import NotesGridView from "@/app/components/notes/NotesGridView";
 import NotesListView from "@/app/components/notes/NotesListView";
@@ -73,7 +73,7 @@ export default function NotesPage({
   return (
     <div className="h-full flex flex-col bg-background-light dark:bg-background-dark">
       {/* 상단 헤더 */}
-      <NotesHeader total={notes.length} />
+      <UploadHeader total={notes.length} />
 
       {/* 필터 / 정렬 / 뷰 모드 */}
       <NotesFilterBar

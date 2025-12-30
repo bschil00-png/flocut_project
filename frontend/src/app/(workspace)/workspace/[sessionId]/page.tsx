@@ -1,20 +1,40 @@
 // app/(workspace)/workspace/[sessionId]/page.tsx
 "use client";
 
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 
-export default function SessionEntryPage() {
-    const { sessionId } = useParams<{ sessionId: string }>();
-    const router = useRouter();
+export default function SessionHomePage() {
+  const { sessionId } = useParams<{ sessionId: string }>();
 
-    useEffect(() => {
-        router.replace(`/workspace/${sessionId}/notes`);
-    }, [router, sessionId]);
+  return (
+    <div className="p-8 space-y-6">
+      <h1 className="text-2xl font-bold">
+        세션 #{sessionId}
+      </h1>
 
-    return (
-        <div className="h-full flex items-center justify-center text-sm text-text-muted-light">
-            워크스페이스 로딩 중...
-        </div>
-    );
+      <div className="grid grid-cols-3 gap-4">
+        <Link
+          href={`/workspace/${sessionId}/notes`}
+          className="border rounded-md p-4 hover:bg-gray-50"
+        >
+           노트
+        </Link>
+
+        <Link
+          href={`/workspace/${sessionId}/documents`}
+          className="border rounded-md p-4 hover:bg-gray-50"
+        >
+           문서
+        </Link>
+
+        <Link
+          href={`/workspace/${sessionId}/audio`}
+          className="border rounded-md p-4 hover:bg-gray-50"
+        >
+           음성
+        </Link>
+      </div>
+    </div>
+  );
 }

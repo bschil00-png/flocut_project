@@ -1,6 +1,7 @@
 
 import type { Metadata } from "next";
 import Header from "@/app/components/layout/Header";
+import Footer from "@/app/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "FLOCUT",
@@ -19,6 +20,7 @@ export default async function PublicLayout({
       <main className="min-h-screen pt-16">
           {children}
       </main>
+      <Footer />
     </>
   );
 }

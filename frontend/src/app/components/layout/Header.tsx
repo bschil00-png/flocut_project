@@ -8,7 +8,7 @@ export default function Header() {
             className="
         fixed top-0 z-50 w-full h-16
         border-b
-        bg-background-light/80 dark:bg-background-dark/80
+        bg-background-light dark:bg-background-dark
         backdrop-blur-xl
         border-border-light dark:border-border-dark
       "
