@@ -1,6 +1,6 @@
 package com.flocut.demo.domain.document.service;
 
-import com.flocut.demo.domain.ai.requester.AiSummaryRequester;
+//import com.flocut.demo.domain.ai.requester.AiSummaryRequester;
 import com.flocut.demo.domain.ai.service.AiFileRelayService;
 import com.flocut.demo.domain.document.entity.DocumentSummary;
 import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
