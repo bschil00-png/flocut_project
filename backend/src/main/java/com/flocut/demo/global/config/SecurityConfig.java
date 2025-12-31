@@ -54,6 +54,8 @@ public class SecurityConfig {
                                 "/auth/google/**"
                         ).permitAll()
 
+                        .requestMatchers("/api/ai/**").permitAll()
+
                         // GraphiQL (개발용 UI)
                         .requestMatchers(
                                 "/graphiql",

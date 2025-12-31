@@ -22,6 +22,7 @@ public class AiFileRelayService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public void requestSummary(
+            Long fileId,
             String s3Key,
             String filename,
             String contentType,
@@ -30,6 +31,7 @@ public class AiFileRelayService {
             int versionNo
     ) {
         Map<String, Object> body = Map.of(
+                "fileId", fileId,
                 "s3Key", s3Key,
                 "filename", filename,
                 "contentType", contentType,

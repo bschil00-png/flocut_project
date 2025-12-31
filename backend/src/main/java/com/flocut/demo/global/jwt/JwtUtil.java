@@ -46,7 +46,7 @@ public class JwtUtil {
     private String createToken(String email, String role, long expireMs) {
         return Jwts.builder()
                 .setSubject(email)
-                .claim("role", role) // 🔥 핵심
+                .claim("role", role) // role을 넣은 이유 :매 요청 DB 조회 제거
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expireMs))
                 .signWith(key, SignatureAlgorithm.HS256)
