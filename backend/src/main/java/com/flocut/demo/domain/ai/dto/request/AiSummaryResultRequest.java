@@ -15,10 +15,10 @@ public class AiSummaryResultRequest {
     private Long sessionId;
 
     @JsonProperty("round_no")
-    private int roundNo;
+    private Integer roundNo;
 
     @JsonProperty("version_no")
-    private int versionNo;
+    private Integer versionNo;
 
     @JsonProperty("summary")
     private String summaryText;

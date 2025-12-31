@@ -46,6 +46,7 @@ public class DocumentSummaryService {
 
         // 2️⃣ S3 정보만 전달
         aiFileRelayService.requestSummary(
+                file.getFileId(),
                 file.getS3Key(),
                 file.getFileName(),
                 file.getFileType(),
