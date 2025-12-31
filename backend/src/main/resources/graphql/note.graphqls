@@ -1,0 +1,12 @@
+type Note {
+    noteId: ID!
+    title: String
+    content: String
+    sourceType: String
+    sourceId: ID
+    regdate: String
+}
+
+extend type Query {
+    notesBySession(sessionId: ID!): [Note]
+}
