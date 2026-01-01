@@ -35,7 +35,7 @@ export const NOTE_LIST_QUERY = gql`
 // 노트 하나의 상세 정보 조회
 // 노트 편집 화면에서 사용
 export const NOTE_DETAIL_QUERY = gql`
-  query noteDetail($noteId: ID!){
+  query noteDetail($noteId: ID!) {
     noteDetail(noteId: $noteId) {
       noteId
       sessionId
