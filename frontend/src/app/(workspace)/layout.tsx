@@ -1,44 +1,65 @@
-// src/app/(workspace)/layout.tsx
 "use client";
 
 import "@/app/globals.css";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuthState } from "@/hooks/useAuthState";
+import { useAuthActions } from "@/hooks/useAuthActions";
 
 import GlobalNav from "@/app/components/layout/WorkspaceLayout/GlobalNav";
 import WorkspaceHeader from "@/app/components/layout/WorkspaceLayout/WorkspaceHeader";
-
-import FloatingChatButton from "@/app/components/chat/FloatingChatButton";
-import ChatDrawer from "@/app/components/chat/ChatDrawer";
-import GlobalLoader from "@/app/components/layout/loading/GlobalLoader";
+import UploadHeader from "@/app/components/header/UploadHeader";
 
 export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
 
-  return (
-    <div className="h-screen flex flex-col bg-background-light dark:bg-background-dark">
+    const { user, loading } = useAuthState();
+    const { ensureAuth, logout } = useAuthActions();
+    const checkedRef = useRef(false);
 
-      {/* 상단 헤더 */}
-      <WorkspaceHeader />
+    // 보호 페이지 진입 시 반드시 인증 보장
+    useEffect(() => {
+        if (checkedRef.current) return;
+        checkedRef.current = true;
 
-      {/* 메인 레이아웃 */}
-      <div className="flex-1 flex overflow-hidden">
+        (async () => {
+            const ok = await ensureAuth();
+            if (!ok) {
+                router.replace(`/login?from=${pathname}`);
+            }
+        })();
+    }, [ensureAuth, pathname, router]);
 
-        {/* 왼쪽 네비게이션 */}
-        <GlobalNav
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed(!collapsed)}
-        />
+    // 전역 로그아웃 이벤트
+    useEffect(() => {
+        const handleLogout = () => {
+            logout().then(() => router.replace("/login"));
+        };
 
+        window.addEventListener("auth:logout", handleLogout);
+        return () => window.removeEventListener("auth:logout", handleLogout);
+    }, [logout, router]);
 
-        {/* 페이지 본문 */}
-        <main className="flex-1 overflow-hidden">
-          {children}
-        </main>
-      </div>
+    if (loading || !user) {
+        return (
+            <div className="h-screen flex items-center justify-center">
+                인증 확인 중...
+            </div>
+        );
+    }
 
-      <FloatingChatButton />
-      <ChatDrawer />
-      <GlobalLoader />
-    </div>
-  );
+    return (
+        <div className="h-screen flex flex-col bg-background-light dark:bg-background-dark">
+            <WorkspaceHeader />
+            <div className="flex-1 flex overflow-hidden">
+                <GlobalNav
+                />
+                <main className="flex-1 overflow-hidden">
+                    {children}
+                </main>
+            </div>
+        </div>
+    );
 }

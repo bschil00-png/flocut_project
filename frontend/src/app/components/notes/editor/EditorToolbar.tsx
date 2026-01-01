@@ -17,6 +17,8 @@ import DocumentCompare from "@/app/components/layout/ai/DocumentCompare";
 
 interface Props {
   isEditing: boolean;
+  saving?: boolean;
+  onSave: () => void;
   onToggleEdit: () => void;
   onAIAction: (m: "summary" | "feedback" | "compare") => void;
   onToggleRightPanel: () => void;
@@ -24,13 +26,16 @@ interface Props {
   editorContent: string;
 }
 
+
 export default function EditorToolbar({
                                         isEditing,
+                                        saving,
+                                        onSave,
                                         onToggleEdit,
                                         onAIAction,
                                         onToggleRightPanel,
                                         rightPanelOpen,
-                                        editorContent
+                                        editorContent,
                                       }: Props) {
 
   const [voiceOpen, setVoiceOpen] = useState(false);
@@ -84,6 +89,14 @@ export default function EditorToolbar({
           >
             <GitCompare size={14} /> 비교
           </button>
+          <button
+            onClick={onSave}
+            disabled={saving}
+            className="px-4 py-2 rounded-md bg-accent text-white text-sm"
+          >
+            {saving ? "저장 중..." : "저장"}
+          </button>
+
 
           <div className="h-6 w-px bg-border-light dark:bg-border-dark" />
 

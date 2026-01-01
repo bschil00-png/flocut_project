@@ -1,149 +1,124 @@
 "use client";
 
 import Link from "next/link";
-import DarkModeToggle from "./DarkModeToggle";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import HeaderClient from "./HeaderClient";
+
+const NAV_ITEMS = [
+    { href: "/about", label: "회사 소개" },
+    { href: "/workspace", label: "스튜디오" },
+    { href: "/calendar", label: "캘린더" },
+    { href: "/support", label: "고객지원" },
+];
 
 export default function Header() {
-    const { isAuthenticated, user } = useSelector(
-        (state: RootState) => state.auth
-    );
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
-        <header
-            className="
-                fixed top-0 z-50
-                w-full
-                bg-background-light/90
-                dark:bg-background-dark/90
-                backdrop-blur
-                border-b border-border-light
-                dark:border-border-dark
-            "
-        >
-            {/* 중앙 정렬 컨테이너 */}
-            <div
-                className="
-                    mx-auto max-w-7xl
-                    px-6
-                    h-16
-                    flex items-center justify-between
-                "
-            >
-                {/* ===== Left : Logo ===== */}
-                <div className="flex items-center gap-2">
-                    <Link href="/">
-                        <span
-                            className="
-                                text-lg font-bold tracking-tight
-                                text-text-primary-light
-                                dark:text-text-primary-dark
-                            "
+        <header className="fixed top-0 z-50 w-full h-16 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl border-b border-border-light dark:border-border-dark">
+            <div className="mx-auto max-w-[1200px] h-full px-4">
+                {/* HEADER BAR */}
+                <div className="grid grid-cols-3 items-center h-full">
+                    {/* 좌측: 로고 */}
+                    <div className="flex items-center">
+                        <Link
+                            href="/"
+                            className="font-bold text-xl text-text-primary-light dark:text-text-primary-dark"
                         >
                             FLOCUT
-                        </span>
-                    </Link>
-                </div>
-
-                {/* ===== Center : Navigation ===== */}
-                <nav className="hidden md:flex items-center gap-8">
-                    {[
-                        { label: "회사 소개", href: "/about" },
-                        { label: "문서", href: "/documents" },
-                        { label: "스튜디오", href: "/notes" },
-                        { label: "캘린더", href: "/calendar" },
-                        { label: "고객지원", href: "/support" },
-                    ].map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            className="
-                                text-sm font-medium
-                                text-text-muted-light
-                                dark:text-text-muted-dark
-                                hover:text-text-primary-light
-                                dark:hover:text-text-primary-dark
-                                transition-colors
-                            "
-                        >
-                            {item.label}
                         </Link>
-                    ))}
-                </nav>
-
-                {/* ===== Right : Actions ===== */}
-                <div className="flex items-center gap-4">
-                    {/* 검색 인풋 */}
-                    <div className="hidden lg:block">
-                        <input
-                            type="text"
-                            placeholder="검색"
-                            className="
-                                h-9 w-44 rounded-md
-                                bg-surface-light
-                                dark:bg-surface-dark
-                                border border-border-light
-                                dark:border-border-dark
-                                px-3 text-sm
-                                text-text-primary-light
-                                dark:text-text-primary-dark
-                                placeholder:text-text-muted-light
-                                dark:placeholder:text-text-muted-dark
-                                focus:outline-none
-                                focus:ring-2 focus:ring-accent
-                            "
-                        />
                     </div>
 
-                    {/* ===== 인증 상태 분기 ===== */}
-                    {isAuthenticated && user ? (
-                        <span
-                            className="
-                                text-sm font-medium
-                                text-text-primary-light
-                                dark:text-text-primary-dark
-                                whitespace-nowrap
-                            "
+                    {/* 중앙: 네비 (md 이상) */}
+                    <nav className="hidden md:flex justify-center gap-1">
+                        {NAV_ITEMS.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className="px-4 py-2 rounded-lg text-sm font-medium
+                  text-text-muted-light dark:text-text-muted-dark
+                  hover:text-accent hover:bg-accent/5 transition"
+                            >
+                                {item.label}
+                            </Link>
+                        ))}
+                    </nav>
+
+                    {/* 우측 */}
+                    <div className="flex justify-end items-center">
+                        {/* 모바일: 햄버거만 */}
+                        <button
+                            className="md:hidden p-2 rounded-lg hover:bg-accent/10"
+                            onClick={() => setMobileOpen(true)}
+                            aria-label="메뉴 열기"
                         >
-                            {user.name}님 환영합니다
-                        </span>
-                    ) : (
-                        <>
-                            <Link
-                                href="/login"
-                                className="
-                                    text-sm font-medium
-                                    text-text-muted-light
-                                    dark:text-text-muted-dark
-                                    hover:text-text-primary-light
-                                    dark:hover:text-text-primary-dark
-                                "
-                            >
-                                로그인
-                            </Link>
+                            <Menu size={20} />
+                        </button>
 
-                            <Link
-                                href="/signup"
-                                className="
-                                    h-9 px-4
-                                    flex items-center justify-center
-                                    rounded-md
-                                    bg-accent
-                                    hover:bg-accent-hover
-                                    text-white text-sm font-medium
-                                    transition-colors
-                                "
-                            >
-                                회원가입
-                            </Link>
-                        </>
-                    )}
-
-                    {/* 다크모드 토글 */}
-                    <DarkModeToggle />
+                        {/* 데스크탑: 인증 영역 */}
+                        <div className="hidden md:block">
+                            <HeaderClient />
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {/* MOBILE DRAWER */}
+            {mobileOpen && (
+                <div className="fixed inset-0 z-50 md:hidden">
+                    {/* overlay (헤더 아래부터) */}
+                    <div
+                        className="absolute inset-0 top-16 bg-black/40"
+                        onClick={() => setMobileOpen(false)}
+                    />
+
+                    {/* drawer */}
+                    <aside
+                        className="
+              absolute right-0 top-16
+              h-[calc(100vh-4rem)]
+              w-72
+              bg-background-light dark:bg-background-dark
+              shadow-xl
+              flex flex-col
+            "
+                    >
+                        {/* drawer header */}
+                        <div className="flex items-center justify-between h-14 px-4 border-b border-border-light dark:border-border-dark">
+                            <span className="text-sm font-semibold">메뉴</span>
+                            <button
+                                onClick={() => setMobileOpen(false)}
+                                aria-label="메뉴 닫기"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* nav */}
+                        <nav className="flex flex-col px-4 py-4 gap-1">
+                            {NAV_ITEMS.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={() => setMobileOpen(false)}
+                                    className="
+                    px-3 py-2 rounded-lg text-sm text-left
+                    hover:bg-accent/10
+                  "
+                                >
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </nav>
+
+                        {/* auth (하단 고정) */}
+                        <div className="mt-auto px-4 py-4 border-t border-border-light dark:border-border-dark">
+                            <HeaderClient mobile />
+                        </div>
+                    </aside>
+                </div>
+            )}
         </header>
     );
 }

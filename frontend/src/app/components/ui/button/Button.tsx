@@ -100,10 +100,10 @@ export default function Button({
       {...props}
     >
       {loading && (
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"/>
       )}
 
-      <span className="pointer-events-none select-none">
+      <span className="flex items-center gap-2 pointer-events-none select-none">
         {children}
       </span>
     </button>

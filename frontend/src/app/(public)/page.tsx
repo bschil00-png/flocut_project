@@ -1,43 +1,39 @@
 "use client";
 
-import HeroSection from "@/app/components/home/HeroSection";
-import MascotHighlightSection from "@/app/components/home/MascotHighlightSection";
-import NoticeSection from "@/app/components/home/NoticeSection";
-import FlowExplainSection from "@/app/components/home/FlowExplainSection";
-import ReplaceWorkSection from "@/app/components/home/ReplaceWorkSection";
-import FreeTrialSection from "@/app/components/home/FreeTrialSection";
-import AiFeatureShowcaseSection from "@/app/components/home/AiFeatureShowcaseSection";
-import Section from "@/app/components/layout/Section";
+import ImageShowcaseSection from "@/app/components/sections/ImageShowcaseSection";
+
+import FlowExplainSection from "@/app/components/sections/FlowExplainSection";
+import ReplaceWorkSection from "@/app/components/sections/ReplaceWorkSection";
+import MidCTASection from "@/app/components/sections/MidCTASection";
+import HeroSection from "@/app/components/sections/HeroSection";
+import SupportSection from "@/app/components/sections/SupportSection";
+
 export default function HomePage() {
-  return (
-    <>
-      <Section>
-        <HeroSection />
-      </Section>
+    return (
+        <>
 
-      <Section variant="surface">
-        <AiFeatureShowcaseSection />
-      </Section>
 
-      <Section variant="accent">
-        <MascotHighlightSection />
-      </Section>
+            <main className="pt-16">
+                {/*  Hero  */}
+                <HeroSection />
 
-      <Section>
-        <NoticeSection />
-      </Section>
+                {/*  Main Feature Showcase (이미지 중심)  */}
+                <ImageShowcaseSection/>
 
-      {/*<Section variant="gradient">*/}
-      {/*  <FlowExplainSection />*/}
-      {/*</Section>*/}
+                {/*  How It Works (Flow)  */}
+                <FlowExplainSection/>
 
-      <Section>
-        <ReplaceWorkSection />
-      </Section>
+                {/*  Problem → Solution  */}
+                <ReplaceWorkSection/>
 
-      <Section variant="surface">
-        <FreeTrialSection />
-      </Section>
-    </>
-  );
+                <SupportSection/>
+
+                {/*  Mid CTA  */}
+                <MidCTASection/>
+
+            </main>
+
+
+        </>
+    );
 }

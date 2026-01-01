@@ -1,65 +1,80 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Link from "next/link";
+import Button from "@/app/components/ui/button/Button";
 
 export default function NotFoundPage() {
-  return (
-    <div className="
-      min-h-screen
-      flex items-center justify-center
-      bg-background-light dark:bg-background-dark
-      px-4
-    ">
-      <div className="
-        w-full max-w-md
-        rounded-xl
-        border border-border-light dark:border-border-dark
+    return (
+        <div
+            className="
+        min-h-screen
+        flex flex-col
         bg-background-light dark:bg-background-dark
-        p-10
-        text-center
-      ">
-        <p className="text-sm text-text-muted-light dark:text-text-muted-dark mb-2">
-          404 ERROR
-        </p>
+      "
+        >
+            {/* 비활성 브랜드 헤더 */}
+            <div
+                className="
+          h-[56px]
+          flex items-center
+          border-b border-border-light dark:border-border-dark
+          px-6
+        "
+            >
+                <div
+                    className="
+            text-sm font-semibold
+            text-text-default-light dark:text-text-default-dark
+            opacity-80
+            cursor-default
+          "
+                >
+                    FLOCUT
+                </div>
+            </div>
 
-        <h1 className="text-2xl font-bold mb-4">
-          페이지를 찾을 수 없습니다
-        </h1>
+            {/* 메인 영역 */}
+            <div className="flex-1 flex items-center justify-center px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    className="text-center max-w-md"
+                >
+                    {/* 상태 코드 */}
+                    <p className="text-xs font-medium tracking-wide text-text-muted-light dark:text-text-muted-dark mb-2">
+                        404 · NOT FOUND
+                    </p>
 
-        <p className="text-sm text-text-muted-light dark:text-text-muted-dark mb-8">
-          주소가 잘못되었거나<br />
-          페이지가 이동 또는 삭제되었습니다.
-        </p>
+                    {/* 제목 */}
+                    <h1 className="text-xl font-semibold mb-3">
+                        페이지를 찾을 수 없습니다
+                    </h1>
 
-        <div className="flex justify-center gap-3">
-          <Link
-            href="/"
-            className="
-              h-10 px-5
-              flex items-center justify-center
-              rounded-md
-              bg-accent
-              hover:bg-accent-hover
-              text-white text-sm font-medium
-            "
-          >
-            홈으로 이동
-          </Link>
+                    {/* 설명 */}
+                    <p className="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed mb-8">
+                        요청하신 페이지는 존재하지 않거나<br />
+                        다른 위치로 이동했을 수 있습니다.
+                    </p>
 
-          <button
-            onClick={() => history.back()}
-            className="
-              h-10 px-5
-              rounded-md
-              border border-border-light dark:border-border-dark
-              text-sm font-medium
-              hover:bg-surface-light dark:hover:bg-surface-dark
-            "
-          >
-            이전 페이지
-          </button>
+                    {/* 액션 */}
+                    <div className="flex items-center justify-center gap-3">
+                        <Link href="/">
+                            <Button variant="primary">
+                                홈으로 이동
+                            </Button>
+                        </Link>
+
+                        <Button
+                            variant="secondary"
+                            onClick={() => window.history.back()}
+                        >
+                            이전 페이지
+                        </Button>
+                    </div>
+                </motion.div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
