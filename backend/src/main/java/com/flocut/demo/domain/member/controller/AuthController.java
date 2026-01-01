@@ -1,18 +1,35 @@
 package com.flocut.demo.domain.member.controller;
 
-import com.flocut.demo.domain.member.dto.LoginRequest;
-import com.flocut.demo.domain.member.dto.LoginResponse;
+import com.flocut.demo.domain.admin.entity.LoginHistory;
+import com.flocut.demo.domain.admin.repository.LoginHistoryRepository;
+import com.flocut.demo.domain.member.dto.RequestDTO.MemberRegisterRequestDTO;
+import com.flocut.demo.domain.member.dto.RequestDTO.LoginRequestDTO;
+import com.flocut.demo.domain.member.dto.ResponseDTO.ErrorResponseDTO;
+import com.flocut.demo.domain.member.dto.ResponseDTO.LoginResponseDTO;
 import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.mapper.MemberMapper;
 import com.flocut.demo.domain.member.service.MemberService;
 import com.flocut.demo.global.jwt.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.WebUtils;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,71 +39,226 @@ public class AuthController {
     private final MemberService memberService;
     private final MemberMapper memberMapper;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final LoginHistoryRepository loginHistoryRepository;
+
+    // =========================
+    // 회원가입
+    // =========================
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody @Valid MemberRegisterRequestDTO request) {
+
+        Member member = Member.builder()
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .name(request.getName())
+                .tel(request.getTel())
+                .status(MemberStatus.READY)
+                .emailVerified(false)
+                .emailVerifyToken(UUID.randomUUID().toString())
+                .build();
+
+        Member saved = memberService.register(member);
+        System.out.println("REGISTER TEL = [" + request.getTel() + "]");
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(memberMapper.toDto(saved));
+
+    }
+
+
 
     // =========================
     // 로그인
     // =========================
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO request, HttpServletRequest httpRequest) {
+
         try {
 
-            Member member = memberService.login(request.getEmail(), request.getPassword());
+            Member member = memberService.login(
+                    request.getEmail(), request.getPassword()
+            );
+            loginHistoryRepository.save(
+                    LoginHistory.create(
+                            member,
+                            httpRequest.getRemoteAddr(),
+                            httpRequest.getHeader("User-Agent")
+                    )
+            );
 
-            String token = jwtUtil.generateToken(member.getEmail());
+//            String accessToken = jwtUtil.generateAccessToken(member.getEmail());
+//            String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
+            String accessToken = jwtUtil.generateAccessToken(
+                    member.getEmail(),
+                    member.getRole().name()
+            );
 
-            ResponseCookie cookie = ResponseCookie.from("token", token)
+            String refreshToken = jwtUtil.generateRefreshToken(
+                    member.getEmail(),
+                    member.getRole().name()
+            );
+
+            //  Redis 저장 (key = refresh:{email})
+            redisTemplate.opsForValue().set(
+                    "refresh:" + member.getEmail(),
+                    refreshToken,
+//                    7,
+//                    TimeUnit.DAYS
+                    20,
+                    TimeUnit.MINUTES
+            );
+
+            ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                     .httpOnly(true)
-                    .secure(false)        // 로컬 환경
+                    .secure(false)
                     .sameSite("Lax")
                     .path("/")
-                    .maxAge(Duration.ofDays(1))
+//                    .maxAge(Duration.ofMinutes(15))
+                    .maxAge(Duration.ofMinutes(5))
+                    .build();
+
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(false)
+                    .sameSite("Lax")
+                    .path("/") //
+//                    .maxAge(Duration.ofDays(7))
+                    .maxAge(Duration.ofMinutes(20))
                     .build();
 
             return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(new LoginResponse(memberMapper.toDto(member), token));
+                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .body(new LoginResponseDTO(member.getMemberId(), accessToken,refreshToken)); //access토큰과 refresh토근 설정인데 일단 null로 설정
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); //  # 400=HttpStatus.BAD_REQUEST
+        } catch (IllegalArgumentException  e) {
+            // ⭐ Service에서 던진 메시지를 그대로 전달
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO(e.getMessage()));
+        }catch (Exception e) {
+            // 예상 못 한 서버 에러
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseDTO("서버 오류가 발생했습니다."));
         }
     }
+
+    // =========================
+    // refresh
+    // =========================
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Void> refresh(HttpServletRequest request) {
+
+        Cookie cookie = WebUtils.getCookie(request, "refreshToken");
+        if (cookie == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String refreshToken = cookie.getValue();
+
+        if (!jwtUtil.validateToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String email = jwtUtil.getEmailFromToken(refreshToken);
+        String savedToken = redisTemplate.opsForValue().get("refresh:" + email);
+
+        if (!refreshToken.equals(savedToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Member member = memberService.findByEmail(email);
+
+        //  새 accessToken 발급
+        String newAccessToken = jwtUtil.generateAccessToken(
+                member.getEmail(),
+                member.getRole().name()
+        );
+
+        //  여기 핵심: SecurityContext 세팅
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        member.getEmail(),
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + member.getRole().name()))
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        ResponseCookie newAccessCookie =
+                ResponseCookie.from("accessToken", newAccessToken)
+                        .httpOnly(true)
+                        .secure(false)
+                        .sameSite("Lax")
+                        .path("/")
+                        .maxAge(Duration.ofMinutes(5))
+                        .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, newAccessCookie.toString())
+                .build();
+    }
+
 
     // =========================
     // 로그아웃
     // =========================
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
 
-        // ⭐ 기존 token 쿠키를 즉시 만료
-        ResponseCookie cookie = ResponseCookie.from("token", "")
+        Cookie refreshCookie = WebUtils.getCookie(request, "refreshToken");
+
+        if (refreshCookie != null) {
+            String refreshToken = refreshCookie.getValue();
+
+            if (jwtUtil.validateToken(refreshToken)) {
+                String email = jwtUtil.getEmailFromToken(refreshToken);
+                redisTemplate.delete("refresh:" + email);
+            }
+        }
+
+        ResponseCookie deleteAccessToken = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
-                .secure(false)        // 로그인 때와 동일해야 함
+                .secure(false)
                 .sameSite("Lax")
                 .path("/")
-                .maxAge(0)            // ⭐ 즉시 삭제
+                .maxAge(0)
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        ResponseCookie deleteRefreshToken = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0)
+                .build();
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteAccessToken.toString())
+                .header(HttpHeaders.SET_COOKIE, deleteRefreshToken.toString())
+                .build();
     }
 
     // =========================
     // 로그인 유지 확인
     // =========================
-    @GetMapping("/me")
-    public ResponseEntity<?> me(Authentication authentication) {
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("로그인이 필요합니다.");
-        }
-
-        String email = authentication.getName();
-        Member member = memberService.findByEmail(email);
-
-        return ResponseEntity.ok(memberMapper.toDto(member));
-    }
+//     프론트에서 작성해주신 그래프큐엘에 있는 me로 변경했습니다.
+//    @GetMapping("/me")
+//    public ResponseEntity<?> me(Authentication authentication) {
+//
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            return ResponseEntity
+//                    .status(HttpStatus.UNAUTHORIZED)
+//                    .body("로그인이 필요합니다.");
+//        }
+//
+//        String email = authentication.getName();
+//        Member member = memberService.findByEmail(email);
+//
+//        return ResponseEntity.ok(memberMapper.toDto(member));
+//    }
 }

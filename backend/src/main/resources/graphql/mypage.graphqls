@@ -1,0 +1,32 @@
+"""
+마이페이지 - 문서 아이템
+"""
+type MyPageDocument {
+  fileId: ID!
+  fileName: String!
+  uploadDate: String!
+}
+
+"""
+마이페이지 - 음성 아이템
+"""
+type MyPageAudio {
+  fileId: ID!
+  durationSec: Int!
+}
+
+"""
+마이페이지 - 비교 아이템
+"""
+type MyPageCompare {
+  compareRequestId: ID!
+  regdate: String!
+}
+
+"""
+마이페이지 - 세션 아이템
+"""
+type MyPageSession {
+  sessionId: ID!
+  sessionTitle: String!
+}

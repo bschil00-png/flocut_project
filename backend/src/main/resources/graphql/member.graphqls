@@ -1,0 +1,83 @@
+# ========================
+# 회원 / 인증 / 마이페이지
+# ========================
+
+enum MemberStatus {
+  READY
+  ACTIVE
+  DISABLED
+  DELETED
+}
+
+"""
+회원 기본 정보 (도메인 / 관리자 / 내부 조회용)
+"""
+type Member {
+  memberId: ID!
+  email: String!
+  name: String!
+  profileImage: String
+  status: MemberStatus!
+  regdate: String!
+}
+
+"""
+현재 로그인한 사용자 정보 (인증 컨텍스트)
+"""
+type MyProfile {
+  memberId: ID!
+  email: String!
+  name: String!
+  tel: String
+  profileImage: String
+
+  role: String!
+  status: String!
+  regdate: String!
+}
+
+
+"""
+로그인 히스토리
+"""
+type LoginHistory {
+  loginHistoryId: ID!
+  ip: String!
+  device: String!
+  loginDate: String!
+}
+
+"""
+마이페이지 전체 응답
+"""
+type MyPageOverview {
+  documents: [MyPageDocument!]!
+  audios: [MyPageAudio!]!
+  compares: [MyPageCompare!]!
+  sessions: [MyPageSession!]!
+  totalDocumentCount: Int!
+  totalAudioCount: Int!
+  totalCompareCount: Int!
+}
+
+# ========================
+# Queries
+# ========================
+
+extend type Query {
+
+  """
+  현재 로그인한 사용자 정보 (단일 진입점)
+  """
+  me: MyProfile!
+
+  """
+  마이페이지 대시보드 데이터
+  """
+  myPage: MyPageOverview!
+
+  """
+  로그인 히스토리 조회
+  """
+  loginHistory: [LoginHistory!]!
+}

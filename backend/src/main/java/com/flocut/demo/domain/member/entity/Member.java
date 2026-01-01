@@ -17,13 +17,13 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
+    @Column(nullable = false,name = "member_id")
     private Long memberId;
 
     @Column(nullable = false, length = 255, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String password;
 
     @Column(nullable = false, length = 100)
@@ -36,7 +36,12 @@ public class Member {
     private String profileImage;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private MemberStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserRole role;
 
     @Column(name = "email_verified")
     private Boolean emailVerified;
@@ -52,12 +57,25 @@ public class Member {
     public void onCreate() {
         this.regdate = LocalDate.now();
         this.moddate = LocalDate.now();
-        this.emailVerified = false;
-        this.status = MemberStatus.ACTIVE;
+
+        if (this.emailVerified == null) {
+            this.emailVerified = false;
+        }
+        if (this.status == null) {
+            this.status = MemberStatus.READY;
+        }
+        // 🔥 기본 권한은 USER
+        if (this.role == null) {
+            this.role = UserRole.USER;
+        }
     }
 
     @PreUpdate
     public void onUpdate() {
         this.moddate = LocalDate.now();
+    }
+
+    public void reactivate() {
+        this.status = MemberStatus.ACTIVE;
     }
 }

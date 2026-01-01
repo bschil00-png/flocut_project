@@ -24,11 +24,31 @@ public class JwtUtil {
     }
 
     // JWT 생성
-    public String generateToken(String email) {
+//    public String generateToken(String email) {
+//        return Jwts.builder()
+//                .setSubject(email)
+//                .setIssuedAt(new Date())
+//                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+//                .signWith(key, SignatureAlgorithm.HS256)
+//                .compact();
+//    }
+
+    public String generateAccessToken(String email, String role) {
+//        return createToken(email, 1000 * 60 * 15); // 15분
+        return createToken(email, role, 1000 * 60 * 5);
+    }
+
+    public String generateRefreshToken(String email, String role) {
+//        return createToken(email, 1000 * 60 * 60 * 24 * 7); // 7일
+        return createToken(email, role, 1000 * 60 * 20 );
+    }
+
+    private String createToken(String email, String role, long expireMs) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim("role", role) // role을 넣은 이유 :매 요청 DB 조회 제거
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + expireMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -61,5 +81,18 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
+    }
+
+    // 🔥 role 추출
+    public String getRoleFromToken(String token) {
+        return getClaims(token).get("role", String.class);
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
