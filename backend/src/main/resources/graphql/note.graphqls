@@ -5,6 +5,7 @@ type Note {
     sourceType: String
     sourceId: ID
     regdate: String
+    moddate: String
 }
 
 extend type Query {
