@@ -14,12 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class DocumentSummaryService {
 
-    private final DocumentSummaryRepository summaryRepository;
-    private final FileRepository fileRepository;
-    private final SessionRepository sessionRepository;
+    private final DocumentSummaryWriteService writeService;
     private final AiFileRelayService aiFileRelayService;
 
     public Long requestSummary(
@@ -28,28 +25,21 @@ public class DocumentSummaryService {
             int roundNo,
             int versionNo
     ) {
-        File file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
-
-        Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
-
-        // 1️⃣ 요약 row 생성
-        DocumentSummary summary = summaryRepository.save(
-                DocumentSummary.create(
-                        file,
-                        session,
+        // ✅ 1️⃣ DB row 생성 + COMMIT 완료
+        DocumentSummary summary =
+                writeService.createSummary(
+                        fileId,
+                        sessionId,
                         roundNo,
                         versionNo
-                )
-        );
+                );
 
-        // 2️⃣ S3 정보만 전달
+        // ✅ 2️⃣ 외부(Node / n8n) 호출 → 이제 안전
         aiFileRelayService.requestSummary(
-                file.getFileId(),
-                file.getS3Key(),
-                file.getFileName(),
-                file.getFileType(),
+                summary.getFile().getFileId(),
+                summary.getFile().getS3Key(),
+                summary.getFile().getFileName(),
+                summary.getFile().getFileType(),
                 sessionId,
                 roundNo,
                 versionNo
@@ -58,5 +48,6 @@ public class DocumentSummaryService {
         return summary.getSummaryId();
     }
 }
+
 
 

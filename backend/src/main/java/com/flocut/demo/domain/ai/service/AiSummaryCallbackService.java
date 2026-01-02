@@ -24,6 +24,8 @@ public class AiSummaryCallbackService {
                                 request.getRoundNo(),
                                 request.getVersionNo()
                         )
+
+
                         .orElseThrow(() ->
                                 new IllegalArgumentException("요약 대상 없음")
                         );
