@@ -25,8 +25,7 @@ public class DocumentSummaryWriteService {
     public DocumentSummary createSummary(
             Long fileId,
             Long sessionId,
-            int roundNo,
-            int versionNo
+            int roundNo
     ) {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
@@ -34,12 +33,17 @@ public class DocumentSummaryWriteService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
 
+        Integer maxVersion =
+                summaryRepository.findMaxVersionNo(fileId, sessionId, roundNo);
+
+        int nextVersionNo = (maxVersion == null) ? 1 : maxVersion + 1;
+
         return summaryRepository.save(
                 DocumentSummary.create(
                         file,
                         session,
                         roundNo,
-                        versionNo
+                        nextVersionNo
                 )
         );
     }

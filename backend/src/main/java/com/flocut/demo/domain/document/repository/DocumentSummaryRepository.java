@@ -14,16 +14,31 @@ public interface DocumentSummaryRepository
     findTopByFileFileIdOrderBySummaryIdDesc(Long fileId);
 
     @Query("""
-        SELECT ds
-        FROM DocumentSummary ds
-        WHERE ds.session.sessionId = :sessionId
-          AND ds.roundNo = :roundNo
-          AND ds.versionNo = :versionNo
-    """)
+    SELECT ds
+    FROM DocumentSummary ds
+    WHERE ds.file.fileId = :fileId
+      AND ds.session.sessionId = :sessionId
+      AND ds.roundNo = :roundNo
+      AND ds.versionNo = :versionNo
+""")
     Optional<DocumentSummary>
-    findBySessionSessionIdAndRoundNoAndVersionNo(
+    findByFileIdAndSessionIdAndRoundNoAndVersionNo(
+            @Param("fileId") Long fileId,
             @Param("sessionId") Long sessionId,
             @Param("roundNo") int roundNo,
             @Param("versionNo") int versionNo
+    );
+
+    @Query("""
+    SELECT MAX(ds.versionNo)
+    FROM DocumentSummary ds
+    WHERE ds.file.fileId = :fileId
+      AND ds.session.sessionId = :sessionId
+      AND ds.roundNo = :roundNo
+""")
+    Integer findMaxVersionNo(
+            @Param("fileId") Long fileId,
+            @Param("sessionId") Long sessionId,
+            @Param("roundNo") int roundNo
     );
 }

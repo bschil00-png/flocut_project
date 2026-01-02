@@ -10,4 +10,5 @@ public class AiSummaryFailRequest {
     private int roundNo;
     private int versionNo;
     private String reason;
+    private Long fileId;
 }

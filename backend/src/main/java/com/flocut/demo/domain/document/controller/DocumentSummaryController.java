@@ -22,8 +22,8 @@ public class DocumentSummaryController {
                 summaryService.requestSummary(
                         request.getFileId(),
                         request.getSessionId(),
-                        request.getRoundNo(),
-                        request.getVersionNo()
+                        request.getRoundNo()
+
                 );
 
         return ResponseEntity.ok(summaryId);
