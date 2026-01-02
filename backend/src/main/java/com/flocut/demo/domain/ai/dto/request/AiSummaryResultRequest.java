@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 public class AiSummaryResultRequest {
 
+
+
     @JsonProperty("file_id")
     private Long fileId;
 
