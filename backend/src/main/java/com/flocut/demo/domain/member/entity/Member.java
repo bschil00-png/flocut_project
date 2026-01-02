@@ -78,4 +78,8 @@ public class Member {
     public void reactivate() {
         this.status = MemberStatus.ACTIVE;
     }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }

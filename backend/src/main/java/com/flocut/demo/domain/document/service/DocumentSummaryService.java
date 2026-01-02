@@ -1,16 +1,10 @@
 package com.flocut.demo.domain.document.service;
 
-//import com.flocut.demo.domain.ai.requester.AiSummaryRequester;
 import com.flocut.demo.domain.ai.service.AiFileRelayService;
 import com.flocut.demo.domain.document.entity.DocumentSummary;
-import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
-import com.flocut.demo.domain.file.entity.File;
-import com.flocut.demo.domain.file.repository.FileRepository;
-import com.flocut.demo.domain.session.entity.Session;
-import com.flocut.demo.domain.session.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -22,16 +16,16 @@ public class DocumentSummaryService {
     public Long requestSummary(
             Long fileId,
             Long sessionId,
-            int roundNo,
-            int versionNo
+            int roundNo
+
     ) {
         // ✅ 1️⃣ DB row 생성 + COMMIT 완료
         DocumentSummary summary =
                 writeService.createSummary(
                         fileId,
                         sessionId,
-                        roundNo,
-                        versionNo
+                        roundNo
+
                 );
 
         // ✅ 2️⃣ 외부(Node / n8n) 호출 → 이제 안전
@@ -42,7 +36,7 @@ public class DocumentSummaryService {
                 summary.getFile().getFileType(),
                 sessionId,
                 roundNo,
-                versionNo
+                summary.getVersionNo()
         );
 
         return summary.getSummaryId();

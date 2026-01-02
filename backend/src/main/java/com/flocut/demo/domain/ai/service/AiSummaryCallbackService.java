@@ -19,7 +19,8 @@ public class AiSummaryCallbackService {
 
         DocumentSummary summary =
                 summaryRepository
-                        .findBySessionSessionIdAndRoundNoAndVersionNo(
+                        .findByFileIdAndSessionIdAndRoundNoAndVersionNo(
+                                request.getFileId(),
                                 request.getSessionId(),
                                 request.getRoundNo(),
                                 request.getVersionNo()
@@ -42,7 +43,8 @@ public class AiSummaryCallbackService {
 
         DocumentSummary summary =
                 summaryRepository
-                        .findBySessionSessionIdAndRoundNoAndVersionNo(
+                        .findByFileIdAndSessionIdAndRoundNoAndVersionNo(
+                                request.getFileId(),
                                 request.getSessionId(),
                                 request.getRoundNo(),
                                 request.getVersionNo()

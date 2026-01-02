@@ -51,7 +51,9 @@ public class SecurityConfig {
                                 "/auth/refresh",
                                 "/auth/verify",
                                 "/auth/me",
-                                "/auth/google/**"
+                                "/auth/google/**",
+                                "/auth/password/reset-request",
+                                "/auth/password/reset"
                         ).permitAll()
 
                         .requestMatchers("/api/ai/**").permitAll()

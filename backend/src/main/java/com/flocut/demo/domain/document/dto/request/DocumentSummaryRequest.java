@@ -9,5 +9,5 @@ public class DocumentSummaryRequest {
     private Long fileId;
     private Long sessionId;
     private int roundNo;
-    private int versionNo;
+
 }
