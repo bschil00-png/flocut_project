@@ -2,8 +2,10 @@ package com.flocut.demo.domain.note.controller;
 
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
 import com.flocut.demo.domain.note.service.NoteService;
+import com.flocut.demo.global.utils.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +20,13 @@ public class NoteController {
 
     @PostMapping
     public ResponseEntity<Long> createNote(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody NoteCreateRequestDTO dto
     ) {
-        Long noteId = noteService.create(dto);
+        Long noteId = noteService.create(
+                user.getMemberId(),
+                dto
+        );
         return ResponseEntity.ok(noteId);
     }
 }

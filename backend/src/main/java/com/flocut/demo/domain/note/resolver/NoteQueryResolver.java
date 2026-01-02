@@ -4,10 +4,12 @@ import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.service.MemberService;
 import com.flocut.demo.domain.note.entity.Note;
 import com.flocut.demo.domain.note.service.NoteService;
+import com.flocut.demo.global.utils.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -22,15 +24,13 @@ public class NoteQueryResolver {
     @QueryMapping
     public List<Note> notesBySession(
             @Argument Long sessionId,
-            Authentication authentication
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
-        // 🔥 FileResolver와 동일한 인증 흐름
-        Member member = memberService.findByEmail(authentication.getName());
-
-        // 🔥 Service를 통해 조회 (Repository 직접 호출 ❌)
         return noteService.getNotesBySession(
                 sessionId,
-                member.getMemberId()
+                user.getMemberId()
         );
     }
+
+
 }

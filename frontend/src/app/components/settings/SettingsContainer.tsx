@@ -25,10 +25,10 @@ export default function SettingsContainer({
       "
         >
             {/* 왼쪽 설정 메뉴 */}
-            <SettingsSidebar
-                active={active}
-                onChange={setActive}
-            />
+            {/*<SettingsSidebar*/}
+            {/*    active={active}*/}
+            {/*    onChange={setActive}*/}
+            {/*/>*/}
 
             {/* 오른쪽 설정 내용 */}
             <div className="flex-1 p-8 overflow-y-auto">

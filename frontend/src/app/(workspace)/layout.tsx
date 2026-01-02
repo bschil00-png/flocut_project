@@ -55,8 +55,6 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
             <WorkspaceHeader />
             <div className="flex-1 flex overflow-hidden">
                 <GlobalNav
-                    collapsed={collapsed}
-                    onToggleCollapse={() => setCollapsed(!collapsed)}
                 />
                 <main className="flex-1 overflow-hidden">
                     {children}

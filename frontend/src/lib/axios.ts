@@ -1,4 +1,3 @@
-// @/lib/axios.ts
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 
 // interceptor로 인해 response.data를 직접 반환하는 커스텀 인스턴스 타입

@@ -1,4 +1,4 @@
-import {openai} from "@/lib/openai";
+import { getOpenAI } from "@/lib/openai";
 import {ChatCompletionMessageParam} from "openai/resources/chat/completions";
 
 
@@ -104,7 +104,7 @@ type SimpleChatMessage = {
 
 export async function POST(req: Request): Promise<Response> {
     try {
-        // 1. 요청 파싱
+
         const body = await req.json();
 
         if (!Array.isArray(body.messages)) {
@@ -116,9 +116,7 @@ export async function POST(req: Request): Promise<Response> {
 
         const messages: SimpleChatMessage[] = body.messages;
 
-        /**
-         * 2. 최근 메시지 정리
-         */
+
         const safeMessages: ChatCompletionMessageParam[] = messages
             .filter(
                 (m): m is SimpleChatMessage =>
@@ -127,65 +125,64 @@ export async function POST(req: Request): Promise<Response> {
                     (m.role === "user" || m.role === "assistant")
             )
             .slice(-5)
-            .map(
-                (m): ChatCompletionMessageParam => ({
-                    role: m.role,
-                    content: m.content,
-                })
-            );
+            .map((m) => ({
+                role: m.role,
+                content: m.content,
+            }));
 
-        /**
-         * 3. 마지막 사용자 메시지 추출
-         */
+
         const lastUserMessage = [...safeMessages]
             .reverse()
-            .find((m): m is ChatCompletionMessageParam & { role: "user" } =>
-                m.role === "user"
-            );
+            .find((m) => m.role === "user");
 
-        /**
-         * 4. 요약 요청 판별
-         */
+        if (
+            lastUserMessage &&
+            typeof lastUserMessage.content === "string" &&
+            lastUserMessage.content.length > 300
+        ) {
+            return Response.json({
+                content:
+                    "이곳에서는 300자 이내의 짧은 텍스트만 체험할 수 있어요. 긴 문서는 워크스페이스에서 이용해 주세요.",
+            });
+        }
+
+
         const isSummaryRequest =
             !!lastUserMessage &&
             typeof lastUserMessage.content === "string" &&
             /요약|정리|\d+줄/.test(lastUserMessage.content);
 
-        /**
-         * 5. 줄 수 파싱
-         */
+
         const lineMatch =
             typeof lastUserMessage?.content === "string"
                 ? lastUserMessage.content.match(/(\d+)줄/)
                 : null;
 
-        const lineCount: number | undefined = lineMatch
-            ? Number(lineMatch[1])
-            : undefined;
+        const lineCount = lineMatch ? Number(lineMatch[1]) : undefined;
 
-        /**
-         * 6. OpenAI에 전달할 메시지 구성
-         */
+
         const messagesForAI: ChatCompletionMessageParam[] = [
-            { role: "system", content: SYSTEM_PROMPT } as ChatCompletionMessageParam,
+            { role: "system", content: SYSTEM_PROMPT },
             ...(isSummaryRequest
-                ? [{ role: "system", content: SUMMARY_PROMPT(lineCount) } as ChatCompletionMessageParam]
+                ? [
+                    {
+                        role: "system",
+                        content: SUMMARY_PROMPT(lineCount),
+                    } as const,
+                ]
                 : []),
             ...safeMessages,
         ];
 
-        /**
-         * 7. OpenAI 호출
-         */
+
+        const openai = getOpenAI();
+
         const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: messagesForAI,
             temperature: 0.3,
         });
 
-        /**
-         * 8. 응답 방어
-         */
         const content =
             response.choices?.[0]?.message?.content ??
             "잠시 후 다시 시도해 주세요.";

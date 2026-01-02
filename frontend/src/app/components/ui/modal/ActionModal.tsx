@@ -22,15 +22,27 @@ export default function ActionModal({
                                         children,
                                         size = "md",
                                     }: ActionModalProps) {
+
+    // ESC + body scroll lock
     useEffect(() => {
         if (!open) return;
 
+        // body scroll lock
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
         const handleKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
+            if (e.key === "Escape") {
+                onClose();
+            }
         };
 
         window.addEventListener("keydown", handleKey);
-        return () => window.removeEventListener("keydown", handleKey);
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            window.removeEventListener("keydown", handleKey);
+        };
     }, [open, onClose]);
 
     if (!open) return null;
@@ -58,12 +70,18 @@ export default function ActionModal({
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* header */}
-                    {title && (
-                        <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark">
-                          <h2 className="text-sm font-semibold">{title}</h2>
-                          <IconButton icon={<X size={16} />} onClick={onClose} />
-                        </div>
-                    )}
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark">
+                        {title && (
+                            <h2 className="text-sm font-semibold">
+                                {title}
+                            </h2>
+                        )}
+                        <IconButton
+                            icon={<X size={16} />}
+                            onClick={onClose}
+                            aria-label="닫기"
+                        />
+                    </div>
 
                     {/* content */}
                     <div className="px-5 py-4 space-y-4">

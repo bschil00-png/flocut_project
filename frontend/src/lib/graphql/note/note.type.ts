@@ -77,3 +77,24 @@ export interface NoteDraft {
 
     sessionId: number;
 }
+
+// GraphQL Note 타입
+// notesBySession 쿼리 응답 그대로 반영
+export interface NoteGQL {
+  noteId: number;
+  title?: string | null;
+  regdate?: string | null;
+  moddate?: string | null;
+  sourceType?: string | null;
+  sourceId?: number | null;
+}
+
+// notesBySession Query 전체 응답
+export interface NotesBySessionResponse {
+  notesBySession: NoteGQL[];
+}
+
+export interface NoteDetailResponse {
+  noteDetail: NoteDetail;
+}
+

@@ -1,4 +1,4 @@
-// src/app/auth/google/callback/page.tsx
+
 "use client";
 
 import { useEffect } from "react";
@@ -26,21 +26,28 @@ export default function GoogleCallbackPage() {
                     credentials: "include",
                 });
 
+                console.log("Google login response status:", response.status);
+
                 if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Google login failed:", errorText);
                     router.replace("/login");
                     return;
                 }
+
+                //  쿠키 설정 대기 (100ms)
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 const ok = await ensureAuth();
                 if (!ok) {
+                    console.error("ensureAuth failed after Google login");
                     router.replace("/login");
                     return;
                 }
 
-                //  여기서 자동 로그인 차단 해제
                 sessionStorage.removeItem("auth_block_silent_login");
-
                 router.replace("/");
+
             } catch (error) {
                 console.error("Google login error:", error);
                 router.replace("/login");
@@ -48,5 +55,14 @@ export default function GoogleCallbackPage() {
         })();
     }, [searchParams, ensureAuth, router]);
 
-    return null;
+    return (
+        <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh'
+        }}>
+            로그인 처리 중...
+        </div>
+    );
 }
