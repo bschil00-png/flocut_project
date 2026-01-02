@@ -74,35 +74,27 @@ app.post("/api/ai/document-summary", async (req, res) => {
       const text = s3Object.Body.toString("utf-8");
 
     // 2️⃣ n8n으로  전달
-    const n8nRes = await axios.post(
-          N8N_WEBHOOK_URL,
-          {
-            file_id: fileId,
-            session_id: sessionId,
-            round_no: roundNo,
-            version_no: versionNo,
-            text: text,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            timeout: 300000,
-          }
-        );
+    //========multipart 형식=======================
+    const form = new FormData();
+    form.append("data", s3Object.Body, {
+      filename,
+      contentType,
+    });
+    // 메타데이터도 함께 전달 (n8n에서 사용 가능)
+    form.append("sessionId", sessionId);
+    form.append("roundNo", roundNo);
+    form.append("versionNo", versionNo);
+    form.append("file_id", fileId);
 
-        console.log("✅ Sent to n8n successfully");
-//    const form = new FormData();
-//    form.append("data", s3Object.Body, {
-//      filename,
-//      contentType,
-//    });
-//    // 메타데이터도 함께 전달 (n8n에서 사용 가능)
-//    form.append("sessionId", sessionId);
-//    form.append("roundNo", roundNo);
-//    form.append("versionNo", versionNo);
-//    form.append("file_id", fileId);
-//
+    const n8nRes = await axios.post(
+      `${N8N_WEBHOOK_URL}?sessionId=${sessionId}&roundNo=${roundNo}&versionNo=${versionNo}&file_id=${fileId}`,
+      form,
+      {
+        headers: form.getHeaders(),
+        timeout: 300000,
+      }
+    );
+
 //    const n8nRes = await axios.post(N8N_WEBHOOK_URL, form, {
 //      headers: form.getHeaders(),
 //      timeout: 300000,
