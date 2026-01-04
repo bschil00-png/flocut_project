@@ -1,15 +1,13 @@
 package com.flocut.demo.domain.note.controller;
 
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
+import com.flocut.demo.domain.note.dto.request.NoteUpdateRequestDTO;
 import com.flocut.demo.domain.note.service.NoteService;
 import com.flocut.demo.global.utils.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,4 +27,19 @@ public class NoteController {
         );
         return ResponseEntity.ok(noteId);
     }
+
+    @PutMapping("/{noteId}")
+    public ResponseEntity<Void> updateNote(
+            @PathVariable Long noteId,
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestBody NoteUpdateRequestDTO dto
+    ) {
+        noteService.update(
+                noteId,
+                user.getMemberId(),
+                dto
+        );
+        return ResponseEntity.ok().build();
+    }
+
 }
