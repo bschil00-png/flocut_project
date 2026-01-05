@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AiCallbackController {
 
+//     프론트는 호출하면 안 됨.....
+//     AI <-> 백엔드  전용
     private final AiSummaryCallbackService callbackService;
 
     @PostMapping("/summary/callback")

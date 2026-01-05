@@ -9,5 +9,6 @@ type Note {
 }
 
 extend type Query {
-    notesBySession(sessionId: ID!): [Note]
+  notesBySession(sessionId: ID!): [Note]
+  note(noteId: ID!): Note
 }

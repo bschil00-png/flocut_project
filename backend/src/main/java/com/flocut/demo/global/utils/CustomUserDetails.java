@@ -2,6 +2,7 @@ package com.flocut.demo.global.utils;
 
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.UserRole;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Getter
 public class CustomUserDetails implements UserDetails {
 
   private final Member member;
@@ -19,10 +21,6 @@ public class CustomUserDetails implements UserDetails {
 
   public Long getMemberId() {
     return member.getMemberId();
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   @Override
