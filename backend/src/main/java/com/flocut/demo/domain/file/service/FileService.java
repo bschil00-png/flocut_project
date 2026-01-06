@@ -8,6 +8,8 @@ import com.flocut.demo.domain.file.entity.FileStatus;
 import com.flocut.demo.domain.file.repository.FileRepository;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.repository.MemberRepository;
+import com.flocut.demo.domain.session.entity.Session;
+import com.flocut.demo.domain.session.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +26,22 @@ public class FileService {
     private final MemberRepository memberRepository;
     private final DocumentTextService documentTextService;
     private final S3UploadService s3UploadService;
-    public FileUploadResponse upload(MultipartFile file, Long memberId) {
+    private final SessionRepository sessionRepository;
 
+    public FileUploadResponse upload(
+            MultipartFile file,
+            Long memberId,
+            Long sessionId
+    ) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("빈 파일");
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
+
+        // 🔐 세션 소유자 검증
+        if (!session.getMember().getMemberId().equals(memberId)) {
+            throw new SecurityException("세션 접근 권한 없음");
         }
 
         // ✅ S3 key 생성 (지금 구조에 딱 맞음)
@@ -42,6 +53,7 @@ public class FileService {
 
         File saved = File.create(
                 member,
+                session,
                 file.getOriginalFilename(),
                 s3Key,
                 extractFileType(file),
@@ -54,13 +66,18 @@ public class FileService {
 
         return new FileUploadResponse(
                 saved.getFileId(),
+                saved.getSession().getSessionId(),
                 saved.getStatus()
         );
     }
 
-    public List<FileItemResponse> getMyFiles(Long memberId) {
+    public List<FileItemResponse> getMyFiles(
+            Long sessionId,
+            Long memberId
+    ) {
         return fileRepository
-                .findByMemberMemberIdAndStatusOrderByRegdateDesc(
+                .findBySessionSessionIdAndMemberMemberIdAndStatusOrderByRegdateDesc(
+                        sessionId,
                         memberId,
                         FileStatus.UPLOADED
                 )

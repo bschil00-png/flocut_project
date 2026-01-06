@@ -1,6 +1,7 @@
 package com.flocut.demo.domain.file.entity;
 
 import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.session.entity.Session;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,11 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "file_id")
     private Long fileId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id")
+    private Session session;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -47,6 +53,7 @@ public class File {
 
     public static File create(
             Member member,
+            Session session,
             String fileName,
             String s3Key,
             String fileType,
@@ -55,6 +62,7 @@ public class File {
     ) {
         File file = new File();
         file.member = member;
+        file.session = session;
         file.fileName = fileName;
         file.s3Key = s3Key;
         file.fileType = fileType;

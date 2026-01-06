@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface FileRepository extends JpaRepository<File, Long> {
 
-    List<File> findByMemberMemberIdAndStatusOrderByRegdateDesc(
+    List<File> findBySessionSessionIdAndMemberMemberIdAndStatusOrderByRegdateDesc(
+            Long sessionId,
             Long memberId,
             FileStatus status
     );
