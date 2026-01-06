@@ -21,8 +21,8 @@ public class DocumentSummaryController {
         Long summaryId =
                 summaryService.requestSummary(
                         request.getFileId(),
-                        request.getSessionId(),
-                        request.getRoundNo()
+                        request.getSessionId()
+//                        request.getRoundNo()
 
                 );
 

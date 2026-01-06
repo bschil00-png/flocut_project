@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class AiSummaryFailRequest {
     private Long sessionId;
-    private int roundNo;
+//    private int roundNo;
     private int versionNo;
     private String reason;
     private Long fileId;

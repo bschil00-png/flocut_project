@@ -27,8 +27,8 @@ public class DocumentSummary {
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
-    @Column(name = "round_no", nullable = false)
-    private int roundNo;
+//    @Column(name = "round_no", nullable = false)
+//    private int roundNo;
 
     @Column(name = "version_no", nullable = false)
     private int versionNo;
@@ -59,13 +59,13 @@ public class DocumentSummary {
     public static DocumentSummary create(
             File file,
             Session session,
-            int roundNo,
+//            int roundNo,
             int versionNo
     ) {
         DocumentSummary s = new DocumentSummary();
         s.file = file;
         s.session = session;
-        s.roundNo = roundNo;
+//        s.roundNo = roundNo;
         s.versionNo = versionNo;
         s.status = SummaryStatus.REQUESTED;
         s.regdate = LocalDateTime.now();

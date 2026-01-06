@@ -15,16 +15,16 @@ public class DocumentSummaryService {
 
     public Long requestSummary(
             Long fileId,
-            Long sessionId,
-            int roundNo
+            Long sessionId
+//            int roundNo
 
     ) {
         // ✅ 1️⃣ DB row 생성 + COMMIT 완료
         DocumentSummary summary =
                 writeService.createSummary(
                         fileId,
-                        sessionId,
-                        roundNo
+                        sessionId
+//                        roundNo
 
                 );
 
@@ -35,7 +35,7 @@ public class DocumentSummaryService {
                 summary.getFile().getFileName(),
                 summary.getFile().getFileType(),
                 sessionId,
-                roundNo,
+//                roundNo,
                 summary.getVersionNo()
         );
 

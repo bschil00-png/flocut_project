@@ -16,8 +16,8 @@ public class AiSummaryResultRequest {
     @JsonProperty("session_id")
     private Long sessionId;
 
-    @JsonProperty("round_no")
-    private Integer roundNo;
+//    @JsonProperty("round_no")
+//    private Integer roundNo;
 
     @JsonProperty("version_no")
     private Integer versionNo;
