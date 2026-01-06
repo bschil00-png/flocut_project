@@ -1,9 +1,14 @@
 server:
-  port: 8080   # ✅ 여기서 포트 변경
+  port: 8080
 
 spring:
   application:
     name: flocut_project
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
   config:
     import:
