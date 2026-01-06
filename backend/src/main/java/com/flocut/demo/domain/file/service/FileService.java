@@ -73,4 +73,34 @@ public class FileService {
         String name = file.getOriginalFilename();
         return name.substring(name.lastIndexOf('.') + 1).toLowerCase();
     }
+
+    @Transactional(readOnly = true)
+    public String generatePreviewUrl(Long fileId, Long memberId) {
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
+
+        // 🔐 본인 파일 체크
+        if (!file.getMember().getMemberId().equals(memberId)) {
+            throw new SecurityException("접근 권한 없음");
+        }
+
+        return s3UploadService.generatePresignedUrl(
+                file.getS3Key(),
+                file.getMimeType()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public void validateFileOwner(Long fileId, Long memberId) {
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
+
+        if (!file.getMember().getMemberId().equals(memberId)) {
+            throw new SecurityException("접근 권한 없음");
+        }
+    }
+
+
 }

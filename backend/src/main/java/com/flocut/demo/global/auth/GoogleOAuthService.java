@@ -140,10 +140,10 @@ public class GoogleOAuthService {
         redisTemplate.opsForValue().set(
                 "refresh:" + email,
                 refreshToken,
-//                7,
-//                TimeUnit.DAYS
-                20,
-                TimeUnit.MINUTES
+                7,
+                TimeUnit.DAYS
+//                20,
+//                TimeUnit.MINUTES
         );
 
         // ❗ GoogleOAuthService는 "쿠키를 직접 다루지 않는다"
