@@ -19,6 +19,9 @@ public class AiFileRelayService {
     private static final String NODE_AI_URL =
             "http://localhost:8081/api/ai/document-summary";
 
+    private static final String AUDIO_SUMMARY_URL =
+            "http://localhost:8081/api/ai/audio-summary";
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     public void requestSummary(
@@ -27,7 +30,7 @@ public class AiFileRelayService {
             String filename,
             String contentType,
             Long sessionId,
-            int roundNo,
+//            int roundNo,
             int versionNo
 
     ) {
@@ -38,7 +41,7 @@ public class AiFileRelayService {
                 "filename", filename,
                 "contentType", contentType,
                 "sessionId", sessionId,
-                "roundNo", roundNo,
+//                "roundNo", roundNo,
                 "versionNo", versionNo
         );
 
@@ -53,6 +56,41 @@ public class AiFileRelayService {
                 request,
                 Void.class
         );
+    }
+    // 음성요약 요청
+    public void requestAudioSummary(
+            MultipartFile audioFile,
+            Long sessionId
+    ) {
+        try {
+            // 🔹 multipart body 생성
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+
+            ByteArrayResource audioResource = new ByteArrayResource(audioFile.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return audioFile.getOriginalFilename();
+                }
+            };
+
+            body.add("audio", audioResource);
+            body.add("sessionId", sessionId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            HttpEntity<MultiValueMap<String, Object>> request =
+                    new HttpEntity<>(body, headers);
+
+            restTemplate.postForEntity(
+                    AUDIO_SUMMARY_URL,
+                    request,
+                    Void.class
+            );
+
+        } catch (IOException e) {
+            throw new RuntimeException("음성 요약 요청 실패", e);
+        }
     }
 }
 

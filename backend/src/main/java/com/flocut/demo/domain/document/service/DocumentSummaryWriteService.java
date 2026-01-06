@@ -24,8 +24,8 @@ public class DocumentSummaryWriteService {
     @Transactional
     public DocumentSummary createSummary(
             Long fileId,
-            Long sessionId,
-            int roundNo
+            Long sessionId
+//            int roundNo
     ) {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
@@ -34,7 +34,8 @@ public class DocumentSummaryWriteService {
                 .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
 
         Integer maxVersion =
-                summaryRepository.findMaxVersionNo(fileId, sessionId, roundNo);
+//                summaryRepository.findMaxVersionNo(fileId, sessionId, roundNo);
+                summaryRepository.findMaxVersionNo(fileId, sessionId);
 
         int nextVersionNo = (maxVersion == null) ? 1 : maxVersion + 1;
 
@@ -42,7 +43,7 @@ public class DocumentSummaryWriteService {
                 DocumentSummary.create(
                         file,
                         session,
-                        roundNo,
+//                        roundNo,
                         nextVersionNo
                 )
         );
