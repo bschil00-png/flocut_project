@@ -27,12 +27,13 @@ public class FileController {
     )
     public ResponseEntity<FileUploadResponse> upload(
             @RequestParam("file") MultipartFile file,
+            @RequestParam("sessionId") Long sessionId,
             Authentication authentication
     ) {
         Member member = memberService.findByEmail(authentication.getName());
 
         return ResponseEntity.ok(
-                fileService.upload(file, member.getMemberId())
+                fileService.upload(file, member.getMemberId(), sessionId)
         );
     }
     //이미지,pdf 등

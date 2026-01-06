@@ -8,5 +8,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class FileUploadResponse {
     private Long fileId;
+    private Long sessionId;
     private FileStatus status;
 }
