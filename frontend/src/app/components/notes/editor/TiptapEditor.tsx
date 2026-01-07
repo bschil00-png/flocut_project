@@ -1,99 +1,140 @@
+// components/notes/editor/TiptapEditor.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { TextStyle } from "@tiptap/extension-text-style";
-import Color from "@tiptap/extension-color";
-import Highlight from "@tiptap/extension-highlight";
-import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
+import Highlight from "@tiptap/extension-highlight";
 import Placeholder from "@tiptap/extension-placeholder";
+import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import { useEffect, useState } from "react";
+import { Editor } from "@tiptap/react";
 
-interface TiptapEditorProps {
-    content: string;
-    editable: boolean;
-    onContentChange?: (value: string) => void;
-    placeholder?: string;
-}
+import BubbleMenuToolbar from "./BubbleMenuToolbar";
+import MobileBottomToolbar from "./MobileBottomToolbar";
+
+type TiptapEditorProps = {
+  content: string;
+  onChange: (content: string) => void;
+  placeholder?: string;
+  editable?: boolean;
+  onReady?: (editor: Editor) => void;
+  showMobileToolbar?: boolean;
+};
 
 export default function TiptapEditor({
-                                         content,
-                                         editable,
-                                         onContentChange,
-                                         placeholder = "내용을 입력하세요..."
+                                       content,
+                                       onChange,
+                                       placeholder = "내용을 입력하세요...",
+                                       editable = true,
+                                       onReady,
+                                       showMobileToolbar = true,
                                      }: TiptapEditorProps) {
-    const [mounted, setMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-    const editor = useEditor({
-        editable,
-        content,
-        immediatelyRender: false,
-        extensions: [
-            StarterKit.configure({
-                heading: {
-                    levels: [1, 2, 3, 4, 5, 6],
-                },
-            }),
-            TextStyle,
-            Color,
-            Highlight.configure({
-                multicolor: true,
-            }),
-            TextAlign.configure({
-                types: ["heading", "paragraph"],
-            }),
-            Underline,
-            Placeholder.configure({
-                placeholder,
-            }),
-        ],
-        onUpdate({ editor }) {
-            if (onContentChange) {
-                onContentChange(editor.getHTML());
-            }
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
         },
-        editorProps: {
-            attributes: {
-                class: "prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] px-8 py-4",
-            },
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
         },
-    });
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+      }),
+      Underline,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      Highlight.configure({
+        multicolor: false,
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-accent underline cursor-pointer hover:bg-accent-dark",
+        },
+      }),
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "max-w-full h-auto rounded-lg my-4",
+        },
+      }),
+      Placeholder.configure({
+        placeholder,
+      }),
+    ],
+    content,
+    editable,
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      onChange(html);
+    },
+    editorProps: {
+      attributes: {
+        class:
+          "prose prose-lg max-w-none focus:outline-none min-h-[200px] text-text-primary-light dark:text-text-primary-dark",
+      },
+    },
+  });
 
-    // content가 변경되면 에디터 업데이트
-    useEffect(() => {
-        if (editor && content !== editor.getHTML()) {
-            editor.commands.setContent(content);
-        }
-    }, [content, editor]);
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      const { from, to } = editor.state.selection;
 
-    // editable 상태 변경 시 에디터 업데이트
-    useEffect(() => {
-        if (editor) {
-            editor.setEditable(editable);
-        }
-    }, [editable, editor]);
+      editor.commands.setContent(content, {
+        emitUpdate: false,
+      });
 
-    if (!mounted) {
-        return (
-            <div className="flex items-center justify-center min-h-[500px]">
-                <div className="text-text-muted-light dark:text-text-muted-dark">
-                    에디터 로딩 중...
-                </div>
-            </div>
-        );
+      const maxPos = editor.state.doc.content.size;
+      const safeFrom = Math.min(from, maxPos);
+      const safeTo = Math.min(to, maxPos);
+
+      editor.commands.setTextSelection({ from: safeFrom, to: safeTo });
     }
+  }, [content, editor]);
 
+  useEffect(() => {
+    if (editor && onReady) {
+      onReady(editor);
+    }
+  }, [editor, onReady]);
+
+  useEffect(() => {
+    return () => {
+      if (editor) {
+        editor.destroy();
+      }
+    };
+  }, [editor]);
+
+  if (!isMounted || !editor) {
     return (
-        <div className="w-full">
-            <EditorContent
-                editor={editor}
-                className="tiptap-editor bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark"
-            />
-        </div>
+      <div className="flex items-center justify-center min-h-[200px] text-text-muted-light dark:text-text-muted-dark">
+        <div className="text-sm">에디터 로딩 중...</div>
+      </div>
     );
+  }
+
+  return (
+    <div className="tiptap-wrapper">
+      {editable && <BubbleMenuToolbar editor={editor} />}
+      <EditorContent editor={editor} />
+      {editable && showMobileToolbar && <MobileBottomToolbar editor={editor} />}
+    </div>
+  );
 }

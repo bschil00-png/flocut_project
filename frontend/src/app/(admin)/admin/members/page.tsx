@@ -2,7 +2,7 @@
 
 // Admin 멤버 조회 페이지
 
-import AdminMemberTable from "@/app/components/admin/members/AdminMemberTable";
+import AdminMemberList from "@/app/components/admin/members/AdminMemberList";
 
 export default function AdminMembersPage() {
   return (
@@ -14,7 +14,7 @@ export default function AdminMembersPage() {
 
       {/* 테이블 */}
       <div className="bg-white border rounded-xl p-6">
-       <AdminMemberTable />
+       <AdminMemberList />
       </div>
     </div>
   );

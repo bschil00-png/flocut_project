@@ -20,7 +20,7 @@ export interface FileItem {
   fileType: string;
   fileSize: number;
   status: FileStatus;
-  createdDate: string;
+  regdate: string;
 }
 
 // 문서 목록 아이템 (세션 내부 리스트 용)
@@ -32,7 +32,7 @@ export interface DocumentItem {
   fileName: string;
   fileType: string;
   filePath: string;
-  createdDate: string;
+  regdate: string;
 
   // 요약 관련
   summaryId?: number | null;
@@ -51,7 +51,7 @@ export interface DocumentDetail {
   fileName: string;
   fileType: string;
   filePath: string;
-  createdDate: string;
+  regdate: string;
 
   text?: string | null;
 
@@ -75,7 +75,7 @@ export interface DocumentSummary {
   topic?: string | null;
   modelVersion?: string | null;
 
-  createdDate: string;
+  regdate: string;
 }
 
 
@@ -95,7 +95,7 @@ export interface DocumentUploadResult {
   fileName: string;
   filePath: string;
   fileType: string;
-  createdDate: string;
+  regdate: string;
 }
 
 // 문서 요약 요청 결과
@@ -109,5 +109,5 @@ export interface DocumentSummaryResult {
     summaryText: string;         // 요약 텍스트
     summaryOption?: string;      // 요약 옵션
     modelVersion?: string;       // LLM 버전
-    createdDate: string;        // 생성일 (정렬/표시용)
+    regdate: string;        // 생성일 (정렬/표시용)
 }

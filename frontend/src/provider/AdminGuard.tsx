@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthActions } from "@/hooks/useAuthActions";
 import { useAuthState } from "@/hooks/useAuthState";
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
