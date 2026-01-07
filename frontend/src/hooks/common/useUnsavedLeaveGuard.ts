@@ -16,9 +16,9 @@ export function useUnsavedLeaveGuard(
     hasUnsavedChanges: boolean,
     onSave?: () => Promise<void>
 ) {
-    /**
-     * 라우터 이동이나 패널 닫기 전에 호출하는 함수
-     */
+
+     // 라우터 이동이나 패널 닫기 전에 호출하는 함수
+
     const confirmNavigation = useCallback(
         async (navigate: () => void) => {
             // 변경사항 없으면 바로 이동
@@ -45,10 +45,10 @@ export function useUnsavedLeaveGuard(
         [hasUnsavedChanges, onSave]
     );
 
-    /**
-     * 브라우저 닫기 / 새로고침 보호
-     * (커스텀 UI 불가, 브라우저 기본 경고 사용)
-     */
+
+      // 브라우저 닫기 / 새로고침 보호
+     // (커스텀 UI 불가, 브라우저 기본 경고 사용)
+
     useEffect(() => {
         if (!hasUnsavedChanges) return;
 
