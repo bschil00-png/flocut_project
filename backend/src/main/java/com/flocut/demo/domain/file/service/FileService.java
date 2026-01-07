@@ -119,5 +119,30 @@ public class FileService {
         }
     }
 
+    public void deleteFile(Long fileId, Long memberId) {
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
+
+        // 🔐 소유자 검증
+        if (!file.getMember().getMemberId().equals(memberId)) {
+            throw new SecurityException("삭제 권한 없음");
+        }
+
+        // ❌ 이미 삭제된 파일
+        if (file.getStatus() == FileStatus.DELETED) {
+            throw new IllegalStateException("이미 삭제된 파일");
+        }
+
+        // 1️⃣ S3 실제 파일 삭제
+        s3UploadService.delete(file.getS3Key());
+
+        // 2️⃣ DB 소프트 삭제
+        file.softDelete();
+    }
+
+
+
+
 
 }
