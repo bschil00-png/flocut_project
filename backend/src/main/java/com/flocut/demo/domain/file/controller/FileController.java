@@ -60,4 +60,16 @@ public class FileController {
 
         return ResponseEntity.ok(text);
     }
+
+    @DeleteMapping("/{fileId}")
+    public ResponseEntity<Void> deleteFile(
+            @PathVariable Long fileId,
+            Authentication authentication
+    ) {
+        Member member = memberService.findByEmail(authentication.getName());
+
+        fileService.deleteFile(fileId, member.getMemberId());
+
+        return ResponseEntity.noContent().build();
+    }
 }

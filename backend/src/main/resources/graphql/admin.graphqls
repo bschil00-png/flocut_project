@@ -37,11 +37,12 @@ type AdminMemberDetail {
   memberId: ID!
   email: String!
   name: String!
+  tel: String
   status: MemberStatus!
   role: String!
+  emailVerified: Boolean!
   regdate: String!
 
-  loginHistories: [LoginHistory!]!
 }
 
 
