@@ -33,8 +33,6 @@ export interface SessionDetail {
 
     documentCount: number;
     audioCount: number;
-    roundMin?: number | null;
-    roundMax?: number | null;
 }
 
 

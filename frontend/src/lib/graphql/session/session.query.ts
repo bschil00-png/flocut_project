@@ -30,8 +30,6 @@ export const SESSION_DETAIL_QUERY = gql`
       status
       documentCount
       audioCount
-      roundMin
-      roundMax
     }
   }
 `;

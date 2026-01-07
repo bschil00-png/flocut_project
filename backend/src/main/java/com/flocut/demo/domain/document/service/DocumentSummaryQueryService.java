@@ -3,7 +3,6 @@ package com.flocut.demo.domain.document.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flocut.demo.domain.document.dto.response.DocumentSummaryDetailResponse;
 import com.flocut.demo.domain.document.dto.response.DocumentSummaryViewResponse;
 import com.flocut.demo.domain.document.entity.DocumentSummary;
 import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
@@ -23,7 +22,7 @@ public class DocumentSummaryQueryService {
     private final ObjectMapper objectMapper;
 
 
-//  문서요약 조회
+    //  문서요약 조회
     public DocumentSummaryViewResponse getLatestSummaryViewByFileId(Long fileId) {
 
         DocumentSummary summary =
@@ -77,23 +76,20 @@ public class DocumentSummaryQueryService {
             throw new RuntimeException("요약 JSON 파싱 실패", e);
         }
     }
-
+//
 //    public DocumentSummaryDetailResponse getLatestSummaryByFileId(Long fileId) {
 //
-//        DocumentSummary summary =
-//                summaryRepository
-//                        .findTopByFileFileIdOrderBySummaryIdDesc(fileId)
-//                        .orElseThrow(() ->
-//                                new IllegalArgumentException("요약 정보 없음")
-//                        );
-//
-//        return new DocumentSummaryDetailResponse(
-//                summary.getSummaryId(),
-//                summary.getFile().getFileId(),
-//                summary.getStatus(),
-//                summary.getSummaryText(),
-//                summary.getModelVersion()
-//        );
+//        return summaryRepository
+//                .findTopByFileFileIdOrderBySummaryIdDesc(fileId)
+//                .map(summary ->
+//                        new DocumentSummaryDetailResponse(
+//                                summary.getSummaryId(),
+//                                summary.getFile().getFileId(),
+//                                summary.getStatus(),
+//                                summary.getSummaryText(),
+//                                summary.getModelVersion()
+//                        )
+//                )
+//                .orElse(null); // 요약 없으면 정상적으로 null
 //    }
 }
-
