@@ -1,14 +1,34 @@
-type Note {
-    noteId: ID!
+extend type Query {
+    notesByStatus(sessionId: ID!, status: CommonStatus!): [NoteResponseDTO]
+    noteDetail(noteId: ID!): NoteDetailResponseDTO
+}
+
+enum CommonStatus {
+    ACTIVE
+    ARCHIVED
+    DELETED
+    READY
+}
+
+type NoteResponseDTO {
+    noteId: ID
+    sessionId: ID
     title: String
-    content: String
     sourceType: String
     sourceId: ID
+    status: String
     regdate: String
     moddate: String
 }
 
-extend type Query {
-  notesBySession(sessionId: ID!): [Note]
-  note(noteId: ID!): Note
+type NoteDetailResponseDTO {
+    noteId: ID
+    sessionId: ID
+    title: String
+    content: String
+    sourceType: String
+    sourceId: ID
+    status: String
+    regdate: String
+    moddate: String
 }

@@ -1,249 +1,375 @@
+// app/components/layout/WorkspaceLayout/GlobalNav.tsx
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-    Home,
-    Clock,
-    Star,
-    FileText,
-    Users,
-    Archive,
-    Folder,
-    Plus,
-    Settings,
-    ChevronLeft,
-    ChevronRight,
-    Menu,
-} from "lucide-react";
 import { useState } from "react";
-
-import IconButton from "@/app/components/ui/icon-button/IconButton";
-import useResponsiveNav from "@/hooks/useResponsiveNav";
+import { useRouter } from "next/navigation";
+import {
+  Home,
+  Clock,
+  Star,
+  FileText,
+  Folder,
+  Plus,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  MoreHorizontal,
+  Edit3,
+  Trash2,
+} from "lucide-react";
 import { useSessions } from "@/hooks/sessions/useSessions";
-import CreateSessionModal from "./CreateSessionModal";
-import SessionNavItem from "./SessionNavItem";
+import CreateSessionModal from "../../sessions/CreateSessionModal";
+import SessionEditModal from "@/app/components/sessions/SessionEditModal";
+import SessionDeleteModal from "@/app/components/sessions/SessionDeleteModal";
 
-export default function GlobalNav() {
-    const pathname = usePathname();
+interface Props {
+  collapsed: boolean;
+  onToggle: () => void;
+  selectedSessionId: number | null;
+  onSessionSelect: (sessionId: number) => void;
+}
 
-    // 반응형 네비 상태
-    const { isCollapsed, isMobile, setCollapsed } = useResponsiveNav();
+export default function GlobalNav({
+                                    collapsed,
+                                    onToggle,
+                                    selectedSessionId,
+                                    onSessionSelect,
+                                  }: Props) {
+  const router = useRouter();
+  const [openCreate, setOpenCreate] = useState(false);
+  const [expandedSessions, setExpandedSessions] = useState<Set<number>>(
+    new Set()
+  );
 
-    // 모바일 메뉴 / 세션 생성 모달 상태
-    const [openMobile, setOpenMobile] = useState(false);
-    const [openCreate, setOpenCreate] = useState(false);
+  const { sessions, refetch } = useSessions();
 
-    // 세션 목록
-    const { sessions, refetch } = useSessions();
+  const globalNav = [
+    { href: "/workspace", label: "홈", icon: Home },
+    { href: "/recent", label: "최근 문서", icon: Clock },
+    { href: "/favorites", label: "즐겨찾기", icon: Star },
+    { href: "/notes", label: "모든 노트", icon: FileText },
+  ];
 
-    // 상단 고정 네비 목록
-    const globalNav = [
-        { href: "/", label: "홈", icon: Home },
-        { href: "/recent", label: "최근 문서", icon: Clock },
-        { href: "/favorites", label: "즐겨찾기", icon: Star },
-        { href: "/notes", label: "모든 노트", icon: FileText },
-        { href: "/shared", label: "공유 문서", icon: Users },
-        { href: "/archive", label: "보관함", icon: Archive },
-    ];
-
-    // 네비 아이템 렌더링 함수
-    const renderItem = (
-        href: string,
-        label: string,
-        Icon: any,
-        closeMobile?: boolean
-    ) => {
-        const active = pathname === href;
-
-        return (
-            <Link
-                key={href}
-                href={href}
-                onClick={() => closeMobile && setOpenMobile(false)}
-                className={`
-          flex items-center gap-3 px-3 py-2 rounded-md text-sm
-          text-text-muted-light dark:text-text-muted-dark
-          hover:bg-accent-soft
-          ${active ? "bg-accent-soft text-accent" : ""}
-          ${isCollapsed && !isMobile ? "justify-center" : ""}
-        `}
-            >
-                <Icon size={18} />
-                {(!isCollapsed || isMobile) && <span>{label}</span>}
-            </Link>
-        );
-    };
-
-    // 모바일 네비
-    if (isMobile) {
-        return (
-            <>
-                {!openMobile && (
-                    <button
-                        onClick={() => setOpenMobile(true)}
-                        className="
-              fixed top-3 left-3 z-40 p-2 rounded-md
-              bg-surface-light dark:bg-surface-dark
-              border border-border-light dark:border-border-dark
-            "
-                    >
-                        <Menu size={20} />
-                    </button>
-                )}
-
-                <aside
-                    className={`
-            fixed inset-y-0 left-0 z-50 w-64
-            bg-surface-light dark:bg-surface-dark
-            border-r border-border-light dark:border-border-dark
-            transition-transform
-            ${openMobile ? "translate-x-0" : "-translate-x-full"}
-          `}
-                >
-                    <nav className="flex flex-col h-full px-2 py-3">
-                        <div className="space-y-1">
-                            {globalNav.map((item) =>
-                                renderItem(item.href, item.label, item.icon, true)
-                            )}
-                        </div>
-
-                        {/* 세션 생성 버튼 */}
-                        <div className="mt-4">
-                            <button
-                                onClick={() => {
-                                    setOpenCreate(true);
-                                    setOpenMobile(false);
-                                }}
-                                className="
-                  flex items-center gap-3 px-3 py-2 rounded-md text-sm
-                  text-text-muted-light dark:text-text-muted-dark
-                  hover:bg-accent-soft
-                "
-                            >
-                                <Plus size={16} />
-                                <span>새 세션 만들기</span>
-                            </button>
-
-                            {sessions.map((s) => (
-                                <Link
-                                    key={s.sessionId}
-                                    href={`/workspace/${s.sessionId}`}
-                                    onClick={() => setOpenMobile(false)}
-                                    className="
-                    flex items-center gap-3 px-3 py-2 rounded-md text-sm
-                    text-text-muted-light dark:text-text-muted-dark
-                    hover:bg-accent-soft
-                  "
-                                >
-                                    <Folder size={16} />
-                                    <span className="truncate">{s.sessionTitle}</span>
-                                </Link>
-                            ))}
-                        </div>
-
-                        <div className="mt-auto border-t border-border-light dark:border-border-dark pt-2">
-                            <Link
-                                href="/settings/profile"
-                                className="
-                  flex items-center gap-3 px-3 py-2 text-sm
-                  text-text-muted-light dark:text-text-muted-dark
-                  hover:bg-accent-soft
-                "
-                            >
-                                <Settings size={18} />
-                                설정
-                            </Link>
-                        </div>
-                    </nav>
-                </aside>
-
-                <CreateSessionModal
-                    open={openCreate}
-                    onClose={() => setOpenCreate(false)}
-                />
-            </>
-        );
+  const toggleSessionExpand = (sessionId: number) => {
+    const newExpanded = new Set(expandedSessions);
+    if (newExpanded.has(sessionId)) {
+      newExpanded.delete(sessionId);
+    } else {
+      newExpanded.add(sessionId);
     }
+    setExpandedSessions(newExpanded);
+  };
 
-    // PC 네비
-    return (
-        <aside
-            className={`
-        h-full flex-shrink-0
-        bg-surface-light dark:bg-surface-dark
-        border-r border-border-light dark:border-border-dark
-        transition-all
-        ${isCollapsed ? "w-16" : "w-60"}
+  const handleTrashClick = () => {
+    if (selectedSessionId) {
+      router.push(`/workspace/${selectedSessionId}/trash`);
+    } else if (sessions.length > 0) {
+      router.push(`/workspace/${sessions[0].sessionId}/trash`);
+    }
+  };
+
+  return (
+    <aside
+      className={`
+        h-full flex-shrink-0 transition-all duration-300
+        bg-slate-50 dark:bg-slate-900
+        border-r border-slate-200 dark:border-slate-800
+        ${collapsed ? "w-16" : "w-64"}
       `}
+    >
+      <nav className="flex flex-col h-full">
+        {/* Header */}
+        <div
+          className={`
+            h-14 flex items-center px-4 border-b border-slate-200 dark:border-slate-800
+            ${collapsed ? "justify-center" : "justify-between"}
+          `}
         >
-            <nav className="flex flex-col h-full px-2 py-3">
-                <div className="space-y-1">
-                    {globalNav.map((item) =>
-                        renderItem(item.href, item.label, item.icon)
-                    )}
-                </div>
+          {!collapsed && (
+            <span className="font-bold text-lg bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+              FLOCUT
+            </span>
+          )}
+          <button
+            onClick={onToggle}
+            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          >
+            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </button>
+        </div>
 
-                {/* 세션 영역 */}
-                <div className="mt-4 space-y-1">
-                    <button
-                        onClick={() => setOpenCreate(true)}
-                        className={`
-              flex items-center gap-3 px-3 py-2 rounded-md text-sm
-              text-text-muted-light dark:text-text-muted-dark
-              hover:bg-accent-soft
-              ${isCollapsed ? "justify-center" : ""}
+        <div className="flex-1 overflow-y-auto p-3">
+          {/* Quick Navigation */}
+          <div className="space-y-1 mb-6">
+            {globalNav.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.href}
+                  onClick={() => router.push(item.href)}
+                  className={`
+                    w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+                    transition-colors
+                    text-slate-700 dark:text-slate-300
+                    hover:bg-slate-100 dark:hover:bg-slate-800
+                    ${collapsed ? "justify-center" : ""}
+                  `}
+                >
+                  <Icon size={18} />
+                  {!collapsed && <span>{item.label}</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Sessions */}
+          <div>
+            <div
+              className={`
+                flex items-center justify-between px-2 mb-2
+                ${collapsed ? "justify-center" : ""}
+              `}
+            >
+              {!collapsed ? (
+                <>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    세션
+                  </span>
+                  <button
+                    onClick={() => setOpenCreate(true)}
+                    className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setOpenCreate(true)}
+                  className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg"
+                >
+                  <Folder size={18} className="text-slate-400" />
+                </button>
+              )}
+            </div>
+
+            {!collapsed && (
+              <div className="space-y-0.5 mb-2">
+                {sessions.map((session) => (
+                  <SessionItem
+                    key={session.sessionId}
+                    session={session}
+                    isExpanded={expandedSessions.has(session.sessionId)}
+                    isSelected={selectedSessionId === session.sessionId}
+                    onToggleExpand={() => toggleSessionExpand(session.sessionId)}
+                    onSelect={() => onSessionSelect(session.sessionId)}
+                    onUpdated={refetch}
+                    onDeleted={refetch}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* 휴지통 버튼 */}
+            <button
+              onClick={handleTrashClick}
+              className={`
+                w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+                text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors
+                ${collapsed ? "justify-center" : ""}
+              `}
+            >
+              <Trash2 size={18} />
+              {!collapsed && <span>휴지통</span>}
+            </button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800">
+          <button
+            className={`
+              w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+              text-slate-700 dark:text-slate-300
+              hover:bg-slate-100 dark:hover:bg-slate-800
+              transition-colors
+              ${collapsed ? "justify-center" : ""}
             `}
-                    >
-                        <Plus size={16} />
-                        {!isCollapsed && <span>새 세션 만들기</span>}
-                    </button>
+          >
+            <Settings size={18} />
+            {!collapsed && <span>설정</span>}
+          </button>
+        </div>
+      </nav>
 
-                    {sessions.map((s) => (
-                        <SessionNavItem
-                            key={s.sessionId}
-                            sessionId={s.sessionId}
-                            title={s.sessionTitle}
-                            active={pathname.startsWith(`/workspace/${s.sessionId}`)}
-                            collapsed={isCollapsed}
-                            onUpdated={refetch}
-                            onDeleted={refetch}
-                        />
-                    ))}
-                </div>
+      <CreateSessionModal
+        open={openCreate}
+        onClose={() => {
+          setOpenCreate(false);
+          refetch();
+        }}
+      />
+    </aside>
+  );
+}
 
-                <div className="mt-auto border-t border-border-light dark:border-border-dark pt-2 space-y-2">
-                    <Link
-                        href={`/settings/profile?from=${encodeURIComponent(pathname)}`}
-                        className={`
-              flex items-center gap-3 px-3 py-2 rounded-md text-sm
-              text-text-muted-light dark:text-text-muted-dark
-              hover:bg-accent-soft
-              ${isCollapsed ? "justify-center" : ""}
-            `}
-                    >
-                        <Settings size={18} />
-                        {!isCollapsed && <span>설정</span>}
-                    </Link>
+// SessionItem 컴포넌트
+function SessionItem({
+                       session,
+                       isExpanded,
+                       isSelected,
+                       onToggleExpand,
+                       onSelect,
+                       onUpdated,
+                       onDeleted,
+                     }: {
+  session: any;
+  isExpanded: boolean;
+  isSelected: boolean;
+  onToggleExpand: () => void;
+  onSelect: () => void;
+  onUpdated: () => void;
+  onDeleted: () => void;
+}) {
+  const router = useRouter();
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
-                    <IconButton
-                        icon={
-                            isCollapsed ? (
-                                <ChevronRight size={18} />
-                            ) : (
-                                <ChevronLeft size={18} />
-                            )
-                        }
-                        onClick={() => setCollapsed(!isCollapsed)}
-                        className="w-10 h-10 mx-auto"
-                    />
-                </div>
-            </nav>
+  const handleSessionClick = () => {
+    onSelect();
+    router.push(`/workspace/${session.sessionId}`);
+  };
 
-            <CreateSessionModal
-                open={openCreate}
-                onClose={() => setOpenCreate(false)}
+  return (
+    <div>
+      {/* Session Row */}
+      <div className="group relative">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={handleSessionClick}
+          className={`
+            w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm cursor-pointer
+            transition-all
+            ${
+            isSelected
+              ? "bg-pink-100 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 font-medium"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
+          }
+          `}
+        >
+          {/* Expand Toggle */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand();
+            }}
+            className="p-0.5 hover:bg-slate-300 dark:hover:bg-slate-700 rounded transition-colors"
+          >
+            <ChevronDown
+              size={14}
+              className={`transition-transform ${
+                isExpanded ? "" : "-rotate-90"
+              }`}
             />
-        </aside>
-    );
+          </div>
+
+          <Folder size={14} />
+          <span className="flex-1 truncate text-left">
+            {session.sessionTitle}
+          </span>
+        </div>
+
+        {/* Actions Menu */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowMenu(!showMenu);
+          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1
+                     opacity-0 group-hover:opacity-100
+                     hover:bg-slate-300 dark:hover:bg-slate-700
+                     rounded transition-all"
+        >
+          <MoreHorizontal size={12} />
+        </button>
+
+        {showMenu && (
+          <div
+            className="absolute right-0 top-8 w-32 rounded-lg border
+                        border-slate-200 dark:border-slate-800
+                        bg-white dark:bg-slate-900 shadow-lg z-50 overflow-hidden"
+          >
+            <button
+              onClick={() => {
+                setShowMenu(false);
+                setOpenEdit(true);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left
+                         hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <Edit3 size={12} />
+              수정
+            </button>
+            <button
+              onClick={() => {
+                setShowMenu(false);
+                setOpenDelete(true);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left
+                         text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+            >
+              <Trash2 size={12} />
+              삭제
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Expanded Sub-items */}
+      {isExpanded && (
+        <div className="ml-6 mt-1 space-y-0.5">
+          <button
+            onClick={() => router.push(`/workspace/${session.sessionId}/notes`)}
+            className="w-full flex items-center gap-2 px-3 py-1 rounded-lg
+                       text-xs text-slate-600 dark:text-slate-400
+                       hover:bg-slate-200 dark:hover:bg-slate-800"
+          >
+            <FileText size={12} />
+            노트
+          </button>
+          <button
+            onClick={() =>
+              router.push(`/workspace/${session.sessionId}/documents`)
+            }
+            className="w-full flex items-center gap-2 px-3 py-1 rounded-lg
+                       text-xs text-slate-600 dark:text-slate-400
+                       hover:bg-slate-200 dark:hover:bg-slate-800"
+          >
+            <FileText size={12} />
+            문서
+          </button>
+        </div>
+      )}
+
+      <SessionEditModal
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        sessionId={session.sessionId}
+        initialTitle={session.sessionTitle}
+        onUpdated={onUpdated}
+      />
+
+      <SessionDeleteModal
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+        sessionId={session.sessionId}
+        sessionTitle={session.sessionTitle}
+        onDeleted={onDeleted}
+      />
+    </div>
+  );
 }

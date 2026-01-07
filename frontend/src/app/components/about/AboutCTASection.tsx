@@ -33,7 +33,7 @@ export default function AboutCTASection() {
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              FloCut과 함께
+              FLOCUT과 함께
               <br />
               <span className="text-accent">문서 업무를 혁신하세요</span>
             </h2>
@@ -83,7 +83,7 @@ export default function AboutCTASection() {
             {/* Trust indicator */}
             <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-700">
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                이미 <span className="font-semibold text-accent">2,500+</span>개 팀이 FloCut으로 문서를 분석하고 있습니다
+                이미 <span className="font-semibold text-accent">2,500+</span>개 팀이 FLOCUT으로 문서를 분석하고 있습니다
               </p>
             </div>
           </div>

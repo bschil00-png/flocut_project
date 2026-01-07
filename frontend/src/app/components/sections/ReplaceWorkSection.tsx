@@ -49,13 +49,13 @@ export default function ReplaceWorkSection() {
                         이런 상황에서
                         <br />
                         <span className="bg-gradient-to-r from-accent to-accent-hover bg-clip-text text-transparent">
-                            FloCut이 필요합니다
+                            FLOCUT이 필요합니다
                         </span>
                     </h2>
 
                     <p className="text-xl text-text-muted-light dark:text-text-muted-dark leading-relaxed">
                         회의록, 보고서, 기획 문서처럼 여러 문서를 반복해서 검토해야 하는 업무에서
-                        FloCut은 본질을 드러내는 분석 도구로 작동합니다.
+                        FLOCUT은 본질을 드러내는 분석 도구로 작동합니다.
                     </p>
                 </motion.div>
 

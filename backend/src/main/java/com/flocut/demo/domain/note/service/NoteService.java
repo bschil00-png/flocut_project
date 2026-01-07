@@ -1,112 +1,38 @@
 package com.flocut.demo.domain.note.service;
 
+import com.flocut.demo.domain.common.CommonStatus;
 import com.flocut.demo.domain.member.entity.Member;
-import com.flocut.demo.domain.member.repository.MemberRepository;
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteUpdateRequestDTO;
 import com.flocut.demo.domain.note.entity.Note;
-import com.flocut.demo.domain.note.entity.NoteSourceType;
-import com.flocut.demo.domain.note.repository.NoteRepository;
-import com.flocut.demo.domain.session.entity.Session;
-import com.flocut.demo.domain.session.repository.SessionRepository;
-import com.flocut.demo.global.utils.CustomUserDetails;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-@Transactional
-public class NoteService {
+public interface NoteService {
+  //    노트 생성
+  Long createNote(Member member, NoteCreateRequestDTO dto);
 
-  private final NoteRepository noteRepository;
-  private final SessionRepository sessionRepository;
-  private final MemberRepository memberRepository;
+  //    목록 조회
+  List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status);
 
-  public Long create(Long memberId, NoteCreateRequestDTO dto) {
+  //    노트 단건 조회
+  Note getNote(Long noteId, Member member);
 
-    Session session = sessionRepository.findById(dto.getSessionId())
-            .orElseThrow();
+  //    수정 : 변경 감지
+  void updateNote(Long noteId, Member member, NoteUpdateRequestDTO dto);
 
-    Member member = memberRepository.findById(memberId)
-            .orElseThrow();
+  //    삭제 (소프트 딜리트)
+  void deleteNote(Long noteId, Member member);
 
-    Note note = new Note();
-    note.setSession(session);
-    note.setMember(member);
-    note.setTitle(dto.getTitle());
-    note.setContent(dto.getContent());
-    note.setSourceType(NoteSourceType.MANUAL); // 기본값
+  // 복구 로직 (30일 이전엔 가능)
+  void restoreNote(Long noteId, Member member);
 
-    noteRepository.save(note);
+  //    영구 삭제 (휴지통에서 )
+  void hardDeleteNote(Long noteId, Member member);
 
-    return note.getNoteId();
-  }
+  // 시스템 자동 동기화용 (권한 체크 제외)
+  void updateNoteSystem(Long noteId, NoteUpdateRequestDTO dto);
 
-  public List<Note> getNotesBySession(Long sessionId, Long memberId) {
-    return noteRepository
-            .findBySession_SessionIdAndMember_MemberIdAndStatus(
-                    sessionId,
-                    memberId,
-                    "ACTIVE"
-            );
-  }
-
-  // 노트 단건 조회
-  public Note getNote(Long noteId) {
-
-    Authentication authentication =
-            SecurityContextHolder.getContext().getAuthentication();
-
-    CustomUserDetails user =
-            (CustomUserDetails) authentication.getPrincipal();
-
-    Long memberId = user.getMemberId();
-
-    Note note = noteRepository.findById(noteId)
-            .orElseThrow(() ->
-                    new IllegalArgumentException("존재하지 않는 노트입니다.")
-            );
-
-    // 권한 체크
-    if (!note.getMember().getMemberId().equals(memberId)) {
-      throw new IllegalStateException("노트 조회 권한이 없습니다.");
-    }
-
-    return note;
-  }
-
-  //    노트 수정
-  public void update(Long noteId, Long memberId, NoteUpdateRequestDTO dto) {
-
-    Note note = noteRepository.findById(noteId)
-            .orElseThrow(() ->
-                    new IllegalArgumentException("존재하지 않는 노트입니다.")
-            );
-
-    // 권한 체크
-    if (!note.getMember().getMemberId().equals(memberId)) {
-      throw new IllegalStateException("노트 수정 권한이 없습니다.");
-    }
-
-    // 제목 수정
-    if (dto.getTitle() != null) {
-      note.setTitle(dto.getTitle());
-    }
-
-    // 본문 수정
-    if (dto.getContent() != null) {
-      note.setContent(dto.getContent());
-    }
-
-    // 상태 수정 (선택)
-    if (dto.getStatus() != null) {
-      note.setStatus(dto.getStatus());
-    }
-  }
+  //    노트 이동
+  void moveNote(Long noteId, Long targetSessionId, Member member);
 }

@@ -1,6 +1,5 @@
 "use client"
 
-// 여러개의 리스트 아이템을 수직으로 나열하는 공용 컴포넌트
 type  ListProps = {
     // 리스트 아이템들이 들어오는 자리
     children: React.ReactNode;

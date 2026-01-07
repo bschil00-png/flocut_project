@@ -55,14 +55,6 @@ export default function GoogleCallbackPage() {
         })();
     }, [searchParams, ensureAuth, router]);
 
-    return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh'
-        }}>
-            로그인 처리 중...
-        </div>
-    );
+    return null;
+
 }
