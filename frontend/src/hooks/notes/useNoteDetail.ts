@@ -1,4 +1,3 @@
-// hooks/notes/useNoteDetail.ts
 import {useCallback, useEffect, useState} from "react";
 import { getNoteDetail } from "@/lib/rest/note/notes.rest";
 import { NoteDetailResponse } from "@/lib/graphql/note/note.type";

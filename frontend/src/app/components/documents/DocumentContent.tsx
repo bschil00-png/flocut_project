@@ -15,8 +15,8 @@ type Props = {
 export default function DocumentContent({ fileId, sessionId }: Props) {
     const id = Number(fileId);
 
-    // ✅ 파일 존재 검증 제거
-    // ✅ fileId 기준으로 바로 원문 요청
+    //  파일 존재 검증 제거
+    // fileId 기준으로 바로 원문 요청
     const { text, loading, error } = useFileText(id);
 
     const { data: summaryData, refetch } = useDocumentSummary(id);

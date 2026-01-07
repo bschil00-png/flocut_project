@@ -1,4 +1,3 @@
-// src/hooks/useProfileActions.ts (또는 useAuthActions.ts)
 import { apolloClient } from "@/lib/apollo/clients";
 import {MyProfile} from "@/lib/graphql/auth/auth.type";
 import {ME_QUERY} from "@/lib/graphql/auth/ auth.query";

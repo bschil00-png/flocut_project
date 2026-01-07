@@ -1,4 +1,3 @@
-// hooks/notes/useNoteUpdate.ts
 "use client";
 
 import { useState, useCallback } from "react";
