@@ -14,7 +14,7 @@ import {
     ChevronRight
 } from "lucide-react";
 import { useSessions } from "@/hooks/sessions/useSessions";
-import { useMyFiles } from "@/hooks/files/useMyFiles";
+import { useSessionFiles } from "@/hooks/files/useSessionFiles";
 import { useMemo, useState } from "react";
 import CreateSessionModal from "@/app/components/sessions/CreateSessionModal";
 import Card from "@/app/components/ui/card/Card";
@@ -58,8 +58,9 @@ export default function WorkspacePage() {
     const [openCreate, setOpenCreate] = useState(false);
 
     const { sessions, loading, refetch } = useSessions();
-    const { files } = useMyFiles();
-
+    const { files } = useSessionFiles(
+        sessions.length > 0 ? sessions[0].sessionId : 0
+    );
     // 최근 요약 내역 조회
     const { data: summaryData, loading: summaryLoading } = useQuery<SummariesData>(GET_RECENT_SUMMARIES);
 

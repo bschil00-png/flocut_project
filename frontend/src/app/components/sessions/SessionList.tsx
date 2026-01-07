@@ -1,22 +1,28 @@
 "use client";
 
-import SessionItem from "./SessionItem";
+import { useRouter } from "next/navigation";
+import { Folder } from "lucide-react";
 
-const mockSessions = [
-    { sessionId: 1, sessionTitle: "3월 마케팅 회의" },
-    { sessionId: 2, sessionTitle: "FloCut 기획 정리" },
-];
+type Props = {
+    sessionId: number;
+    title: string;
+};
 
-export default function SessionList() {
+export default function SessionItem({ sessionId, title }: Props) {
+    const router = useRouter();
+
     return (
-        <div className="space-y-1">
-            {mockSessions.map((session) => (
-                <SessionItem
-                    key={session.sessionId}
-                    sessionId={session.sessionId}
-                    title={session.sessionTitle}
-                />
-            ))}
+        <div
+            onClick={() => router.push(`/workspace/${sessionId}`)}
+            className="
+        flex items-center gap-2 px-3 py-2
+        rounded-md cursor-pointer
+        hover:bg-accent-soft
+        text-sm
+      "
+        >
+            <Folder size={16} className="text-text-muted-light" />
+            <span className="truncate">{title}</span>
         </div>
     );
 }

@@ -1,27 +1,33 @@
-import { useState } from "react";
-import { uploadFile } from "@/lib/rest/file/file.rest";
+import { api } from "@/lib/axios";
+import { FileUploadResponse } from "@/lib/graphql/file/file.type";
 
-export function useFileUpload() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+// 파일 업로드 (sessionId optional)
+export async function uploadFile(
+    file: File,
+    sessionId?: number  //  optional로 변경
+): Promise<FileUploadResponse> {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const upload = async (file: File) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      return await uploadFile(file);
-    } catch (e) {
-      setError(e as Error);
-      throw e;
-    } finally {
-      setLoading(false);
+    //  sessionId가 있을 때만 추가
+    if (sessionId !== undefined) {
+        formData.append("sessionId", sessionId.toString());
     }
-  };
 
-  return {
-    upload,
-    loading,
-    error,
-  };
+    const data = await api.post<FileUploadResponse>(
+        "/api/files/upload",
+        formData
+    );
+
+    return data;
+}
+
+// 텍스트 파일 내용 조회
+export async function getFileText(fileId: number): Promise<string> {
+    return api.get<string>(`/api/files/${fileId}/preview/text`);
+}
+
+// 이미지/PDF Presigned URL 조회
+export async function getFilePreviewUrl(fileId: number): Promise<string> {
+    return api.get<string>(`/api/files/${fileId}/preview`);
 }

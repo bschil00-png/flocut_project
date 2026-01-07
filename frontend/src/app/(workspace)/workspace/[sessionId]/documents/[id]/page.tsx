@@ -18,19 +18,18 @@ export default function DocumentDetailPage() {
   const fileId = Number(id);
   const { document, loading } = useDocumentDetail(Number(fileId));
 
-  const handleSummaryRequest = async () => {
-    try {
-      await requestDocumentSummary({
-        fileId,
-        sessionId: Number(sessionId),
-        roundNo: 1,
-      });
-      toast.success("요약 요청이 접수되었습니다.")
-    } catch {
-      toast.error("요약 요청이 실패했습니다.")
-    }
-  };
-
+    const handleSummaryRequest = async () => {
+        try {
+            await requestDocumentSummary({
+                fileId,
+                sessionId: Number(sessionId),
+                // roundNo 제거
+            });
+            toast.success("요약 요청이 접수되었습니다.")
+        } catch {
+            toast.error("요약 요약 실패했습니다.")
+        }
+    };
 
   if (loading) {
     return <p className="p-8">불러오는 중...</p>;

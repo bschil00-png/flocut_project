@@ -15,12 +15,12 @@ export type DocumentStatus =
 
 
 export interface FileItem {
-  fileId: number;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
-  status: FileStatus;
-  regdate: string;
+    fileId: number;
+    fileName: string;
+    fileType: string;
+    fileSize: number;
+    status: FileStatus;
+    regdate: string;
 }
 
 // 문서 목록 아이템 (세션 내부 리스트 용)
@@ -61,23 +61,21 @@ export interface DocumentDetail {
 
 // 문서 요약 정보
 // 하나의 문서 요약 결과
-//회차 + 버전 개념을 포함한다 보면 됨
 export interface DocumentSummary {
-  summaryId: number;
-  fileId: number;
-  sessionId: number;
+    summaryId: number;
+    fileId: number;
+    sessionId: number;
 
-  roundNo: number;
-  versionNo: number;
-  summaryText: string;
+    // roundNo 제거
+    versionNo: number;
+    summaryText: string;
 
-  summaryOption?: string | null;
-  topic?: string | null;
-  modelVersion?: string | null;
+    summaryOption?: string | null;
+    topic?: string | null;
+    modelVersion?: string | null;
 
-  regdate: string;
+    regdate: string;
 }
-
 
 //  문서 목록 조회 응답
 // 세션 기준 문서 목록 조회 시 사용
@@ -102,12 +100,11 @@ export interface DocumentUploadResult {
 // 문서 요약 생성 요청 후 반환되는 결과
 // 요약 완료 시 상세 화면에 바로 반영 가능
 export interface DocumentSummaryResult {
-    summaryId: number;           // 요약 PK
-    fileId: number;              // 문서 파일 PK
-    sessionId: number;           // 세션 PK
-    roundNo: number;             // 회차 번호
-    summaryText: string;         // 요약 텍스트
-    summaryOption?: string;      // 요약 옵션
-    modelVersion?: string;       // LLM 버전
-    regdate: string;        // 생성일 (정렬/표시용)
+    summaryId: number;
+    fileId: number;
+    sessionId: number;
+    summaryText: string;
+    summaryOption?: string;
+    modelVersion?: string;
+    regdate: string;
 }

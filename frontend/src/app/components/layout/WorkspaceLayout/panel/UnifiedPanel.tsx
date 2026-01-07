@@ -7,6 +7,7 @@ import NoteContent from "@/app/components/notes/NoteContent";
 import CalendarContent from "../CalendarContent";
 import CompareComingSoon from "./CompareComingSoon";
 import { useUnsavedLeaveGuard } from "@/hooks/common/useUnsavedLeaveGuard";
+import DocumentContent from "@/app/components/documents/DocumentContent";
 
 type UnifiedPanelProps = {
     type: "note" | "document" | "audio";
@@ -35,7 +36,7 @@ export default function UnifiedPanel({
     const handleSyncRef = useRef<(() => Promise<void>) | null>(null);
     const prevSavingRef = useRef(saving);
 
-    // 노트 ID 변경 시 항상 edit 탭으로
+    // ID 변경 시 항상 edit 탭으로
     useEffect(() => {
         setCurrentTab("edit");
     }, [id]);
@@ -104,35 +105,45 @@ export default function UnifiedPanel({
             />
 
             <div className="flex-1 overflow-hidden">
+                {/* 노트 편집 */}
                 {currentTab === "edit" && type === "note" && (
-                    <NoteContent
-                        key={`${sessionId}-${id}`}
-                        {...noteContentProps}
-                    />
+                    <NoteContent key={`${sessionId}-${id}`} {...noteContentProps} />
                 )}
 
-                {currentTab === "summary" && <SummaryContent id={id} />}
+                {/* ✅ 문서 컨텐츠 */}
+                {currentTab === "edit" && type === "document" && (
+                    <DocumentContent fileId={id} sessionId={sessionId} />
+                )}
+
+                {currentTab === "summary" && <SummaryContent id={id} type={type} />}
                 {currentTab === "feedback" && <FeedbackContent id={id} />}
                 {currentTab === "compare" && <CompareComingSoon />}
-                {currentTab === "calendar" && <CalendarContent noteId={id} />}
+                {currentTab === "calendar" && type === "note" && (
+                    <CalendarContent noteId={id} />
+                )}
             </div>
 
-            <PanelFooter
-                saved={saved}
-                saving={saving}
-                charCount={charCount}
-                wordCount={wordCount}
-            />
+            {/* ✅ 노트일 때만 Footer 표시 */}
+            {type === "note" && (
+                <PanelFooter
+                    saved={saved}
+                    saving={saving}
+                    charCount={charCount}
+                    wordCount={wordCount}
+                />
+            )}
         </div>
     );
 }
 
-function SummaryContent({ id }: { id: string }) {
+function SummaryContent({ id, type }: { id: string; type: string }) {
     return (
         <div className="p-6">
             <h3 className="text-lg font-semibold mb-4">AI 요약</h3>
             <p className="text-sm text-muted-foreground">
-                요약 기능 준비 중입니다.
+                {type === "document"
+                    ? "문서 요약 기능 준비 중입니다."
+                    : "요약 기능 준비 중입니다."}
             </p>
         </div>
     );

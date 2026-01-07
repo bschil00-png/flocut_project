@@ -3,7 +3,6 @@ package com.flocut.demo.domain.note.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,7 @@ public class NoteAutoSyncScheduler {
 
     // 5분마다 Redis에 저장된 자동저장 데이터를 DB로 동기화한다
     // 이 메서드는 사용자 요청 스레드가 아닌 Scheduler 스레드에서 실행된다
-    @Scheduled(fixedDelay = 1000 * 60 * 5)
+//    @Scheduled(fixedDelay = 1000 * 60 * 5)
     public void autoSyncToDb() {
 
         // Scheduler 스레드에서는 SecurityContext가 없어야 정상이다
