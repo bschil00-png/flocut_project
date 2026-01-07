@@ -1,13 +1,18 @@
 extend type Query {
-  documentSummaryByFileId(fileId: ID!): DocumentSummary
+  documentSummaryViewByFileId(fileId: ID!): DocumentSummaryView
 }
 
-type DocumentSummary {
-  summaryId: ID!
-  fileId: ID!
-  status: SummaryStatus!
-  summaryText: String
-  modelVersion: String
+type DocumentSummaryView {
+  summaryId: ID
+  mainTopic: String
+  keyTakeaways: [String]
+  sections: [SummarySection]
+  finalDocument: String
+}
+
+type SummarySection {
+  title: String
+  content: String
 }
 
 enum SummaryStatus {
