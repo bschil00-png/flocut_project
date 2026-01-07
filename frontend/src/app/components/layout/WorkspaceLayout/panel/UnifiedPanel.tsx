@@ -1,4 +1,3 @@
-// app/components/layout/WorkspaceLayout/panel/UnifiedPanel.tsx
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -36,18 +35,19 @@ export default function UnifiedPanel({
     const handleSyncRef = useRef<(() => Promise<void>) | null>(null);
     const prevSavingRef = useRef(saving);
 
+    // 노트 ID 변경 시 항상 edit 탭으로
     useEffect(() => {
         setCurrentTab("edit");
     }, [id]);
 
-    // 수동 저장 실행 함수
+    // 수동 저장
     const handleSave = async () => {
         if (!handleSyncRef.current) return;
         await handleSyncRef.current();
         onUpdated?.();
     };
 
-    // 저장 안 된 상태에서 패널 닫기 방지 가드
+    // 저장 안 된 상태에서 닫기 방지
     const { confirmNavigation } = useUnsavedLeaveGuard(
         !saved && !saving,
         handleSave
@@ -59,7 +59,7 @@ export default function UnifiedPanel({
         });
     };
 
-    // 자동저장 완료 감지 → 목록 갱신
+    // 자동 저장 완료 감지 → 리스트 갱신
     useEffect(() => {
         if (prevSavingRef.current && !saving && saved) {
             onUpdated?.();
@@ -80,7 +80,8 @@ export default function UnifiedPanel({
                 setCharCount(chars);
                 setWordCount(words);
             },
-            onTitleChange: (newTitle: string) => setTitle(newTitle || "제목 없음"),
+            onTitleChange: (newTitle: string) =>
+                setTitle(newTitle || "제목 없음"),
             onSyncReady: (syncFn: () => Promise<void>) => {
                 handleSyncRef.current = syncFn;
             },
@@ -104,7 +105,10 @@ export default function UnifiedPanel({
 
             <div className="flex-1 overflow-hidden">
                 {currentTab === "edit" && type === "note" && (
-                    <NoteContent {...noteContentProps} />
+                    <NoteContent
+                        key={`${sessionId}-${id}`}
+                        {...noteContentProps}
+                    />
                 )}
 
                 {currentTab === "summary" && <SummaryContent id={id} />}
@@ -126,9 +130,7 @@ export default function UnifiedPanel({
 function SummaryContent({ id }: { id: string }) {
     return (
         <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-                AI 요약
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">AI 요약</h3>
             <p className="text-sm text-muted-foreground">
                 요약 기능 준비 중입니다.
             </p>
@@ -139,9 +141,7 @@ function SummaryContent({ id }: { id: string }) {
 function FeedbackContent({ id }: { id: string }) {
     return (
         <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-                AI 피드백
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">AI 피드백</h3>
             <p className="text-sm text-muted-foreground">
                 피드백 기능 준비 중입니다.
             </p>
