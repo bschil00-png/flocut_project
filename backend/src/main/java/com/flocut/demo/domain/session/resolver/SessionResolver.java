@@ -6,6 +6,8 @@ import com.flocut.demo.domain.member.service.MemberService;
 import com.flocut.demo.domain.session.dto.response.SessionDetailResponseDTO;
 import com.flocut.demo.domain.session.dto.response.SessionResponseDTO;
 import com.flocut.demo.domain.session.service.SessionService;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -23,9 +25,17 @@ public class SessionResolver {
 
     // 세션 목록 조회
     @QueryMapping
-    public List<SessionResponseDTO> sessions(Authentication authentication) {
-        Member member = memberService.findByEmail(authentication.getName());
-        return sessionService.getMySessions(member.getMemberId());
+    public PageResponseDTO<SessionResponseDTO> sessions(
+            @Argument PageRequestDTO page,
+            Authentication authentication
+    ) {
+        Member member =
+                memberService.findByEmail(authentication.getName());
+
+        return sessionService.getMySessions(
+                member.getMemberId(),
+                page
+        );
     }
 
     //세션 상세 조회

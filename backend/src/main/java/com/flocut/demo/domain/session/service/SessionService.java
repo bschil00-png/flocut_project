@@ -51,33 +51,40 @@ public class SessionService {
     /**
      * 내 세션 목록 조회
      */
-//    public PageResponseDTO<SessionResponseDTO> getMySessions(
-//            Long memberId,
-//            PageRequestDTO pageRequest
-//    ) {
-//        Page<Session> page =
-//                sessionRepository.findByMemberMemberIdAndStatus(
-//                        memberId,
-//                        SessionStatus.ACTIVE,
-//                        PageRequest.of(
-//                                pageRequest.getPage(),
-//                                pageRequest.getSize(),
-//                                Sort.by(Sort.Direction.DESC, "regdate")
-//                        )
-//                );
-//
-//        return new PageResponseDTO<>(
-//                page.getContent()
-//                        .stream()
-//                        .map(this::toSessionResponse)
-//                        .toList(),
-//                page.getTotalElements(),
-//                page.getTotalPages(),
-//                page.getNumber(),
-//                page.getSize(),
-//                page.hasNext()
-//        );
-//    }
+    public PageResponseDTO<SessionResponseDTO> getMySessions(
+            Long memberId,
+            PageRequestDTO pageRequest
+    ) {
+        Page<Session> page =
+                sessionRepository.findByMemberMemberIdAndStatus(
+                        memberId,
+                        SessionStatus.ACTIVE,
+                        PageRequest.of(
+                                pageRequest.getPage(),
+                                pageRequest.getSize(),
+                                Sort.by(Sort.Direction.DESC, "regdate")
+                        )
+                );
+
+        return new PageResponseDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(this::toSessionResponse)
+                        .collect(java.util.stream.Collectors.toList()),
+
+                page.getTotalElements(),
+                page.getTotalPages(),
+
+                page.getNumber(),
+                page.getSize(),
+
+                page.hasNext(),
+                page.hasPrevious(),
+
+                page.isFirst(),
+                page.isLast()
+        );
+    }
 
     /**
      * 세션 상세 조회

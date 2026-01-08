@@ -24,6 +24,22 @@ type FileItem {
   regdate: String!
 }
 
+type FilePage {
+  content: [FileItem!]!
+
+  totalElements: Int!
+  totalPages: Int!
+
+  pageNumber: Int!
+  pageSize: Int!
+
+  hasNext: Boolean!
+  hasPrevious: Boolean!
+
+  isFirst: Boolean!
+  isLast: Boolean!
+}
+
 # =========================
 # Queries (EXTEND)
 # =========================
@@ -33,5 +49,8 @@ extend type Query {
   """
   로그인한 사용자의 파일 목록 조회
   """
-  sessionFiles(sessionId: ID!): [FileItem!]!
-}
+  sessionFiles(
+      sessionId: ID!
+      page: PageRequestInput!
+    ): FilePage!
+  }

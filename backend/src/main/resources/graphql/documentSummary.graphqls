@@ -13,7 +13,20 @@ extend type Query {
    documentSummaryHistory(
        fileId: ID!
        sessionId: ID!
-     ): [DocumentSummaryHistoryItem]
+       page: PageRequestInput!
+     ): DocumentSummaryHistoryPage!
+}
+
+type DocumentSummaryHistoryPage {
+  content: [DocumentSummaryHistoryItem!]!
+  totalElements: Int!
+  totalPages: Int!
+  pageNumber: Int!
+  pageSize: Int!
+  hasNext: Boolean!
+  hasPrevious: Boolean!
+  isFirst: Boolean!
+  isLast: Boolean!
 }
 
 type DocumentSummaryView {
