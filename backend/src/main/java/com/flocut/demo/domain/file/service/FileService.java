@@ -10,12 +10,16 @@ import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.repository.MemberRepository;
 import com.flocut.demo.domain.session.entity.Session;
 import com.flocut.demo.domain.session.repository.SessionRepository;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -71,19 +75,42 @@ public class FileService {
         );
     }
 
-    public List<FileItemResponse> getMyFiles(
+    public PageResponseDTO<FileItemResponse> getMyFiles(
             Long sessionId,
-            Long memberId
+            Long memberId,
+            PageRequestDTO pageRequest
     ) {
-        return fileRepository
-                .findBySessionSessionIdAndMemberMemberIdAndStatusOrderByRegdateDesc(
-                        sessionId,
-                        memberId,
-                        FileStatus.UPLOADED
-                )
-                .stream()
-                .map(FileItemResponse::from)
-                .toList();
+        Page<File> page =
+                fileRepository
+                        .findBySessionSessionIdAndMemberMemberIdAndStatusOrderByRegdateDesc(
+                                sessionId,
+                                memberId,
+                                FileStatus.UPLOADED,
+                                PageRequest.of(
+                                        pageRequest.getPage(),
+                                        pageRequest.getSize(),
+                                        Sort.by(Sort.Direction.DESC, "regdate")
+                                )
+                        );
+
+        return new PageResponseDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(FileItemResponse::from)
+                        .toList(),
+
+                page.getTotalElements(),
+                page.getTotalPages(),
+
+                page.getNumber(),
+                page.getSize(),
+
+                page.hasNext(),
+                page.hasPrevious(),
+
+                page.isFirst(),
+                page.isLast()
+        );
     }
 
     private String extractFileType(MultipartFile file) {

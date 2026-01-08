@@ -4,7 +4,10 @@ import com.flocut.demo.domain.file.dto.response.FileItemResponse;
 import com.flocut.demo.domain.file.service.FileService;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.service.MemberService;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.core.Authentication;
@@ -20,15 +23,18 @@ public class FileResolver {
     private final MemberService memberService;
 
     @QueryMapping
-    public List<FileItemResponse> sessionFiles(
+    public PageResponseDTO<FileItemResponse> sessionFiles(
             @Argument Long sessionId,
+            @Argument PageRequestDTO page,
             Authentication authentication
     ) {
-        Member member = memberService.findByEmail(authentication.getName());
+        Member member =
+                memberService.findByEmail(authentication.getName());
 
         return fileService.getMyFiles(
                 sessionId,
-                member.getMemberId()
+                member.getMemberId(),
+                page
         );
     }
 }

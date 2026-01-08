@@ -8,7 +8,12 @@ import com.flocut.demo.domain.document.dto.response.DocumentSummaryViewResponse;
 import com.flocut.demo.domain.document.entity.DocumentSummary;
 import com.flocut.demo.domain.document.entity.SummaryStatus;
 import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,26 +84,44 @@ public class DocumentSummaryQueryService {
     /* ======================================================
        📌 요약 히스토리 조회
        ====================================================== */
-    public List<DocumentSummaryHistoryItem> getSummaryHistory(
+    public PageResponseDTO<DocumentSummaryHistoryItem> getSummaryHistory(
             Long fileId,
-            Long sessionId
+            Long sessionId,
+            PageRequestDTO pageRequest
     ) {
 
-        return summaryRepository
-                .findByFileFileIdAndSessionSessionIdOrderByVersionNoDesc(
+        Page<DocumentSummary> page =
+                summaryRepository.findByFileFileIdAndSessionSessionId(
                         fileId,
-                        sessionId
-                )
-                .stream()
-                .map(summary ->
-                        DocumentSummaryHistoryItem.builder()
-                                .summaryId(summary.getSummaryId())
-                                .versionNo(summary.getVersionNo())
-                                .status(summary.getStatus())
-                                .createdAt(summary.getRegdate())
-                                .build()
-                )
-                .toList();
+                        sessionId,
+                        PageRequest.of(
+                                pageRequest.getPage(),
+                                pageRequest.getSize(),
+                                Sort.by(Sort.Direction.DESC, "versionNo")
+                        )
+                );
+
+        return new PageResponseDTO<>(
+                page.getContent()
+                        .stream()
+                        .map(summary ->
+                                DocumentSummaryHistoryItem.builder()
+                                        .summaryId(summary.getSummaryId())
+                                        .versionNo(summary.getVersionNo())
+                                        .status(summary.getStatus())
+                                        .createdAt(summary.getRegdate())
+                                        .build()
+                        )
+                        .toList(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getNumber(),
+                page.getSize(),
+                page.hasNext(),
+                page.hasPrevious(),
+                page.isFirst(),
+                page.isLast()
+        );
     }
 
     /* ======================================================

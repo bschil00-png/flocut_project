@@ -3,6 +3,8 @@ package com.flocut.demo.domain.document.resolver;
 import com.flocut.demo.domain.document.dto.response.DocumentSummaryHistoryItem;
 import com.flocut.demo.domain.document.dto.response.DocumentSummaryViewResponse;
 import com.flocut.demo.domain.document.service.DocumentSummaryQueryService;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -44,11 +46,16 @@ public class DocumentSummaryQueryResolver {
     }
 
     @QueryMapping
-    public List<DocumentSummaryHistoryItem> documentSummaryHistory(
+    public PageResponseDTO<DocumentSummaryHistoryItem> documentSummaryHistory(
             @Argument Long fileId,
-            @Argument Long sessionId
+            @Argument Long sessionId,
+            @Argument PageRequestDTO page
     ) {
-        return queryService.getSummaryHistory(fileId, sessionId);
+        return queryService.getSummaryHistory(
+                fileId,
+                sessionId,
+                page
+        );
     }
 }
 

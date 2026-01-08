@@ -49,6 +49,8 @@ package com.flocut.demo.domain.document.repository;
 
 import com.flocut.demo.domain.document.entity.DocumentSummary;
 import com.flocut.demo.domain.document.entity.SummaryStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -106,9 +108,10 @@ public interface DocumentSummaryRepository
             @Param("sessionId") Long sessionId
     );
 
-    List<DocumentSummary>
-    findByFileFileIdAndSessionSessionIdOrderByVersionNoDesc(
+    Page<DocumentSummary>
+    findByFileFileIdAndSessionSessionId(
             Long fileId,
-            Long sessionId
+            Long sessionId,
+            Pageable pageable
     );
 }
