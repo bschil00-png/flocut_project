@@ -23,12 +23,31 @@ public class DocumentSummaryQueryService {
     private final ObjectMapper objectMapper;
 
 
+
+
     //  문서요약 조회
     public DocumentSummaryViewResponse getSummaryViewBySummaryId(Long summaryId) {
 
         DocumentSummary summary =
                 summaryRepository
                         .findBySummaryIdAndStatus(summaryId, SummaryStatus.COMPLETED)
+                        .orElseThrow(() -> new IllegalArgumentException("완료된 요약 없음"));
+
+        return parseSummary(summary);
+    }
+
+    /* ======================================================
+       🔧 file 기준 대표 요약 조회 (보조 API)
+       ====================================================== */
+    public DocumentSummaryViewResponse getLatestSummaryViewByFile(
+            Long fileId
+//            Long sessionId
+    ) {
+
+        DocumentSummary summary =
+                summaryRepository
+//                        .findLatestCompletedSummary(fileId, sessionId)
+                        .findTopByFileFileIdOrderBySummaryIdDesc(fileId)
                         .orElseThrow(() -> new IllegalArgumentException("완료된 요약 없음"));
 
         return parseSummary(summary);

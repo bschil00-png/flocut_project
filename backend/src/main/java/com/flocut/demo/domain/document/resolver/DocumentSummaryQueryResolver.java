@@ -13,12 +13,22 @@ public class DocumentSummaryQueryResolver {
 
     private final DocumentSummaryQueryService queryService;
 
+
     // 🔥 summaryId 기준 조회 (노트/히스토리/상세)
     @QueryMapping
     public DocumentSummaryViewResponse documentSummaryViewBySummaryId(
             @Argument Long summaryId
     ) {
         return queryService.getSummaryViewBySummaryId(summaryId);
+    }
+
+    @QueryMapping
+    public DocumentSummaryViewResponse documentLatestSummaryByFile(
+            @Argument Long fileId
+//            @Argument Long sessionId
+    ) {
+//        return queryService.getLatestSummaryViewByFile(fileId, sessionId);
+        return queryService.getLatestSummaryViewByFile(fileId);
     }
 }
 
