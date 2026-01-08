@@ -1,11 +1,14 @@
 package com.flocut.demo.domain.document.resolver;
 
+import com.flocut.demo.domain.document.dto.response.DocumentSummaryHistoryItem;
 import com.flocut.demo.domain.document.dto.response.DocumentSummaryViewResponse;
 import com.flocut.demo.domain.document.service.DocumentSummaryQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,7 +24,7 @@ public class DocumentSummaryQueryResolver {
     ) {
         return queryService.getSummaryViewBySummaryId(summaryId);
     }
-
+//  file 기준조회
     @QueryMapping
     public DocumentSummaryViewResponse documentLatestSummaryByFile(
             @Argument Long fileId
@@ -29,6 +32,23 @@ public class DocumentSummaryQueryResolver {
     ) {
 //        return queryService.getLatestSummaryViewByFile(fileId, sessionId);
         return queryService.getLatestSummaryViewByFile(fileId);
+    }
+//  file, sessionm version 기준조회
+    @QueryMapping
+    public DocumentSummaryViewResponse documentSummaryByVersion(
+            @Argument Long fileId,
+            @Argument Long sessionId,
+            @Argument int versionNo
+    ) {
+        return queryService.getSummaryByVersion(fileId, sessionId, versionNo);
+    }
+
+    @QueryMapping
+    public List<DocumentSummaryHistoryItem> documentSummaryHistory(
+            @Argument Long fileId,
+            @Argument Long sessionId
+    ) {
+        return queryService.getSummaryHistory(fileId, sessionId);
     }
 }
 

@@ -4,6 +4,7 @@ import com.flocut.demo.domain.ai.dto.request.AiSummaryFailRequest;
 import com.flocut.demo.domain.ai.dto.request.AiSummaryResultRequest;
 import com.flocut.demo.domain.document.entity.DocumentSummary;
 import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
+import com.flocut.demo.domain.document.service.SummaryOptionBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AiSummaryCallbackService {
 
     private final DocumentSummaryRepository summaryRepository;
+    private final SummaryOptionBuilder summaryOptionBuilder;
 
     @Transactional
     public void handleSummaryResult(AiSummaryResultRequest request) {
@@ -32,9 +34,13 @@ public class AiSummaryCallbackService {
                                 new IllegalArgumentException("요약 대상 없음")
                         );
 
+        String summaryOption =
+                summaryOptionBuilder.build(request.getSummaryText());
+
         summary.complete(
                 request.getSummaryText(),
-                request.getModelVersion()
+                request.getModelVersion(),
+                summaryOption
         );
         summaryRepository.save(summary);
     }

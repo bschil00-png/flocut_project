@@ -11,6 +11,7 @@ public record NoteDetailResponseDTO(
         String content,
         NoteSourceType sourceType,
         Long sourceId, //프론트에서 원본 보기 버튼 표시 여부 판단(manual 이면 null),
+        String summaryOption,
         String status,
         String regdate,
         String moddate

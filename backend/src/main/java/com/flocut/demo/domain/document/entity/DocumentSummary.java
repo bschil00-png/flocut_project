@@ -2,9 +2,11 @@ package com.flocut.demo.domain.document.entity;
 
 import com.flocut.demo.domain.file.entity.File;
 import com.flocut.demo.domain.session.entity.Session;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 
@@ -36,7 +38,8 @@ public class DocumentSummary {
     @Column(name = "summary_text", columnDefinition = "TEXT", nullable = false)
     private String summaryText;
 
-    @Column(name = "summary_option", length = 50)
+    @Column(name = "summary_option", columnDefinition = "jsonb")
+    @Type(JsonBinaryType.class)
     private String summaryOption;
 
     @Column(name = "summary_topic", length = 255)
@@ -72,8 +75,13 @@ public class DocumentSummary {
         return s;
     }
 
-    public void complete(String summaryText, String modelVersion) {
+    public void complete(
+            String summaryText,
+            String modelVersion,
+            String summaryOption
+    ) {
         this.summaryText = summaryText;
+        this.summaryOption = summaryOption;
         this.modelVersion = modelVersion;
         this.status = SummaryStatus.COMPLETED;
     }

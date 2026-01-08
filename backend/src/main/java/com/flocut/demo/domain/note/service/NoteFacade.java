@@ -171,6 +171,7 @@ public class NoteFacade {
                 cachedContent != null ? cachedContent : baseDto.content(),
                 baseDto.sourceType(),
                 baseDto.sourceId(),
+                baseDto.summaryOption(),
                 baseDto.status(),
                 baseDto.regdate(),
                 baseDto.moddate()

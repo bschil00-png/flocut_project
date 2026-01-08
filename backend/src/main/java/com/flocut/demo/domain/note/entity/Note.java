@@ -48,6 +48,10 @@ public class Note {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    // 추출한 요약본
+    @Column(name = "summary_option", columnDefinition = "jsonb")
+    private String summaryOption;
+
     // 노트 타입 (출처.. 노트/문서/오디오/AI)
     // 기본타입은 사용자 작성
     @Enumerated(EnumType.STRING)

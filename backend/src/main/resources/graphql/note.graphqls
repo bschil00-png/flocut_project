@@ -1,3 +1,5 @@
+scalar JSON
+
 extend type Query {
     notesByStatus(sessionId: ID!, status: CommonStatus!): [NoteResponseDTO]
     noteDetail(noteId: ID!): NoteDetailResponseDTO
@@ -26,6 +28,7 @@ type NoteDetailResponseDTO {
     sessionId: ID
     title: String
     content: String
+    summaryOption: JSON
     sourceType: String
     sourceId: ID
     status: String

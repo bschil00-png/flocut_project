@@ -1,5 +1,6 @@
 package com.flocut.demo.domain.note.controller;
 
+import com.flocut.demo.domain.note.dto.request.NoteCreateFromSummaryRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteMoveRequestDTO;
 import com.flocut.demo.domain.note.dto.response.NoteDetailResponseDTO;
@@ -27,6 +28,21 @@ public class NoteController {
           @RequestBody NoteCreateRequestDTO dto) {
     return ResponseEntity.ok(noteService.createNote(userDetails.getMember(), dto));
   }
+//요약 내용 노트에 저장
+    @PostMapping("/from-summary")
+    public ResponseEntity<Long> createNoteFromSummary(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody NoteCreateFromSummaryRequestDTO dto
+    ) {
+        Long noteId =
+                noteService.createNoteFromSummary(
+                        userDetails.getMember(),
+                        dto
+                );
+
+        return ResponseEntity.ok(noteId);
+    }
+
 
   //    실시간 자동 저장 (레디스 캐시) - 프론트엔드에서 사용자가 타이핑 할 떄마다 호출되는 API 용도
   @PatchMapping("/{noteId}/autosave")

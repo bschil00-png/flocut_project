@@ -1,7 +1,10 @@
 package com.flocut.demo.domain.note.service;
 
 import com.flocut.demo.domain.common.CommonStatus;
+import com.flocut.demo.domain.document.entity.DocumentSummary;
+import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
 import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.note.dto.request.NoteCreateFromSummaryRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteUpdateRequestDTO;
 import com.flocut.demo.domain.note.en.NoteSourceType;
@@ -23,6 +26,7 @@ public class NoteServiceImpl implements NoteService {
 
   private final NoteRepository noteRepository;
   private final SessionRepository sessionRepository;
+  private final DocumentSummaryRepository documentSummaryRepository;
 
   // 노트 생성
   @Override
@@ -47,7 +51,43 @@ public class NoteServiceImpl implements NoteService {
     return noteRepository.save(note).getNoteId();
   }
 
-  //    노트 리스트 조회
+  // 요약 내용 노트에 저장
+  @Override
+  @Transactional
+  public Long createNoteFromSummary(
+          Member member,
+          NoteCreateFromSummaryRequestDTO dto
+  ) {
+      // 1️⃣ 요약 조회
+      DocumentSummary summary =
+              documentSummaryRepository.findById(dto.getSummaryId())
+                      .orElseThrow(() -> new IllegalArgumentException("요약 없음"));
+
+      // 2️⃣ 세션 조회
+      Session session =
+              sessionRepository.findById(dto.getSessionId())
+                      .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
+
+      // 3️⃣ Note 생성
+      Note note = Note.builder()
+              .member(member)
+              .session(session)
+              .summary(summary)                     // ⭐ 연관
+              .title(
+                      dto.getTitle() != null
+                              ? dto.getTitle()
+                              : "요약 노트 v" + summary.getVersionNo()
+              )
+              .summaryOption(summary.getSummaryOption())    // ⭐ 요약 텍스트
+              .sourceType(NoteSourceType.DOCUMENT)  // ⭐ 출처
+              .status(CommonStatus.ACTIVE)
+              .build();
+
+      return noteRepository.save(note).getNoteId();
+
+  }
+
+    //    노트 리스트 조회
   @Override
   @Transactional
   public List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status) {
