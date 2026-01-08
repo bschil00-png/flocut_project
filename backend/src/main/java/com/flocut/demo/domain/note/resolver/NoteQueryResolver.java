@@ -7,6 +7,8 @@ import com.flocut.demo.domain.note.entity.Note;
 import com.flocut.demo.domain.note.mapper.NoteMapper;
 import com.flocut.demo.domain.note.service.NoteFacade;
 import com.flocut.demo.domain.note.service.NoteServiceImpl;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import com.flocut.demo.global.utils.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -25,13 +27,28 @@ public class NoteQueryResolver {
     private final NoteFacade noteFacade;
 
     @QueryMapping
-    public List<NoteResponseDTO> notesByStatus(
+    public PageResponseDTO<NoteResponseDTO> notesByStatus(
             @Argument Long sessionId,
             @Argument CommonStatus status,
+            @Argument PageRequestDTO page,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return noteFacade.getNotesByStatusWithCache(sessionId, userDetails.getMember(), status);
+        return noteFacade.getNotesByStatusWithCache(
+                sessionId,
+                userDetails.getMember(),
+                status,
+                page
+        );
     }
+
+//    @QueryMapping
+//    public List<NoteResponseDTO> notesByStatus(
+//            @Argument Long sessionId,
+//            @Argument CommonStatus status,
+//            @AuthenticationPrincipal CustomUserDetails userDetails
+//    ) {
+//        return noteFacade.getNotesByStatusWithCache(sessionId, userDetails.getMember(), status);
+//    }
 
     //   노트 상세 조회 (미리보기 용)-> 디비만
     @QueryMapping

@@ -8,6 +8,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -133,18 +135,48 @@ public class EmailService {
 
 
  //  아이디 찾기시 메일발송
- public void sendLoginGuideMail(String toEmail) {
+ public void sendFindEmailResultMail(
+         String toEmail,
+         List<String> maskedEmails
+ ) {
+     MimeMessage message = mailSender.createMimeMessage();
 
-     SimpleMailMessage message = new SimpleMailMessage();
-     message.setTo(toEmail);
-     message.setSubject("[FloCut] 로그인 안내");
-     message.setText(
-             "회원님의 전화번호로 가입된 계정이 확인되었습니다.\n\n" +
-                     "FloCut은 이메일 주소를 아이디로 사용합니다.\n" +
-                     "이 이메일 주소로 로그인해 주세요.\n\n" +
-                     "본 메일은 계정 확인 요청에 의해 발송되었습니다."
-     );
+     try {
+         MimeMessageHelper helper =
+                 new MimeMessageHelper(message, true, "UTF-8");
 
-     mailSender.send(message);
+         String emailListHtml = maskedEmails.stream()
+                 .map(e -> "<li>" + e + "</li>")
+                 .reduce("", String::concat);
+
+         String htmlContent = """
+                <html>
+                  <body style="font-family: Arial, sans-serif;">
+                    <h2>아이디(이메일) 찾기 결과 안내</h2>
+                    <p>회원님의 전화번호로 가입된 이메일 계정은 다음과 같습니다.</p>
+                    <ul>
+                      %s
+                    </ul>
+                    <p>
+                      위 이메일 주소 중 하나로 로그인해 주세요.<br/>
+                      비밀번호가 기억나지 않으면 비밀번호 재설정을 이용해 주세요.
+                    </p>
+                    <hr/>
+                    <p style="font-size:12px; color:#888;">
+                      본 메일은 요청에 의해 자동 발송되었습니다.
+                    </p>
+                  </body>
+                </html>
+                """.formatted(emailListHtml);
+
+         helper.setTo(toEmail);
+         helper.setSubject("[FloCut] 아이디(이메일) 찾기 결과 안내");
+         helper.setText(htmlContent, true);
+
+         mailSender.send(message);
+
+     } catch (MessagingException e) {
+         throw new RuntimeException("아이디 찾기 메일 발송 실패", e);
+     }
  }
 }

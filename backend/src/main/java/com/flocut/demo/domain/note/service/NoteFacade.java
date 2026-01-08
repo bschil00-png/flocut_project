@@ -7,6 +7,8 @@ import com.flocut.demo.domain.note.dto.response.NoteDetailResponseDTO;
 import com.flocut.demo.domain.note.dto.response.NoteResponseDTO;
 import com.flocut.demo.domain.note.entity.Note;
 import com.flocut.demo.domain.note.mapper.NoteMapper;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,24 +36,34 @@ public class NoteFacade {
     private static final int CACHE_TTL_MINUTES = 30;
 
     //   목록 조회(레디스 + 디비 병합)
-    public List<NoteResponseDTO> getNotesByStatusWithCache(Long sessionId, Member member, CommonStatus status) {
-        List<Note> notes = noteService.getNotesByStatus(sessionId, member, status);
-        List<NoteResponseDTO> baseList = noteMapper.toNoteResponseDTOList(notes);
+    public PageResponseDTO<NoteResponseDTO> getNotesByStatusWithCache(
+            Long sessionId,
+            Member member,
+            CommonStatus status,
+            PageRequestDTO pageRequest
+    ) {
+        // 1️⃣ DB에서 페이지 단위로 Note(Entity) 조회
+        PageResponseDTO<Note> basePage =
+                noteService.getNotesByStatus(sessionId, member, status, pageRequest);
 
-        List<NoteResponseDTO> merged = new ArrayList<>(baseList.size());
+        // 2️⃣ Entity → DTO 변환 + Redis 병합
+        List<NoteResponseDTO> merged = new ArrayList<>(basePage.getContent().size());
 
-        for (NoteResponseDTO dto : baseList) {
+        for (Note note : basePage.getContent()) {
+            NoteResponseDTO dto = noteMapper.toNoteResponseDTO(note);
+
             Long noteId = dto.noteId();
             String key = CACHE_KEY_PREFIX + noteId;
 
-            // Redis에서 최신 title / lastModified 확인
             Object cachedTitleObj = redisTemplate.opsForHash().get(key, "title");
             Object lastModifiedObj = redisTemplate.opsForHash().get(key, "lastModified");
 
-            String mergedTitle = (cachedTitleObj != null) ? cachedTitleObj.toString() : dto.title();
+            String mergedTitle =
+                    cachedTitleObj != null ? cachedTitleObj.toString() : dto.title();
+
             String mergedModdate = dto.moddate();
 
-            // 리스트에서 "최근 수정"을 Redis 기준으로 보여주고 싶으면 lastModified로 moddate 덮어쓰기
+            // Redis 기준 최근 수정 시간 반영
             if (lastModifiedObj != null) {
                 try {
                     long ms = Long.parseLong(lastModifiedObj.toString());
@@ -60,11 +72,9 @@ public class NoteFacade {
                             .toLocalDateTime()
                             .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 } catch (Exception ignore) {
-                    // 변환 실패 시 기존 DB moddate 유지
                 }
             }
 
-            // Record라 새로 생성해서 덮어쓰기
             merged.add(new NoteResponseDTO(
                     dto.noteId(),
                     dto.sessionId(),
@@ -77,8 +87,65 @@ public class NoteFacade {
             ));
         }
 
-        return merged;
+        // 3️⃣ PageResponseDTO 재조립
+        return new PageResponseDTO<>(
+                merged,
+                basePage.getTotalElements(),
+                basePage.getTotalPages(),
+                basePage.getPageNumber(),
+                basePage.getPageSize(),
+                basePage.isHasNext(),
+                basePage.isHasPrevious(),
+                basePage.isFirst(),
+                basePage.isLast()
+        );
     }
+
+//    public List<NoteResponseDTO> getNotesByStatusWithCache(Long sessionId, Member member, CommonStatus status) {
+//        List<Note> notes = noteService.getNotesByStatus(sessionId, member, status);
+//        List<NoteResponseDTO> baseList = noteMapper.toNoteResponseDTOList(notes);
+//
+//        List<NoteResponseDTO> merged = new ArrayList<>(baseList.size());
+//
+//        for (NoteResponseDTO dto : baseList) {
+//            Long noteId = dto.noteId();
+//            String key = CACHE_KEY_PREFIX + noteId;
+//
+//            // Redis에서 최신 title / lastModified 확인
+//            Object cachedTitleObj = redisTemplate.opsForHash().get(key, "title");
+//            Object lastModifiedObj = redisTemplate.opsForHash().get(key, "lastModified");
+//
+//            String mergedTitle = (cachedTitleObj != null) ? cachedTitleObj.toString() : dto.title();
+//            String mergedModdate = dto.moddate();
+//
+//            // 리스트에서 "최근 수정"을 Redis 기준으로 보여주고 싶으면 lastModified로 moddate 덮어쓰기
+//            if (lastModifiedObj != null) {
+//                try {
+//                    long ms = Long.parseLong(lastModifiedObj.toString());
+//                    mergedModdate = Instant.ofEpochMilli(ms)
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDateTime()
+//                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//                } catch (Exception ignore) {
+//                    // 변환 실패 시 기존 DB moddate 유지
+//                }
+//            }
+//
+//            // Record라 새로 생성해서 덮어쓰기
+//            merged.add(new NoteResponseDTO(
+//                    dto.noteId(),
+//                    dto.sessionId(),
+//                    mergedTitle,
+//                    dto.sourceType(),
+//                    dto.sourceId(),
+//                    dto.status(),
+//                    dto.regdate(),
+//                    mergedModdate
+//            ));
+//        }
+//
+//        return merged;
+//    }
 
     // 자동저장 (프론트에서 타이핑 할때마다 호출)
     public void autoSave(Long noteId, Member member, String title, String content) {

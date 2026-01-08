@@ -1,7 +1,12 @@
 scalar JSON
-
 extend type Query {
-    notesByStatus(sessionId: ID!, status: CommonStatus!): [NoteResponseDTO]
+
+    notesByStatus(
+        sessionId: ID!
+        status: CommonStatus!
+        page: PageRequestInput!
+      ): NotePage!
+
     noteDetail(noteId: ID!): NoteDetailResponseDTO
 }
 
@@ -10,6 +15,22 @@ enum CommonStatus {
     ARCHIVED
     DELETED
     READY
+}
+
+type NotePage {
+  content: [NoteResponseDTO!]!
+
+  totalElements: Int!
+  totalPages: Int!
+
+  pageNumber: Int!
+  pageSize: Int!
+
+  hasNext: Boolean!
+  hasPrevious: Boolean!
+
+  isFirst: Boolean!
+  isLast: Boolean!
 }
 
 type NoteResponseDTO {

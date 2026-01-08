@@ -7,14 +7,21 @@ import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.note.dto.request.NoteCreateFromSummaryRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteUpdateRequestDTO;
+import com.flocut.demo.domain.note.dto.response.NoteResponseDTO;
 import com.flocut.demo.domain.note.en.NoteSourceType;
 import com.flocut.demo.domain.note.entity.Note;
+import com.flocut.demo.domain.note.mapper.NoteMapper;
 import com.flocut.demo.domain.note.repository.NoteRepository;
 import com.flocut.demo.domain.session.entity.Session;
 import com.flocut.demo.domain.session.repository.SessionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,50 +58,84 @@ public class NoteServiceImpl implements NoteService {
     return noteRepository.save(note).getNoteId();
   }
 
-  // 요약 내용 노트에 저장
+    // 요약 내용 노트에 저장
+    @Override
+    @Transactional
+    public Long createNoteFromSummary(
+            Member member,
+            NoteCreateFromSummaryRequestDTO dto
+    ) {
+        // 1️⃣ 요약 조회
+        DocumentSummary summary =
+                documentSummaryRepository.findById(dto.getSummaryId())
+                        .orElseThrow(() -> new IllegalArgumentException("요약 없음"));
+
+        // 2️⃣ 세션 조회
+        Session session =
+                sessionRepository.findById(dto.getSessionId())
+                        .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
+
+        // 3️⃣ Note 생성
+        Note note = Note.builder()
+                .member(member)
+                .session(session)
+                .summary(summary)                     // ⭐ 연관
+                .title(
+                        dto.getTitle() != null
+                                ? dto.getTitle()
+                                : "요약 노트 v" + summary.getVersionNo()
+                )
+                .summaryOption(summary.getSummaryOption())    // ⭐ 요약 텍스트
+                .sourceType(NoteSourceType.DOCUMENT)  // ⭐ 출처
+                .status(CommonStatus.ACTIVE)
+                .build();
+
+        return noteRepository.save(note).getNoteId();
+
+    }
+
+  //    노트 리스트 조회
   @Override
   @Transactional
-  public Long createNoteFromSummary(
+  public PageResponseDTO<Note> getNotesByStatus(
+          Long sessionId,
           Member member,
-          NoteCreateFromSummaryRequestDTO dto
+          CommonStatus status,
+          PageRequestDTO pageRequest
   ) {
-      // 1️⃣ 요약 조회
-      DocumentSummary summary =
-              documentSummaryRepository.findById(dto.getSummaryId())
-                      .orElseThrow(() -> new IllegalArgumentException("요약 없음"));
+      Page<Note> page =
+              noteRepository.findBySession_SessionIdAndMember_MemberIdAndStatus(
+                      sessionId,
+                      member.getMemberId(),
+                      status,
+                      PageRequest.of(
+                              pageRequest.getPage(),
+                              pageRequest.getSize(),
+                              Sort.by(Sort.Direction.DESC, "regdate")
+                      )
+              );
 
-      // 2️⃣ 세션 조회
-      Session session =
-              sessionRepository.findById(dto.getSessionId())
-                      .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
-
-      // 3️⃣ Note 생성
-      Note note = Note.builder()
-              .member(member)
-              .session(session)
-              .summary(summary)                     // ⭐ 연관
-              .title(
-                      dto.getTitle() != null
-                              ? dto.getTitle()
-                              : "요약 노트 v" + summary.getVersionNo()
-              )
-              .summaryOption(summary.getSummaryOption())    // ⭐ 요약 텍스트
-              .sourceType(NoteSourceType.DOCUMENT)  // ⭐ 출처
-              .status(CommonStatus.ACTIVE)
-              .build();
-
-      return noteRepository.save(note).getNoteId();
-
+      return new PageResponseDTO<>(
+              page.getContent(),
+              page.getTotalElements(),
+              page.getTotalPages(),
+              page.getNumber(),
+              page.getSize(),
+              page.hasNext(),
+              page.hasPrevious(),
+              page.isFirst(),
+              page.isLast()
+      );
   }
 
-    //    노트 리스트 조회
-  @Override
-  @Transactional
-  public List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status) {
-    return noteRepository.findBySession_SessionIdAndMember_MemberIdAndStatus(
-            sessionId, member.getMemberId(), status
-    );
-  }
+
+//  @Override
+//  @Transactional
+//  public List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status) {
+//    return noteRepository.findBySession_SessionIdAndMember_MemberIdAndStatus(
+//            sessionId, member.getMemberId(), status
+//    );
+//  }
 
   //     노트 조회
   @Override
