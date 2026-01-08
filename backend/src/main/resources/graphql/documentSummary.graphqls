@@ -1,5 +1,5 @@
 extend type Query {
-  documentSummaryViewByFileId(fileId: ID!): DocumentSummaryView
+  documentSummaryViewBySummaryId(summaryId: ID!): DocumentSummaryView
 }
 
 type DocumentSummaryView {

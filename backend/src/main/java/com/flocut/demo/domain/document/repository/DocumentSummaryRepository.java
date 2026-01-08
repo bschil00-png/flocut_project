@@ -48,6 +48,7 @@
 package com.flocut.demo.domain.document.repository;
 
 import com.flocut.demo.domain.document.entity.DocumentSummary;
+import com.flocut.demo.domain.document.entity.SummaryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -57,8 +58,10 @@ import java.util.Optional;
 public interface DocumentSummaryRepository
         extends JpaRepository<DocumentSummary, Long> {
 
-    Optional<DocumentSummary>
-    findTopByFileFileIdOrderBySummaryIdDesc(Long fileId);
+    Optional<DocumentSummary> findBySummaryIdAndStatus(
+            Long summaryId,
+            SummaryStatus status
+    );
 
     @Query("""
     SELECT ds

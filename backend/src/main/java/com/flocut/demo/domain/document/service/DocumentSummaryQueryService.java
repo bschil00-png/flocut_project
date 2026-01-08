@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flocut.demo.domain.document.dto.response.DocumentSummaryViewResponse;
 import com.flocut.demo.domain.document.entity.DocumentSummary;
+import com.flocut.demo.domain.document.entity.SummaryStatus;
 import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,31 +24,35 @@ public class DocumentSummaryQueryService {
 
 
     //  문서요약 조회
-    public DocumentSummaryViewResponse getLatestSummaryViewByFileId(Long fileId) {
+    public DocumentSummaryViewResponse getSummaryViewBySummaryId(Long summaryId) {
 
         DocumentSummary summary =
                 summaryRepository
-                        .findTopByFileFileIdOrderBySummaryIdDesc(fileId)
-                        .orElseThrow(() -> new IllegalArgumentException("요약 정보 없음"));
+                        .findBySummaryIdAndStatus(summaryId, SummaryStatus.COMPLETED)
+                        .orElseThrow(() -> new IllegalArgumentException("완료된 요약 없음"));
+
+        return parseSummary(summary);
+    }
+
+    /* ======================================================
+       🔨 JSON 파싱 공통 로직
+       ====================================================== */
+    private DocumentSummaryViewResponse parseSummary(DocumentSummary summary) {
 
         try {
             JsonNode root = objectMapper.readTree(summary.getSummaryText());
 
-            // 1️⃣ main topic
             String mainTopic =
                     root.path("core_summary")
                             .path("main_topic")
-                            .asText();
+                            .asText(null);
 
-            // 2️⃣ key takeaways
             List<String> keyTakeaways =
                     objectMapper.convertValue(
-                            root.path("core_summary")
-                                    .path("key_takeaways"),
+                            root.path("core_summary").path("key_takeaways"),
                             new TypeReference<List<String>>() {}
                     );
 
-            // 3️⃣ sections
             List<DocumentSummaryViewResponse.SectionResponse> sections =
                     new ArrayList<>();
 
@@ -60,9 +65,8 @@ public class DocumentSummaryQueryService {
                 );
             }
 
-            // 4️⃣ final document
             String finalDoc =
-                    root.path("final_polished_document").asText();
+                    root.path("final_polished_document").asText(null);
 
             return DocumentSummaryViewResponse.builder()
                     .summaryId(summary.getSummaryId())
@@ -76,20 +80,4 @@ public class DocumentSummaryQueryService {
             throw new RuntimeException("요약 JSON 파싱 실패", e);
         }
     }
-//
-//    public DocumentSummaryDetailResponse getLatestSummaryByFileId(Long fileId) {
-//
-//        return summaryRepository
-//                .findTopByFileFileIdOrderBySummaryIdDesc(fileId)
-//                .map(summary ->
-//                        new DocumentSummaryDetailResponse(
-//                                summary.getSummaryId(),
-//                                summary.getFile().getFileId(),
-//                                summary.getStatus(),
-//                                summary.getSummaryText(),
-//                                summary.getModelVersion()
-//                        )
-//                )
-//                .orElse(null); // 요약 없으면 정상적으로 null
-//    }
 }

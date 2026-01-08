@@ -1,6 +1,7 @@
 package com.flocut.demo.domain.note.entity;
 
 import com.flocut.demo.domain.common.CommonStatus;
+import com.flocut.demo.domain.document.entity.DocumentSummary;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.note.en.NoteSourceType;
 import com.flocut.demo.domain.session.entity.Session;
@@ -24,6 +25,11 @@ public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long noteId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "summary_id")
+    private DocumentSummary summary;
+
 
     // 해당 노트가 속한 세션(현재 노트 위치) / 추후 노트 이동 및 복사를 위해 null 허용 변경
     @ManyToOne(fetch = FetchType.LAZY)
