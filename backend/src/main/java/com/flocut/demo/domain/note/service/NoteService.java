@@ -5,7 +5,10 @@ import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.note.dto.request.NoteCreateFromSummaryRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteUpdateRequestDTO;
+import com.flocut.demo.domain.note.dto.response.NoteResponseDTO;
 import com.flocut.demo.domain.note.entity.Note;
+import com.flocut.demo.global.dto.PageRequestDTO;
+import com.flocut.demo.global.dto.PageResponseDTO;
 
 import java.util.List;
 
@@ -13,11 +16,17 @@ public interface NoteService {
   //    노트 생성
   Long createNote(Member member, NoteCreateRequestDTO dto);
 
-  // 요약 내용 노트에 저장
-  Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto);
+    // 요약 내용 노트에 저장
+    Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto);
 
-    //    목록 조회
-  List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status);
+  //    목록 조회
+  PageResponseDTO<Note> getNotesByStatus(
+          Long sessionId,
+          Member member,
+          CommonStatus status,
+          PageRequestDTO pageRequest
+  );
+//  List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status);
 
   //    노트 단건 조회
   Note getNote(Long noteId, Member member);

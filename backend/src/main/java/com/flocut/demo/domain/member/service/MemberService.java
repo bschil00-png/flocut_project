@@ -174,9 +174,24 @@ public class MemberService {
 
 
 
+
+    private String maskEmail(String email) {
+        String[] parts = email.split("@");
+        String local = parts[0];
+        String domain = parts[1];
+
+        if (local.length() <= 2) {
+            return local.charAt(0) + "*" + "@" + domain;
+        }
+
+        String visible = local.substring(0, 2);
+        String masked = "*".repeat(local.length() - 2);
+
+        return visible + masked + "@" + domain;
+    }
+
     public void processFindEmail(String tel) {
 
-        // 1️⃣ 전화번호 정규화
         tel = tel.replaceAll("-", "");
 
         List<Member> members =
@@ -185,15 +200,21 @@ public class MemberService {
                         MemberStatus.ACTIVE
                 );
 
-        // 2️⃣ 계정이 없어도 아무 반응 없음 (존재 여부 숨김)
         if (members.isEmpty()) {
             return;
         }
 
-        // 3️⃣ 로그인 안내 메일 발송
-        for (Member member : members) {
-            emailService.sendLoginGuideMail(member.getEmail());
-        }
+        // 🔐 마스킹된 이메일 목록 생성
+        List<String> maskedEmails = members.stream()
+                .map(member -> maskEmail(member.getEmail()))
+                .toList();
+
+        // 📧 실제 메일은 "원본 이메일"로 발송
+        // (본인만 볼 수 있으니까 OK)
+        emailService.sendFindEmailResultMail(
+                members.get(0).getEmail(), // 같은 전화번호면 보통 동일 사용자
+                maskedEmails
+        );
     }
 
 
