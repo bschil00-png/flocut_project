@@ -67,7 +67,6 @@ public class MemberService {
         }
 
         boolean match = passwordEncoder.matches(password, member.getPassword());
-        System.out.println("비밀번호 비교 결과 = " + match);
 
         if (!match) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");

@@ -1,0 +1,45 @@
+extend type Query {
+  documentSummaryViewBySummaryId(summaryId: ID!): DocumentSummaryView
+
+   documentLatestSummaryByFile(fileId: ID!): DocumentSummaryView
+
+   documentSummaryByVersion(
+       fileId: ID!
+       sessionId: ID!
+       versionNo: Int!
+     ): DocumentSummaryView
+
+
+   documentSummaryHistory(
+       fileId: ID!
+       sessionId: ID!
+     ): [DocumentSummaryHistoryItem]
+}
+
+type DocumentSummaryView {
+  summaryId: ID
+  mainTopic: String
+  keyTakeaways: [String]
+  sections: [SummarySection]
+  finalDocument: String
+}
+
+type SummarySection {
+  title: String
+  content: String
+}
+
+
+type DocumentSummaryHistoryItem {
+  summaryId: ID!
+  versionNo: Int!
+  status: SummaryStatus
+  createdAt: String
+}
+
+enum SummaryStatus {
+  REQUESTED
+  COMPLETED
+  FAILED
+}
+

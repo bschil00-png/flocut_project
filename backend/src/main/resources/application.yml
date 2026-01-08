@@ -1,6 +1,14 @@
- spring:
+server:
+  port: 8080
+
+spring:
   application:
-    name: flocut_project   # 🔴 여기만 프로젝트명(폴더명)으로 수정
+    name: flocut_project
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
   config:
     import:
@@ -11,11 +19,11 @@
       - optional:classpath:secret/next.yml
       - optional:classpath:secret/solapi.yml
       - optional:classpath:secret/redis.yml
-
+      - optional:classpath:secret/application.yml
 
   jpa:
     hibernate:
-      ddl-auto: update   # 🔥 엔티티 다 만든 뒤에는 none이 정석
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:

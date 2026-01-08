@@ -104,10 +104,10 @@ public class AuthController {
             redisTemplate.opsForValue().set(
                     "refresh:" + member.getEmail(),
                     refreshToken,
-//                    7,
-//                    TimeUnit.DAYS
-                    20,
-                    TimeUnit.MINUTES
+                    7,
+                    TimeUnit.DAYS
+//                    20,
+//                    TimeUnit.MINUTES
             );
 
             ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
@@ -124,8 +124,8 @@ public class AuthController {
                     .secure(false)
                     .sameSite("Lax")
                     .path("/") //
-//                    .maxAge(Duration.ofDays(7))
-                    .maxAge(Duration.ofMinutes(20))
+                    .maxAge(Duration.ofDays(7))
+//                    .maxAge(Duration.ofMinutes(20))
                     .build();
 
             return ResponseEntity.ok()

@@ -39,14 +39,14 @@ public class JwtUtil {
     }
 
     public String generateRefreshToken(String email, String role) {
-//        return createToken(email, 1000 * 60 * 60 * 24 * 7); // 7일
-        return createToken(email, role, 1000 * 60 * 20 );
+        return createToken(email, role,1000 * 60 * 60 * 24 * 7); // 7일
+//        return createToken(email, role, 1000 * 60 * 20 );
     }
 
     private String createToken(String email, String role, long expireMs) {
         return Jwts.builder()
                 .setSubject(email)
-                .claim("role", role) // 🔥 핵심
+                .claim("role", role) // role을 넣은 이유 :매 요청 DB 조회 제거
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expireMs))
                 .signWith(key, SignatureAlgorithm.HS256)

@@ -1,6 +1,7 @@
 package com.flocut.demo.domain.admin.service;
 
 import com.flocut.demo.domain.admin.dto.response.AdminLoginHistoryResponseDTO;
+import com.flocut.demo.domain.admin.dto.response.AdminMemberDetailResponseDTO;
 import com.flocut.demo.domain.admin.dto.response.AdminMemberResponseDTO;
 import com.flocut.demo.domain.admin.entity.AdminActionLog;
 import com.flocut.demo.domain.admin.repository.AdminActionLogRepository;
@@ -29,10 +30,7 @@ public class AdminMemberService {
     private final AdminActionLogRepository adminActionLogRepository;
     private final LoginHistoryRepository loginHistoryRepository;
 
-    /**
-     * 1️⃣ 관리자 회원 목록 조회
-     * Page → PageResponseDTO 변환
-     */
+    // 관리자 회원 목록 조회
     public PageResponseDTO<AdminMemberResponseDTO> getMembers(int page, int size) {
 
         Page<Member> result = memberRepository.findAll(
@@ -58,10 +56,26 @@ public class AdminMemberService {
                 result.hasNext()
         );
     }
+//  관리자 회원 상세 조회
+    public AdminMemberDetailResponseDTO getMemberDetail(Long memberId) {
 
-    /**
-     * 2️⃣ 회원 상태 변경
-     */
+        Member member = getMember(memberId);
+
+        return new AdminMemberDetailResponseDTO(
+                member.getMemberId(),
+                member.getEmail(),
+                member.getName(),
+                member.getTel(),
+                member.getStatus(),
+                member.getRole(),
+                member.getEmailVerified(),
+                member.getRegdate()
+        );
+    }
+
+
+
+    // 회원 상태 변경
     @Transactional
     public void updateMemberStatus(Long memberId, MemberStatus status, String reason) {
         Member member = getMember(memberId);
@@ -78,9 +92,7 @@ public class AdminMemberService {
         );
     }
 
-    /**
-     * 3️⃣ 회원 권한 변경
-     */
+    // 회원 권한 변경
     @Transactional
     public void updateMemberRole(Long memberId, UserRole role, String reason) {
         Member member = getMember(memberId);
@@ -97,9 +109,7 @@ public class AdminMemberService {
         );
     }
 
-    /**
-     * 4️⃣ 관리자 로그인 이력 조회
-     */
+    // 로그인 이력 조회
     public List<AdminLoginHistoryResponseDTO> getLoginHistory(Long memberId) {
         return loginHistoryRepository
                 .findByMember_MemberIdOrderByLoginDateDesc(memberId)
@@ -137,7 +147,7 @@ public class AdminMemberService {
     }
 
     // ======================
-    // 🔧 내부 공통 메서드
+    //  내부 공통 메서드
     // ======================
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
@@ -151,7 +161,7 @@ public class AdminMemberService {
             String afterValue,
             String reason
     ) {
-        Long adminId = getCurrentAdminId(); // 🔥 관리자 재검증
+        Long adminId = getCurrentAdminId();
 
         AdminActionLog log = AdminActionLog.create(
                 adminId,

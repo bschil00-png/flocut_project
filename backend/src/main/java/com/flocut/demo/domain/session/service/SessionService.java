@@ -26,7 +26,7 @@ public class SessionService {
     private final MemberRepository memberRepository;
 
     /**
-     * 세션 생성 (패턴 C)
+     * 세션 생성
      */
     public SessionResponseDTO createSession(Long memberId, SessionCreateRequestDTO dto) {
         Member member = memberRepository.findById(memberId)

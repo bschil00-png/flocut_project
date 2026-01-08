@@ -1,0 +1,37 @@
+scalar JSON
+
+extend type Query {
+    notesByStatus(sessionId: ID!, status: CommonStatus!): [NoteResponseDTO]
+    noteDetail(noteId: ID!): NoteDetailResponseDTO
+}
+
+enum CommonStatus {
+    ACTIVE
+    ARCHIVED
+    DELETED
+    READY
+}
+
+type NoteResponseDTO {
+    noteId: ID
+    sessionId: ID
+    title: String
+    sourceType: String
+    sourceId: ID
+    status: String
+    regdate: String
+    moddate: String
+}
+
+type NoteDetailResponseDTO {
+    noteId: ID
+    sessionId: ID
+    title: String
+    content: String
+    summaryOption: JSON
+    sourceType: String
+    sourceId: ID
+    status: String
+    regdate: String
+    moddate: String
+}
