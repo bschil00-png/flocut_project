@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -169,6 +170,30 @@ public class MemberService {
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다."));
+    }
+
+
+
+    public void processFindEmail(String tel) {
+
+        // 1️⃣ 전화번호 정규화
+        tel = tel.replaceAll("-", "");
+
+        List<Member> members =
+                memberRepository.findAllByTelAndStatus(
+                        tel,
+                        MemberStatus.ACTIVE
+                );
+
+        // 2️⃣ 계정이 없어도 아무 반응 없음 (존재 여부 숨김)
+        if (members.isEmpty()) {
+            return;
+        }
+
+        // 3️⃣ 로그인 안내 메일 발송
+        for (Member member : members) {
+            emailService.sendLoginGuideMail(member.getEmail());
+        }
     }
 
 

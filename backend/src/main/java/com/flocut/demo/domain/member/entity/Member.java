@@ -29,7 +29,7 @@ public class Member {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 20)
+    @Column(length = 20 , nullable = false)
     private String tel;
 
     @Column(name = "profile_image", length = 500)
