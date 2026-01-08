@@ -12,7 +12,7 @@ export function useAuthRevalidation() {
     const DISABLED_PATHS = [
         "/login",
         "/signup",
-        "/auth/google/callback",
+        "/member/google/callback",
     ];
 
     const isDisabled = DISABLED_PATHS.some(p =>
@@ -41,7 +41,7 @@ export function useAuthRevalidation() {
                 const json = await res.json();
                 if (json.errors) throw new Error();
             } catch {
-                window.dispatchEvent(new Event("auth:logout"));
+                window.dispatchEvent(new Event("member:logout"));
             }
         };
 

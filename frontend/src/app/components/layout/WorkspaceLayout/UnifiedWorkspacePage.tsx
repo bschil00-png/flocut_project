@@ -1,4 +1,3 @@
-// app/components/layout/WorkspaceLayout/UnifiedWorkspacePage.tsx
 "use client";
 
 import { useState, Fragment, useMemo, useEffect, useRef, useCallback } from "react";
@@ -47,29 +46,14 @@ export default function UnifiedWorkspacePage() {
     const itemsPerPage = 20;
 
     const selectedId = searchParams.get("id");
-    const selectedType = searchParams.get("type") as
-        | "note"
-        | "document"
-        | "audio"
-        | null;
+    const selectedType = searchParams.get("type") as "note" | "document" | "audio" | null;
 
-    const {
-        notes,
-        loading: notesLoading,
-        refetch: refetchNotes,
-    } = useNotesByStatus(Number(sessionId), "ACTIVE");
-
-    const {
-        files,
-        loading: filesLoading,
-        refetch: refetchFiles,
-    } = useSessionFiles(Number(sessionId));
+    const { notes, loading: notesLoading, refetch: refetchNotes } = useNotesByStatus(Number(sessionId), "ACTIVE");
+    const { files, loading: filesLoading, refetch: refetchFiles } = useSessionFiles(Number(sessionId));
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && selectedId) {
-                handleClosePanel();
-            }
+            if (e.key === "Escape" && selectedId) handleClosePanel();
         };
         window.addEventListener("keydown", handleEsc);
         return () => window.removeEventListener("keydown", handleEsc);
@@ -79,7 +63,9 @@ export default function UnifiedWorkspacePage() {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isDraggingRef.current) return;
             const newWidth = window.innerWidth - e.clientX;
-            setPanelWidth(Math.max(400, Math.min(1200, newWidth)));
+            // 패널 최소 너비 400px, 최대 너비는 화면의 80%로 제한하여 본문 보호
+            const maxWidth = window.innerWidth * 0.8;
+            setPanelWidth(Math.max(400, Math.min(maxWidth, newWidth)));
         };
 
         const handleMouseUp = () => {
@@ -90,7 +76,6 @@ export default function UnifiedWorkspacePage() {
 
         document.addEventListener("mousemove", handleMouseMove);
         document.addEventListener("mouseup", handleMouseUp);
-
         return () => {
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseup", handleMouseUp);
@@ -98,17 +83,7 @@ export default function UnifiedWorkspacePage() {
     }, []);
 
     const unifiedItems = useMemo(() => {
-        const items: {
-            id: string;
-            type: "note" | "document" | "audio";
-            title: string;
-            date: string;
-            noteId?: number;
-            fileId?: number;
-            sourceType?: string;
-            status?: string;
-        }[] = [];
-
+        const items: any[] = [];
         notes.forEach((note: NoteListItem) => {
             items.push({
                 id: `note-${note.noteId}`,
@@ -155,20 +130,16 @@ export default function UnifiedWorkspacePage() {
 
     const paginatedItems = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        return unifiedItems.slice(startIndex, endIndex);
+        return unifiedItems.slice(startIndex, startIndex + itemsPerPage);
     }, [unifiedItems, currentPage]);
 
     const totalPages = Math.ceil(unifiedItems.length / itemsPerPage);
     const loading = notesLoading || filesLoading;
 
-    const isAllSelected =
-        paginatedItems.length > 0 && selectedItems.size === paginatedItems.length;
+    const isAllSelected = paginatedItems.length > 0 && selectedItems.size === paginatedItems.length;
 
     const toggleSelectAll = () => {
-        setSelectedItems(
-            isAllSelected ? new Set() : new Set(paginatedItems.map((i) => i.id))
-        );
+        setSelectedItems(isAllSelected ? new Set() : new Set(paginatedItems.map((i) => i.id)));
     };
 
     const toggleSelectItem = (id: string) => {
@@ -179,286 +150,143 @@ export default function UnifiedWorkspacePage() {
         });
     };
 
-    const handleItemClick = (item: typeof unifiedItems[0]) => {
-        if (item.noteId) {
-            router.push(`/workspace/${sessionId}?type=note&id=${item.noteId}`, {
-                scroll: false,
-            });
-        } else if (item.fileId) {
-            router.push(`/workspace/${sessionId}?type=document&id=${item.fileId}`, {
-                scroll: false,
-            });
-        }
+    const handleItemClick = (item: any) => {
+        const query = item.noteId ? `type=note&id=${item.noteId}` : `type=document&id=${item.fileId}`;
+        router.push(`/workspace/${sessionId}?${query}`, { scroll: false });
     };
 
-    const handleClosePanel = () => {
-        router.push(`/workspace/${sessionId}`, { scroll: false });
-    };
+    const handleClosePanel = () => router.push(`/workspace/${sessionId}`, { scroll: false });
+    const handleNewNote = () => router.push(`/workspace/${sessionId}?type=note&id=new`, { scroll: false });
+    const handleStartResize = () => { isDraggingRef.current = true; };
 
-    const handleNewNote = () => {
-        router.push(`/workspace/${sessionId}?type=note&id=new`, { scroll: false });
-    };
-
-    const handleStartResize = () => {
-        isDraggingRef.current = true;
-        document.body.style.cursor = "ew-resize";
-        document.body.style.userSelect = "none";
-    };
-
-    const handleNoteUpdated = useCallback(() => {
-        refetchNotes();
-    }, [refetchNotes]);
-
-    const mainContentStyle = useMemo(
-        () => ({
-            width: selectedId ? `calc(100% - ${panelWidth}px)` : "100%",
-        }),
-        [selectedId, panelWidth]
-    );
+    const handleNoteUpdated = useCallback(() => refetchNotes(), [refetchNotes]);
 
     return (
-        <div className="h-full flex overflow-hidden bg-background-light dark:bg-background-dark">
+        <div className="h-full flex overflow-hidden bg-background-light dark:bg-background-dark relative">
+            {/* Main Content Area */}
             <div
-                className="flex-1 flex flex-col overflow-hidden transition-all"
-                style={mainContentStyle}
+                className="flex-1 flex flex-col min-w-[360px] overflow-hidden transition-all duration-300"
+                style={{
+                    width: selectedId ? `calc(100% - ${panelWidth}px)` : "100%",
+                    // 패널이 열렸을 때 본문이 너무 작아지면 찌그러지지 않도록 마진/패딩 조정
+                    marginRight: selectedId && typeof window !== 'undefined' && window.innerWidth >= 1024 ? '0' : '0'
+                }}
             >
-                <div className="flex-shrink-0 border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark">
-                    <div className="px-4 sm:px-8 py-4 flex items-center gap-3 flex-wrap">
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setContentType("all")}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                    contentType === "all"
-                                        ? "bg-accent text-white"
-                                        : "bg-surface-light dark:bg-surface-input text-text-primary-light dark:text-text-primary-dark hover:bg-accent-soft"
-                                }`}
-                            >
-                                전체
-                            </button>
-                            <button
-                                onClick={() => setContentType("notes")}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                    contentType === "notes"
-                                        ? "bg-accent text-white"
-                                        : "bg-surface-light dark:bg-surface-input text-text-primary-light dark:text-text-primary-dark hover:bg-accent-soft"
-                                }`}
-                            >
-                                노트
-                            </button>
-                            <button
-                                onClick={() => setContentType("documents")}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                    contentType === "documents"
-                                        ? "bg-accent text-white"
-                                        : "bg-surface-light dark:bg-surface-input text-text-primary-light dark:text-text-primary-dark hover:bg-accent-soft"
-                                }`}
-                            >
-                                문서
-                            </button>
-                            <button
-                                onClick={() => setContentType("audio")}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                    contentType === "audio"
-                                        ? "bg-accent text-white"
-                                        : "bg-surface-light dark:bg-surface-input text-text-primary-light dark:text-text-primary-dark hover:bg-accent-soft"
-                                }`}
-                            >
-                                음성
-                            </button>
-                        </div>
-
-                        <div className="h-6 w-px bg-border-light dark:bg-border-dark" />
-
-                        <div className="relative">
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value as SortBy)}
-                                className="appearance-none pl-3 pr-8 py-1.5 rounded-lg text-sm bg-surface-light dark:bg-surface-input border border-border-light dark:border-border-dark text-text-primary-light dark:text-text-primary-dark cursor-pointer hover:bg-accent-soft transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
-                            >
-                                <option value="recent">최신순</option>
-                                <option value="title">제목순</option>
-                                <option value="created">생성순</option>
-                            </select>
-                            <ChevronDown
-                                size={14}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted-light dark:text-text-muted-dark"
-                            />
-                        </div>
-
-                        <div className="flex-1 min-w-[200px] max-w-md relative">
-                            <Search
-                                size={16}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted-light dark:text-text-muted-dark"
-                            />
-                            <input
-                                type="text"
-                                placeholder="검색..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-9 pr-3 py-1.5 rounded-lg text-sm bg-surface-light dark:bg-surface-input border border-border-light dark:border-border-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-text-muted-light dark:placeholder:text-text-muted-dark focus:outline-none focus:ring-2 focus:ring-accent"
-                            />
-                        </div>
-
-                        <div className="ml-auto flex items-center gap-2">
-                            <div className="flex items-center rounded-lg border border-border-light dark:border-border-dark overflow-hidden">
+                {/* Header Section */}
+                <div className="flex-shrink-0 bg-white dark:bg-surface-dark border-b border-black/[0.05] dark:border-white/[0.05]">
+                    <div className="px-4 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        {/* 탭 필터: 가로 스크롤 보장 */}
+                        <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide shrink-0">
+                            {(['all', 'notes', 'documents', 'audio'] as const).map((t) => (
                                 <button
-                                    onClick={() => setViewMode("list")}
-                                    className={`p-2 transition-colors ${
-                                        viewMode === "list"
-                                            ? "bg-accent text-white"
-                                            : "bg-white dark:bg-surface-dark text-text-muted-light dark:text-text-muted-dark hover:bg-surface-light dark:hover:bg-surface-input"
+                                    key={t}
+                                    onClick={() => setContentType(t)}
+                                    className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-sm font-semibold transition-all shrink-0 ${
+                                        contentType === t
+                                            ? "bg-accent text-white shadow-sm"
+                                            : "text-text-muted-light dark:text-text-muted-dark hover:bg-accent-soft"
                                     }`}
-                                    title="리스트 뷰"
                                 >
-                                    <ListIcon size={16} />
+                                    {t === 'all' ? '전체' : t === 'notes' ? '노트' : t === 'documents' ? '문서' : '음성'}
                                 </button>
-                                <button
-                                    onClick={() => setViewMode("grid")}
-                                    className={`p-2 transition-colors ${
-                                        viewMode === "grid"
-                                            ? "bg-accent text-white"
-                                            : "bg-white dark:bg-surface-dark text-text-muted-light dark:text-text-muted-dark hover:bg-surface-light dark:hover:bg-surface-input"
-                                    }`}
-                                    title="그리드 뷰"
-                                >
-                                    <LayoutGrid size={16} />
-                                </button>
+                            ))}
+                        </div>
+
+                        {/* 우측 액션: 검색 및 버튼 */}
+                        <div className="flex items-center gap-3 flex-1 justify-end min-w-0">
+                            <div className="relative flex-1 max-w-[240px] group shrink">
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted-light group-focus-within:text-accent transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="검색..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-9 pr-3 py-2 rounded-xl text-sm bg-surface-light dark:bg-surface-input focus:outline-none focus:ring-2 focus:ring-accent-soft transition-all"
+                                />
                             </div>
-
-                            <FileUploadButton
-                                sessionId={Number(sessionId)}
-                                onUploadComplete={refetchFiles}
-                            />
-
-                            <Button variant="primary" size="sm" onClick={handleNewNote}>
-                                <Plus size={16} />
-                                새 노트
-                            </Button>
+                            <div className="flex items-center gap-2 shrink-0">
+                                <FileUploadButton sessionId={Number(sessionId)} onUploadComplete={refetchFiles} />
+                                <Button variant="primary" size="sm" onClick={handleNewNote} className="rounded-xl shadow-lg shadow-accent/20 whitespace-nowrap">
+                                    <Plus size={16} /> <span className="hidden sm:inline">새 노트</span>
+                                </Button>
+                            </div>
                         </div>
                     </div>
 
+                    {/* 일괄 작업바 */}
                     {selectedItems.size > 0 && (
-                        <div className="px-4 sm:px-8 py-3 border-t border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-input flex items-center gap-4">
-                            <Checkbox
-                                checked={isAllSelected}
-                                onChange={toggleSelectAll}
-                                label={`${selectedItems.size}개 선택됨`}
-                            />
-                            <div className="flex items-center gap-2">
-                                <Button variant="secondary" size="sm">
-                                    요약
-                                </Button>
-                                <Button variant="secondary" size="sm">
-                                    비교
-                                </Button>
-                                <Button variant="ghost" size="sm">
-                                    삭제
-                                </Button>
+                        <div className="px-4 lg:px-8 py-2 bg-accent-soft flex items-center justify-between animate-fadeIn border-t border-accent/10">
+                            <Checkbox checked={isAllSelected} onChange={toggleSelectAll} label={`${selectedItems.size}개 선택됨`} />
+                            <div className="flex gap-2">
+                                <Button variant="secondary" size="xs" className="whitespace-nowrap">요약</Button>
+                                <Button variant="secondary" size="xs" className="whitespace-nowrap">비교</Button>
+                                <Button variant="ghost" size="xs" className="text-red-500 hover:bg-red-50 whitespace-nowrap">삭제</Button>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6">
+                {/* Content List: 얇은 스크롤바 */}
+                <div className="flex-1 overflow-y-auto px-4 lg:px-8 py-6 custom-scrollbar">
                     {loading ? (
-                        <div className="flex items-center justify-center py-16">
+                        <div className="flex items-center justify-center py-20">
                             <Loader2 className="animate-spin text-accent" size={32} />
                         </div>
                     ) : paginatedItems.length === 0 ? (
-                        <div className="text-center py-16">
-                            <File
-                                size={48}
-                                className="mx-auto mb-4 text-text-muted-light dark:text-text-muted-dark"
-                            />
-                            <h3 className="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark mb-2">
-                                노트가 없습니다
-                            </h3>
-                            <p className="text-sm text-text-muted-light dark:text-text-muted-dark mb-6">
-                                새 노트를 만들거나 문서를 업로드해보세요
-                            </p>
-                            <div className="flex items-center justify-center gap-3">
-                                <Button variant="primary" onClick={handleNewNote}>
-                                    <Plus size={16} />
-                                    새 노트
-                                </Button>
-                                <FileUploadButton
-                                    sessionId={Number(sessionId)}
-                                    onUploadComplete={refetchFiles}
-                                />
-                            </div>
-                        </div>
-                    ) : viewMode === "list" ? (
-                        <div className="space-y-1">
-                            {paginatedItems.map((item) => (
-                                <WorkspaceListItem
-                                    key={item.id}
-                                    item={item}
-                                    sessionId={Number(sessionId)}
-                                    selected={selectedItems.has(item.id)}
-                                    onToggleSelect={() => toggleSelectItem(item.id)}
-                                    onClick={() => handleItemClick(item)}
-                                    onDeleted={refetchNotes}
-                                />
-                            ))}
+                        <div className="text-center py-20 bg-surface-light dark:bg-surface-input/50 rounded-3xl mx-4 border border-black/[0.03] dark:border-white/[0.03]">
+                            <File size={64} className="mx-auto mb-4 text-text-muted-light opacity-20" />
+                            <h3 className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark mb-2">콘텐츠가 없습니다</h3>
+                            <p className="text-sm text-text-muted-light mb-8">새 노트를 만들거나 문서를 업로드하여 시작하세요</p>
+                            <Button variant="primary" onClick={handleNewNote}><Plus size={20} /> 첫 노트 만들기</Button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className={viewMode === "list" ? "space-y-1" : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"}>
                             {paginatedItems.map((item) => (
-                                <WorkspaceGridItem
-                                    key={item.id}
-                                    item={item}
-                                    sessionId={Number(sessionId)}
-                                    selected={selectedItems.has(item.id)}
-                                    onToggleSelect={() => toggleSelectItem(item.id)}
-                                    onClick={() => handleItemClick(item)}
-                                    onDeleted={refetchNotes}
-                                />
-                            ))}
-                        </div>
-                    )}
-
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-center gap-2 mt-8">
-                            {Array.from({ length: totalPages }, (_, i) => i + 1)
-                                .filter(
-                                    (page) =>
-                                        page === 1 ||
-                                        page === totalPages ||
-                                        (page >= currentPage - 2 && page <= currentPage + 2)
+                                viewMode === "list" ? (
+                                    <WorkspaceListItem
+                                        key={item.id}
+                                        item={item}
+                                        sessionId={Number(sessionId)}
+                                        selected={selectedItems.has(item.id)}
+                                        onToggleSelect={() => toggleSelectItem(item.id)}
+                                        onClick={() => handleItemClick(item)}
+                                        onDeleted={refetchNotes}
+                                    />
+                                ) : (
+                                    <WorkspaceGridItem
+                                        key={item.id}
+                                        item={item}
+                                        sessionId={Number(sessionId)}
+                                        selected={selectedItems.has(item.id)}
+                                        onToggleSelect={() => toggleSelectItem(item.id)}
+                                        onClick={() => handleItemClick(item)}
+                                        onDeleted={refetchNotes}
+                                    />
                                 )
-                                .map((page, idx, arr) => (
-                                    <Fragment key={page}>
-                                        {idx > 0 && arr[idx - 1] !== page - 1 && (
-                                            <span className="px-2 text-text-muted-light dark:text-text-muted-dark">
-                        ...
-                      </span>
-                                        )}
-                                        <button
-                                            onClick={() => setCurrentPage(page)}
-                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                                currentPage === page
-                                                    ? "bg-accent text-white"
-                                                    : "text-text-primary-light dark:text-text-primary-dark hover:bg-surface-light dark:hover:bg-surface-input"
-                                            }`}
-                                        >
-                                            {page}
-                                        </button>
-                                    </Fragment>
-                                ))}
+                            ))}
                         </div>
                     )}
                 </div>
             </div>
 
+            {/* Side Panel Section */}
             {selectedId && selectedType && (
                 <>
+                    {/* Resizer: 데스크탑에서만 표시 */}
                     <div
                         onMouseDown={handleStartResize}
-                        className="w-1 bg-border-light dark:bg-border-dark hover:bg-accent cursor-ew-resize transition-colors flex-shrink-0"
+                        className="hidden lg:block w-1 hover:bg-accent cursor-ew-resize transition-colors flex-shrink-0 z-20"
                     />
+                    {/* Panel Container: 모바일 오버레이 / 데스크탑 사이드바 분기 */}
                     <div
-                        className="flex-shrink-0 bg-white dark:bg-surface-dark border-l border-border-light dark:border-border-dark overflow-hidden"
-                        style={{ width: `${panelWidth}px` }}
+                        className={`
+                            ${typeof window !== 'undefined' && window.innerWidth < 1024
+                            ? "fixed inset-0 z-50 bg-white"
+                            : "relative bg-white dark:bg-surface-dark border-l border-black/[0.05] dark:border-white/[0.05]"
+                        }
+                            flex-shrink-0 transition-all overflow-hidden shadow-2xl lg:shadow-none
+                        `}
+                        style={{ width: typeof window !== 'undefined' && window.innerWidth < 1024 ? '100%' : `${panelWidth}px` }}
                     >
                         <UnifiedPanel
                             type={selectedType}
@@ -467,10 +295,7 @@ export default function UnifiedWorkspacePage() {
                             onClose={handleClosePanel}
                             onCreated={(noteId) => {
                                 refetchNotes();
-                                router.replace(
-                                    `/workspace/${sessionId}?type=note&id=${noteId}`,
-                                    { scroll: false }
-                                );
+                                router.replace(`/workspace/${sessionId}?type=note&id=${noteId}`, { scroll: false });
                             }}
                             onUpdated={handleNoteUpdated}
                         />

@@ -9,6 +9,7 @@ type CardProps = {
     variant?: CardVariant;
     padding?: CardPadding;
     interactive?: boolean;
+    onClick?: () => void;
 };
 
 export default function Card({
@@ -17,6 +18,7 @@ export default function Card({
                                  variant = "default",
                                  padding = "md",
                                  interactive = false,
+                                 onClick,
                              }: CardProps) {
     const base = `
     rounded-xl
@@ -55,16 +57,10 @@ export default function Card({
   `
         : "";
 
-
     return (
         <div
-            className={`
-        ${base}
-        ${variants[variant]}
-        ${paddings[padding]}
-        ${interactiveStyle}
-        ${className}
-      `}
+            className={`${base} ${variants[variant]} ${paddings[padding]} ${interactiveStyle} ${className}`}
+            onClick={onClick}
         >
             {children}
         </div>

@@ -1,11 +1,16 @@
 // src/store/authSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {MemberRole, MemberStatus} from "@/lib/graphql/auth/auth.type";
 
 export interface AuthUser {
     memberId: number;
     email: string;
     name: string;
-    role?: "USER" | "ADMIN";
+    tel: string;
+    profileImage?: string | null;
+    role: MemberRole;
+    status: MemberStatus;
+    regdate: string;
 }
 
 interface AuthState {

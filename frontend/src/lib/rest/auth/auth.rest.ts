@@ -1,9 +1,6 @@
-import { MeResponse } from "./auth.types";
 import {MemberRegisterRequest} from "@/app/api/auth/auth.types";
 import {api} from "@/lib/axios";
 
-let isFetchingMe = false;
-let meFetchPromise: Promise<MeResponse> | null = null;
 
 // 로그인
 // 반환값은 지금 사용 안 하므로 void 처리

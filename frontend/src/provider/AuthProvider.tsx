@@ -21,8 +21,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         };
 
-        window.addEventListener("auth:logout", handleLogout);
-        return () => window.removeEventListener("auth:logout", handleLogout);
+        window.addEventListener("member:logout", handleLogout);
+        return () => window.removeEventListener("member:logout", handleLogout);
     }, [dispatch, router, pathname]);
 
     return <>{children}</>;

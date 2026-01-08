@@ -19,7 +19,11 @@ export function useAuthActions() {
                     memberId: me.memberId,
                     email: me.email,
                     name: me.name,
+                    tel: me.tel,
+                    profileImage: me.profileImage,
                     role: me.role,
+                    status: me.status,
+                    regdate: me.regdate,
                 })
             );
 
@@ -40,7 +44,11 @@ export function useAuthActions() {
                         memberId: me.memberId,
                         email: me.email,
                         name: me.name,
+                        tel: me.tel,
+                        profileImage: me.profileImage,
                         role: me.role,
+                        status: me.status,
+                        regdate: me.regdate,
                     })
                 );
 
@@ -69,7 +77,11 @@ export function useAuthActions() {
                     memberId: me.memberId,
                     email: me.email,
                     name: me.name,
+                    tel: me.tel,
+                    profileImage: me.profileImage,
                     role: me.role,
+                    status: me.status,
+                    regdate: me.regdate,
                 })
             );
 

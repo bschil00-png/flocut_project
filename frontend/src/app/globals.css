@@ -8,6 +8,62 @@ html, body {
     height: 100%;
 }
 
+/*스크롤바*/
+/* src/app/globals.css */
+
+@layer utilities {
+    /* 얇고 세련된 커스텀 스크롤바 */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px; /* 4px에서 6px로 살짝 키워 인지력 향상 */
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        /* 라이트 모드: 평소에도 최소한의 형태가 보이도록 농도 조절 */
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+    }
+
+    /* 다크 모드 수정 영역 */
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        /* 배경이 어두우므로 흰색 계열의 농도를 높여 위치 파악 용이하게 수정 */
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* 호버 시: 사용자가 스크롤바에 집중할 때 더 진하게 표시 */
+    .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+        /* 다크 모드 호버 시 확실한 가시성 확보 */
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* 액티브(드래그 중): 현재 위치를 잡고 있을 때 가장 진하게 표시 */
+    .custom-scrollbar::-webkit-scrollbar-thumb:active {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb:active {
+        background-color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Firefox를 위한 설정 (다크모드 대응) */
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        /* Firefox는 scrollbar-color: thumb track 순서 */
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+
+    .dark .custom-scrollbar {
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+}
+
 /* ===== 기본 (pink) ===== */
 :root {
     --accent: #f25555;
