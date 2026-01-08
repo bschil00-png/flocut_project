@@ -50,6 +50,7 @@ public class SecurityConfig {
                                 "/auth/logout",
                                 "/auth/refresh",
                                 "/auth/verify",
+                                "/auth/find-email",
                                 "/auth/me",
                                 "/auth/google/**",
                                 "/auth/password/reset-request",

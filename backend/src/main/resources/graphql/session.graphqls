@@ -58,6 +58,15 @@ type SessionDeleteResult {
   message: String
 }
 
+type SessionPage {
+  content: [SessionItem!]!
+  totalElements: Int!
+  totalPages: Int!
+  pageNumber: Int!
+  pageSize: Int!
+  hasNext: Boolean!
+}
+
 # =========================
 # Input Types
 # =========================
@@ -76,6 +85,10 @@ input SessionUpdateInput {
   sessionTitle: String
   description: String
 }
+input PageRequestInput {
+  page: Int!
+  size: Int!
+}
 
 # =========================
 # Queries (EXTEND)
@@ -86,7 +99,9 @@ extend type Query {
   """
   로그인한 사용자가 생성한 세션 목록 조회
   """
-  sessions: [SessionItem!]!
+  sessions(
+    page: PageRequestInput!
+  ): SessionPage!
 
   """
   특정 세션 상세 조회

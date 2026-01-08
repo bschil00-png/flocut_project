@@ -4,6 +4,7 @@ import com.flocut.demo.domain.admin.dto.response.AdminLoginHistoryResponseDTO;
 import com.flocut.demo.domain.admin.dto.response.AdminMemberDetailResponseDTO;
 import com.flocut.demo.domain.admin.dto.response.AdminMemberResponseDTO;
 import com.flocut.demo.domain.admin.service.AdminMemberService;
+import com.flocut.demo.global.dto.PageRequestDTO;
 import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -33,12 +34,10 @@ public class AdminMemberResolver {
     // 관리자 회원 목록 조회
     @QueryMapping
     public PageResponseDTO<AdminMemberResponseDTO> adminMembers(
-            @Argument int page,
-            @Argument int size
+            @Argument PageRequestDTO page
     ) {
-        checkAdmin(); // 🔥 유지 (중요)
-
-        return adminMemberService.getMembers(page, size);
+        checkAdmin();
+        return adminMemberService.getMembers(page);
     }
 
     // 관리자 회원 상세 조회

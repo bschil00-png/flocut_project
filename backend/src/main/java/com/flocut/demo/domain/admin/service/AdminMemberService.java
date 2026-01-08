@@ -10,11 +10,13 @@ import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.member.entity.MemberStatus;
 import com.flocut.demo.domain.member.entity.UserRole;
 import com.flocut.demo.domain.member.repository.MemberRepository;
+import com.flocut.demo.global.dto.PageRequestDTO;
 import com.flocut.demo.global.dto.PageResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,15 +33,15 @@ public class AdminMemberService {
     private final LoginHistoryRepository loginHistoryRepository;
 
     // 관리자 회원 목록 조회
-    public PageResponseDTO<AdminMemberResponseDTO> getMembers(int page, int size) {
+    public PageResponseDTO<AdminMemberResponseDTO> getMembers(PageRequestDTO pageRequest) {
 
-        Page<Member> result = memberRepository.findAll(
-                PageRequest.of(
-                        page,
-                        size,
-                        Sort.by(Sort.Direction.DESC, "regdate")
-                )
+        Pageable pageable = PageRequest.of(
+                pageRequest.getPage(),
+                pageRequest.getSize(),
+                Sort.by(Sort.Direction.DESC, "regdate")
         );
+
+        Page<Member> result = memberRepository.findAll(pageable);
 
         List<AdminMemberResponseDTO> content =
                 result.getContent()
@@ -53,7 +55,10 @@ public class AdminMemberService {
                 result.getTotalPages(),
                 result.getNumber(),
                 result.getSize(),
-                result.hasNext()
+                result.hasNext(),
+                result.hasPrevious(),
+                result.isFirst(),
+                result.isLast()
         );
     }
 //  관리자 회원 상세 조회

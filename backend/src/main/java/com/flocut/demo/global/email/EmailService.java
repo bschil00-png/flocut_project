@@ -3,6 +3,7 @@ package com.flocut.demo.global.email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -129,4 +130,21 @@ public class EmailService {
       throw new RuntimeException("이메일 발송 실패", e);
     }
   }
+
+
+ //  아이디 찾기시 메일발송
+ public void sendLoginGuideMail(String toEmail) {
+
+     SimpleMailMessage message = new SimpleMailMessage();
+     message.setTo(toEmail);
+     message.setSubject("[FloCut] 로그인 안내");
+     message.setText(
+             "회원님의 전화번호로 가입된 계정이 확인되었습니다.\n\n" +
+                     "FloCut은 이메일 주소를 아이디로 사용합니다.\n" +
+                     "이 이메일 주소로 로그인해 주세요.\n\n" +
+                     "본 메일은 계정 확인 요청에 의해 발송되었습니다."
+     );
+
+     mailSender.send(message);
+ }
 }
