@@ -53,21 +53,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DocumentSummaryRepository
         extends JpaRepository<DocumentSummary, Long> {
-
-//    Optional<DocumentSummary>
-//    findTopByFileFileIdOrderBySummaryIdDesc(Long fileId);
-
 
     Optional<DocumentSummary> findBySummaryIdAndStatus(
             Long summaryId,
             SummaryStatus status
     );
 
-
+//=-===============================================================================
     Optional<DocumentSummary> findTopByFileFileIdOrderBySummaryIdDesc(Long fileId);
 
 //    @Query("""
@@ -82,7 +79,7 @@ public interface DocumentSummaryRepository
 //            @Param("fileId") Long fileId,
 //            @Param("sessionId") Long sessionId
 //    );
-
+//==================================================================================
     @Query("""
     SELECT ds
     FROM DocumentSummary ds
@@ -107,5 +104,11 @@ public interface DocumentSummaryRepository
     Integer findMaxVersionNo(
             @Param("fileId") Long fileId,
             @Param("sessionId") Long sessionId
+    );
+
+    List<DocumentSummary>
+    findByFileFileIdAndSessionSessionIdOrderByVersionNoDesc(
+            Long fileId,
+            Long sessionId
     );
 }

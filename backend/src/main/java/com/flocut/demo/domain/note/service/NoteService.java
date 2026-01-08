@@ -2,6 +2,7 @@ package com.flocut.demo.domain.note.service;
 
 import com.flocut.demo.domain.common.CommonStatus;
 import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.note.dto.request.NoteCreateFromSummaryRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteUpdateRequestDTO;
 import com.flocut.demo.domain.note.entity.Note;
@@ -12,7 +13,10 @@ public interface NoteService {
   //    노트 생성
   Long createNote(Member member, NoteCreateRequestDTO dto);
 
-  //    목록 조회
+  // 요약 내용 노트에 저장
+  Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto);
+
+    //    목록 조회
   List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status);
 
   //    노트 단건 조회

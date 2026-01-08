@@ -28,6 +28,7 @@ public interface NoteMapper {
     @Mapping(source = "status", target = "status", qualifiedByName = "enumToString")
     @Mapping(source = "regdate", target = "regdate", qualifiedByName = "dateToString")
     @Mapping(source = "moddate", target = "moddate", qualifiedByName = "dateToString")
+    @Mapping(source = "summaryOption", target = "summaryOption")
     NoteDetailResponseDTO toNoteDetailResponseDTO(Note note);
 
     // 리스트 변환
