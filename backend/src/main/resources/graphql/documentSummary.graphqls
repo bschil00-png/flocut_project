@@ -1,5 +1,7 @@
 extend type Query {
   documentSummaryViewBySummaryId(summaryId: ID!): DocumentSummaryView
+
+   documentLatestSummaryByFile(fileId: ID!): DocumentSummaryView
 }
 
 type DocumentSummaryView {
