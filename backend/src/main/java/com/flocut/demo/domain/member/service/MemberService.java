@@ -176,7 +176,12 @@ public class MemberService {
 
 
     private String maskEmail(String email) {
-        String[] parts = email.split("@");
+        if (email == null || !email.contains("@")) {
+            return "****@****";
+        }
+
+        String[] parts = email.split("@", 2);
+
         String local = parts[0];
         String domain = parts[1];
 
@@ -190,32 +195,29 @@ public class MemberService {
         return visible + masked + "@" + domain;
     }
 
-    public void processFindEmail(String tel) {
 
+    public List<String> findEmailAndSendMailIfExists(String tel) {
         tel = tel.replaceAll("-", "");
 
         List<Member> members =
-                memberRepository.findAllByTelAndStatus(
-                        tel,
-                        MemberStatus.ACTIVE
-                );
+                memberRepository.findAllByTelAndStatus(tel, MemberStatus.ACTIVE);
 
         if (members.isEmpty()) {
-            return;
+            return List.of();
         }
 
-        // 🔐 마스킹된 이메일 목록 생성
         List<String> maskedEmails = members.stream()
                 .map(member -> maskEmail(member.getEmail()))
                 .toList();
 
-        // 📧 실제 메일은 "원본 이메일"로 발송
-        // (본인만 볼 수 있으니까 OK)
         emailService.sendFindEmailResultMail(
-                members.get(0).getEmail(), // 같은 전화번호면 보통 동일 사용자
+                members.get(0).getEmail(),
                 maskedEmails
         );
+
+        return maskedEmails;
     }
+
 
 
     public Member getMember(Long id) {

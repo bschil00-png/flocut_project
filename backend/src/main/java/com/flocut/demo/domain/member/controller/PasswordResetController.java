@@ -1,10 +1,13 @@
 package com.flocut.demo.domain.member.controller;
 
+import com.flocut.demo.domain.member.dto.RequestDTO.PasswordUpdateRequestDTO;
 import com.flocut.demo.domain.member.dto.RequestDTO.PasswordChangeRequestDTO;
 import com.flocut.demo.domain.member.dto.RequestDTO.PasswordResetRequestDTO;
 import com.flocut.demo.domain.member.service.PasswordResetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +36,19 @@ public class PasswordResetController {
     ) {
         passwordResetService.resetPassword(
                 dto.getToken(),
+                dto.getNewPassword()
+        );
+        return ResponseEntity.ok("비밀번호 변경 완료");
+    }
+
+    @PostMapping("/change")
+    public ResponseEntity<?> changePassword(
+            @RequestBody PasswordUpdateRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        passwordResetService.changePassword(
+                userDetails.getUsername(), // 현재 로그인한 사용자의 이메일
+                dto.getCurrentPassword(),
                 dto.getNewPassword()
         );
         return ResponseEntity.ok("비밀번호 변경 완료");

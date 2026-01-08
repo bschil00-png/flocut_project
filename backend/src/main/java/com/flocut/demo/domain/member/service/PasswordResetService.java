@@ -69,6 +69,26 @@ public class PasswordResetService {
         resetToken.markAsUsed();
     }
 
+    // 비밀번호 변경 (로그인된 사용자 - 설정 페이지)
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자"));
+
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+            throw new RuntimeException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 현재 비밀번호와 새 비밀번호가 동일한지 확인
+        if (passwordEncoder.matches(newPassword, member.getPassword())) {
+            throw new RuntimeException("현재 비밀번호와 동일한 비밀번호는 사용할 수 없습니다.");
+        }
+
+        // 새 비밀번호로 변경
+        member.changePassword(passwordEncoder.encode(newPassword));
+    }
+
+
     private void sendMail(String email, String token) {
         // 실제론 HTML 템플릿 권장
         SimpleMailMessage message = new SimpleMailMessage();
