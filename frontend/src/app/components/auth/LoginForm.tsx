@@ -49,7 +49,7 @@ export default function LoginForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // 로그인 중에는 auth revalidation 중단
+    // 로그인 중에는 member revalidation 중단
     sessionStorage.setItem("auth_in_progress", "1");
 
     setLoading(true);

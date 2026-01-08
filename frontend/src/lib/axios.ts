@@ -32,7 +32,7 @@ axiosInstance.interceptors.response.use(
 
         return axiosInstance(originalRequest);
       } catch {
-        window.dispatchEvent(new Event("auth:logout"));
+        window.dispatchEvent(new Event("member:logout"));
         return Promise.reject(error);
       }
     }

@@ -42,7 +42,7 @@ const errorLink = new ErrorLink((error) => {
                     .catch((err) => {
                         isRefreshing = false;
                         pendingRequests = [];
-                        window.dispatchEvent(new Event("auth:logout"));
+                        window.dispatchEvent(new Event("member:logout"));
                         observer.error(err);
                     });
             });

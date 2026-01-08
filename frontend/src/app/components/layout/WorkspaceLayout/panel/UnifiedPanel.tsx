@@ -91,7 +91,7 @@ export default function UnifiedPanel({
     );
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-surface-dark">
+        <div className="h-full flex flex-col bg-white dark:bg-surface-dark transition-all duration-300">
             <PanelHeader
                 type={type}
                 currentTab={currentTab}
@@ -104,13 +104,14 @@ export default function UnifiedPanel({
                 noteId={id !== "new" ? Number(id) : undefined}
             />
 
-            <div className="flex-1 overflow-hidden">
+            {/* 핵심: 얇은 커스텀 스크롤바가 적용된 영역 */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {/* 노트 편집 */}
                 {currentTab === "edit" && type === "note" && (
                     <NoteContent key={`${sessionId}-${id}`} {...noteContentProps} />
                 )}
 
-                {/* ✅ 문서 컨텐츠 */}
+                {/* 문서 컨텐츠 */}
                 {currentTab === "edit" && type === "document" && (
                     <DocumentContent fileId={id} sessionId={sessionId} />
                 )}
@@ -123,7 +124,7 @@ export default function UnifiedPanel({
                 )}
             </div>
 
-            {/* ✅ 노트일 때만 Footer 표시 */}
+            {/* 노트일 때만 Footer 표시 */}
             {type === "note" && (
                 <PanelFooter
                     saved={saved}
@@ -136,11 +137,15 @@ export default function UnifiedPanel({
     );
 }
 
+// SummaryContent: 반응형 여백 조정 및 텍스트 꺾임 방지 적용
 function SummaryContent({ id, type }: { id: string; type: string }) {
     return (
-        <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">AI 요약</h3>
-            <p className="text-sm text-muted-foreground">
+        <div className="p-4 sm:p-6 lg:p-8 animate-fadeIn">
+            <div className="flex items-center gap-2 mb-4 shrink-0">
+                <div className="w-1 h-4 bg-accent rounded-full" />
+                <h3 className="text-lg font-bold text-text-primary-light dark:text-text-primary-dark whitespace-nowrap">AI 요약</h3>
+            </div>
+            <p className="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed">
                 {type === "document"
                     ? "문서 요약 기능 준비 중입니다."
                     : "요약 기능 준비 중입니다."}
@@ -149,11 +154,15 @@ function SummaryContent({ id, type }: { id: string; type: string }) {
     );
 }
 
+// FeedbackContent: 반응형 여백 조정
 function FeedbackContent({ id }: { id: string }) {
     return (
-        <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">AI 피드백</h3>
-            <p className="text-sm text-muted-foreground">
+        <div className="p-4 sm:p-6 lg:p-8 animate-fadeIn">
+            <div className="flex items-center gap-2 mb-4 shrink-0">
+                <div className="w-1 h-4 bg-accent rounded-full" />
+                <h3 className="text-lg font-bold text-text-primary-light dark:text-text-primary-dark whitespace-nowrap">AI 피드백</h3>
+            </div>
+            <p className="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed">
                 피드백 기능 준비 중입니다.
             </p>
         </div>
