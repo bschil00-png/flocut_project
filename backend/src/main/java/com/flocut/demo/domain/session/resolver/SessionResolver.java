@@ -23,14 +23,13 @@ public class SessionResolver {
     private final SessionService sessionService;
     private final MemberService memberService;
 
-    // 세션 목록 조회
+    // 세션 목록 조회 (페이지네이션, Workspace 전용)
     @QueryMapping
     public PageResponseDTO<SessionResponseDTO> sessions(
             @Argument PageRequestDTO page,
             Authentication authentication
     ) {
-        Member member =
-                memberService.findByEmail(authentication.getName());
+        Member member = memberService.findByEmail(authentication.getName());
 
         return sessionService.getMySessions(
                 member.getMemberId(),
@@ -38,13 +37,27 @@ public class SessionResolver {
         );
     }
 
-    //세션 상세 조회
+    // 세션 목록 조회 (네비용, 페이지네이션 없음)
+    @QueryMapping
+    public List<SessionResponseDTO> mySessions(
+            Authentication authentication
+    ) {
+        Member member = memberService.findByEmail(authentication.getName());
+
+        return sessionService.getMySessions(
+                member.getMemberId()
+        );
+    }
+
+//    세션 상세 조회
+
     @QueryMapping
     public SessionDetailResponseDTO session(
             @Argument Long sessionId,
             Authentication authentication
     ) {
         Member member = memberService.findByEmail(authentication.getName());
+
         return sessionService.getSessionDetail(
                 member.getMemberId(),
                 sessionId
