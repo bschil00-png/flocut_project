@@ -18,7 +18,9 @@ public class AiFileRelayService {
 
     //  운영 Node AI Relay (nginx + HTTPS) 나중에 백엔드 경로 api.flocut도 확인
     private static final String NODE_AI_BASE_URL =
-            "https://node.imchobo.com";
+//            "https://node.imchobo.com";
+            "http://localhost:3000";
+
 
     private static final String DOCUMENT_SUMMARY_URL =
             NODE_AI_BASE_URL + "/api/ai/document-summary";
@@ -27,8 +29,8 @@ public class AiFileRelayService {
             NODE_AI_BASE_URL + "/api/ai/audio-summary";
 
     private final RestTemplate restTemplate = new RestTemplate();
-    
-//   문서요약
+
+    //   문서요약
     public void requestSummary(
             Long fileId,
             String s3Key,
@@ -59,7 +61,7 @@ public class AiFileRelayService {
         );
     }
 
-//  음성 요약
+    //  음성 요약
     public void requestAudioSummary(
             MultipartFile audioFile,
             Long sessionId
@@ -94,3 +96,99 @@ public class AiFileRelayService {
         }
     }
 }
+
+//package com.flocut.demo.domain.ai.service;
+//
+//import lombok.RequiredArgsConstructor;
+//import org.springframework.core.io.ByteArrayResource;
+//import org.springframework.http.*;
+//import org.springframework.stereotype.Service;
+//import org.springframework.util.LinkedMultiValueMap;
+//import org.springframework.util.MultiValueMap;
+//import org.springframework.web.client.RestTemplate;
+//import org.springframework.web.multipart.MultipartFile;
+//
+//import java.io.IOException;
+//import java.util.Map;
+//
+//@Service
+//@RequiredArgsConstructor
+//public class AiFileRelayService {
+//
+//    private static final String NODE_AI_URL =
+//            "http://localhost:8081/api/ai/document-summary";
+//
+//    private static final String AUDIO_SUMMARY_URL =
+//            "http://localhost:8081/api/ai/audio-summary";
+//
+//    private final RestTemplate restTemplate = new RestTemplate();
+//
+//    public void requestSummary(
+//            Long fileId,
+//            String s3Key,
+//            String filename,
+//            String contentType,
+//            Long sessionId,
+////            int roundNo,
+//            int versionNo
+//
+//    ) {
+//        Map<String, Object> body = Map.of(
+//
+//                "fileId", fileId,
+//                "s3Key", s3Key,
+//                "filename", filename,
+//                "contentType", contentType,
+//                "sessionId", sessionId,
+////                "roundNo", roundNo,
+//                "versionNo", versionNo
+//        );
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//
+//        HttpEntity<Map<String, Object>> request =
+//                new HttpEntity<>(body, headers);
+//
+//        restTemplate.postForEntity(
+//                NODE_AI_URL,
+//                request,
+//                Void.class
+//        );
+//    }
+// //    음성요약 요청
+//    public void requestAudioSummary(
+//            MultipartFile audioFile,
+//            Long sessionId
+//    ) {
+//        try {
+//            // 🔹 multipart body 생성
+//            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//
+//            ByteArrayResource audioResource = new ByteArrayResource(audioFile.getBytes()) {
+//                @Override
+//                public String getFilename() {
+//                    return audioFile.getOriginalFilename();
+//                }
+//            };
+//
+//            body.add("audio", audioResource);
+//            body.add("sessionId", sessionId);
+//
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+//
+//            HttpEntity<MultiValueMap<String, Object>> request =
+//                    new HttpEntity<>(body, headers);
+//
+//            restTemplate.postForEntity(
+//                    AUDIO_SUMMARY_URL,
+//                    request,
+//                    Void.class
+//            );
+//
+//        } catch (IOException e) {
+//            throw new RuntimeException("음성 요약 요청 실패", e);
+//        }
+//    }
+//}

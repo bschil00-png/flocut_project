@@ -28,8 +28,23 @@ public interface NoteMapper {
     @Mapping(source = "status", target = "status", qualifiedByName = "enumToString")
     @Mapping(source = "regdate", target = "regdate", qualifiedByName = "dateToString")
     @Mapping(source = "moddate", target = "moddate", qualifiedByName = "dateToString")
-    @Mapping(source = "summaryOption", target = "summaryOption")
+    @Mapping(source = "summaryOption", target = "summaryOption", qualifiedByName = "jsonStringToJsonNode")
     NoteDetailResponseDTO toNoteDetailResponseDTO(Note note);
+
+
+    /* =========================
+       JSON String → JsonNode
+       ========================= */
+    @Named("jsonStringToJsonNode")
+    default com.fasterxml.jackson.databind.JsonNode jsonStringToJsonNode(String json) {
+        if (json == null) return null;
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().readTree(json);
+        } catch (Exception e) {
+            throw new RuntimeException("summaryOption JSON 파싱 실패", e);
+        }
+    }
+
 
     // 리스트 변환
     List<NoteResponseDTO> toNoteResponseDTOList(List<Note> notes);

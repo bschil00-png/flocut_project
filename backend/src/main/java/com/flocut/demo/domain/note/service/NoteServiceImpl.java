@@ -79,7 +79,8 @@ public class NoteServiceImpl implements NoteService {
         Note note = Note.builder()
                 .member(member)
                 .session(session)
-                .summary(summary)                     // ⭐ 연관
+                .summary(summary)
+                .content("")
                 .title(
                         dto.getTitle() != null
                                 ? dto.getTitle()
