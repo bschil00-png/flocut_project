@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AiFileRelayService {
 
-    //  운영 Node AI Relay (nginx + HTTPS)
+    //  운영 Node AI Relay (nginx + HTTPS) 나중에 백엔드 경로 api.flocut도 확인
     private static final String NODE_AI_BASE_URL =
             "https://node.imchobo.com";
 
@@ -27,7 +27,7 @@ public class AiFileRelayService {
             NODE_AI_BASE_URL + "/api/ai/audio-summary";
 
     private final RestTemplate restTemplate = new RestTemplate();
-
+    
 //   문서요약
     public void requestSummary(
             Long fileId,
