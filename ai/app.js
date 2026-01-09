@@ -158,7 +158,7 @@ app.post("/api/ai/document-summary", async (req, res) => {
 // =========================
 // Server Start
 // =========================
-const listenPort = PORT || 3000;
+const listenPort = PORT || 3003;
 
 app.listen(listenPort, () => {
     console.log(`🚀 Node AI Relay running on port ${listenPort}`);
