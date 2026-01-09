@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/register",
                                 "/auth/login",
-                                "/auth/logout",
+//                                "/auth/logout",
                                 "/auth/refresh",
                                 "/auth/verify",
                                 "/auth/find-email",
