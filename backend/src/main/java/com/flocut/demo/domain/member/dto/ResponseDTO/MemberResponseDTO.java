@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -14,6 +15,6 @@ public class MemberResponseDTO {
     private String name;         // 이름
     private String profileImage; // 프로필
     private String status;       // READY / ACTIVE
-    private LocalDate regdate;   // 가입일
+    private LocalDateTime regdate;   // 가입일
     private String lastLoginDate; // 정렬 필터용
 }

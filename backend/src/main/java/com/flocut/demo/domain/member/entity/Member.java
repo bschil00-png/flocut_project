@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tbl_member")
@@ -49,14 +50,14 @@ public class Member {
     @Column(name = "email_verify_token")
     private String emailVerifyToken;
 
-    private LocalDate regdate;
-    private LocalDate moddate;
-    private LocalDate deletedAt;
+    private LocalDateTime regdate;
+    private LocalDateTime moddate;
+    private LocalDateTime deletedAt;
 
     @PrePersist
     public void onCreate() {
-        this.regdate = LocalDate.now();
-        this.moddate = LocalDate.now();
+        this.regdate = LocalDateTime.now();
+        this.moddate = LocalDateTime.now();
 
         if (this.emailVerified == null) {
             this.emailVerified = false;
@@ -72,7 +73,7 @@ public class Member {
 
     @PreUpdate
     public void onUpdate() {
-        this.moddate = LocalDate.now();
+        this.moddate = LocalDateTime.now();
     }
 
     public void reactivate() {

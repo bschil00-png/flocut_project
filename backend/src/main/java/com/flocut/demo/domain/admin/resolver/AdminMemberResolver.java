@@ -51,10 +51,12 @@ public class AdminMemberResolver {
 
     // 관리자 로그인 이력 조회
     @QueryMapping
-    public List<AdminLoginHistoryResponseDTO> adminLoginHistory(
-            @Argument Long memberId
+    public PageResponseDTO<AdminLoginHistoryResponseDTO> adminLoginHistories(
+            @Argument Long memberId,
+            @Argument PageRequestDTO page
     ) {
-        checkAdmin(); // 🔥 유지
-        return adminMemberService.getLoginHistory(memberId);
+        checkAdmin();
+        return adminMemberService.getLoginHistory(memberId, page);
     }
+
 }
