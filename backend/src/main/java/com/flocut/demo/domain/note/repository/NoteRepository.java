@@ -19,9 +19,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
             CommonStatus status,
             Pageable pageable
     );
-//    List<Note> findBySession_SessionIdAndMember_MemberIdAndStatus(
-//            Long sessionId, Long memberId, CommonStatus status
-//    );
+
 
     // 단건 조회 시 상태와 소유권을 동시에 확인하기 위한 메서드
     Optional<Note> findByNoteIdAndMember_MemberId(Long noteId, Long memberId);
