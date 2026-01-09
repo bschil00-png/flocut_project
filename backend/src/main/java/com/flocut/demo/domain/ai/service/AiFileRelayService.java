@@ -19,7 +19,7 @@ public class AiFileRelayService {
     //  운영 Node AI Relay (nginx + HTTPS) 나중에 백엔드 경로 api.flocut도 확인
     private static final String NODE_AI_BASE_URL =
 //            "https://node.imchobo.com";
-            "http://localhost:3000";
+            "http://localhost:3003";
 
 
     private static final String DOCUMENT_SUMMARY_URL =
