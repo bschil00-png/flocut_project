@@ -58,93 +58,48 @@ public class NoteServiceImpl implements NoteService {
     return noteRepository.save(note).getNoteId();
   }
 
-    // 요약 내용 노트에 저장
+    // 요약본에서 노트를 생성하는 로직
     @Override
-    @Transactional
-    public Long createNoteFromSummary(
-            Member member,
-            NoteCreateFromSummaryRequestDTO dto
-    ) {
-        // 1️⃣ 요약 조회
-        DocumentSummary summary =
-                documentSummaryRepository.findById(dto.getSummaryId())
-                        .orElseThrow(() -> new IllegalArgumentException("요약 없음"));
+    public Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto) {
+        DocumentSummary summary = documentSummaryRepository.findById(dto.getSummaryId())
+                .orElseThrow(() -> new IllegalArgumentException("요약 데이터를 찾을 수 없습니다."));
 
-        // 2️⃣ 세션 조회
-        Session session =
-                sessionRepository.findById(dto.getSessionId())
-                        .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
+        Session session = sessionRepository.findById(dto.getSessionId())
+                .orElseThrow(() -> new IllegalArgumentException("세션을 찾을 수 없습니다."));
 
-        // 3️⃣ Note 생성
         Note note = Note.builder()
                 .member(member)
                 .session(session)
                 .summary(summary)
-                .content("")
-                .title(
-                        dto.getTitle() != null
-                                ? dto.getTitle()
-                                : "요약 노트 v" + summary.getVersionNo()
-                )
-                .summaryOption(summary.getSummaryOption())    // ⭐ 요약 텍스트
-                .sourceType(NoteSourceType.DOCUMENT)  // ⭐ 출처
+                .title(dto.getTitle() != null ? dto.getTitle() : "요약 노트 v" + summary.getVersionNo())
+                // 요약 텍스트를 노트 본문(content) 혹은 summaryOption에 초기화
+                .content(summary.getSummaryOption())
+                .sourceType(NoteSourceType.DOCUMENT)
                 .status(CommonStatus.ACTIVE)
                 .build();
 
         return noteRepository.save(note).getNoteId();
-
     }
 
-  //    노트 리스트 조회
-  @Override
-  @Transactional
-  public PageResponseDTO<Note> getNotesByStatus(
-          Long sessionId,
-          Member member,
-          CommonStatus status,
-          PageRequestDTO pageRequest
-  ) {
-      Page<Note> page =
-              noteRepository.findBySession_SessionIdAndMember_MemberIdAndStatus(
-                      sessionId,
-                      member.getMemberId(),
-                      status,
-                      PageRequest.of(
-                              pageRequest.getPage(),
-                              pageRequest.getSize(),
-                              Sort.by(Sort.Direction.DESC, "regdate")
-                      )
-              );
+    // 페이지네이션이 적용된 목록 조회
+    @Override
+    public PageResponseDTO<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status, PageRequestDTO pageRequest) {
+        Page<Note> page = noteRepository.findBySession_SessionIdAndMember_MemberIdAndStatus(
+                sessionId, member.getMemberId(), status,
+                PageRequest.of(pageRequest.getPage(), pageRequest.getSize(), Sort.by(Sort.Direction.DESC, "regdate"))
+        );
 
-      return new PageResponseDTO<>(
-              page.getContent(),
-              page.getTotalElements(),
-              page.getTotalPages(),
-              page.getNumber(),
-              page.getSize(),
-              page.hasNext(),
-              page.hasPrevious(),
-              page.isFirst(),
-              page.isLast()
-      );
-  }
-
-
-//  @Override
-//  @Transactional
-//  public List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status) {
-//    return noteRepository.findBySession_SessionIdAndMember_MemberIdAndStatus(
-//            sessionId, member.getMemberId(), status
-//    );
-//  }
-
-  //     노트 조회
-  @Override
-  @Transactional
-  public Note getNote(Long noteId, Member member) {
-    return noteRepository.findByNoteIdAndMember_MemberId(noteId, member.getMemberId())
-            .orElseThrow(() -> new IllegalArgumentException("노트를 찾을 수 없거나 접근 권한이 없습니다."));
-  }
+        // 엔티티 페이지 객체를 공통 응답 DTO로 변환하여 반환
+        return new PageResponseDTO<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
+                page.getNumber(), page.getSize(), page.hasNext(), page.hasPrevious(),
+                page.isFirst(), page.isLast());
+    }
+// 노트 접근 권한
+    @Override
+    public Note getNote(Long noteId, Member member) {
+        return noteRepository.findByNoteIdAndMember_MemberId(noteId, member.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("노트 권한이 없습니다."));
+    }
 
   //    노트 업데이트
   @Override

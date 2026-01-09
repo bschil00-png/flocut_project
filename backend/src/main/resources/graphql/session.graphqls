@@ -13,6 +13,8 @@ enum SessionStatus {
 
 """
 세션 기본 정보
+- 네비용
+- 목록용
 """
 type SessionItem {
   sessionId: ID!
@@ -42,11 +44,23 @@ type SessionDetail {
 }
 
 """
-세션 목록 조회 응답
+페이지네이션된 세션 목록
+- Workspace 전용
 """
-type SessionListResponse {
-  list: [SessionItem!]!
-  totalCount: Int!
+type SessionPage {
+  content: [SessionItem!]!
+
+  totalElements: Int!
+  totalPages: Int!
+
+  pageNumber: Int!
+  pageSize: Int!
+
+  hasNext: Boolean!
+  hasPrevious: Boolean!
+
+  isFirst: Boolean!
+  isLast: Boolean!
 }
 
 """
@@ -58,58 +72,65 @@ type SessionDeleteResult {
   message: String
 }
 
-type SessionPage {
-  content: [SessionItem!]!
-  totalElements: Int!
-  totalPages: Int!
-  pageNumber: Int!
-  pageSize: Int!
-  hasNext: Boolean!
-  hasPrevious: Boolean!
-  isFirst: Boolean!
-  isLast: Boolean!
-}
-
 # =========================
 # Input Types
 # =========================
 
-input SessionDeleteInput {
-  sessionId: ID!
-}
-
+"""
+세션 생성
+"""
 input SessionCreateInput {
   sessionTitle: String!
   description: String
 }
 
+"""
+세션 수정
+"""
 input SessionUpdateInput {
   sessionId: ID!
   sessionTitle: String
   description: String
 }
 
+"""
+세션 삭제
+"""
+input SessionDeleteInput {
+  sessionId: ID!
+}
+
 # =========================
-# Queries (EXTEND)
+# Queries
 # =========================
 
 extend type Query {
 
   """
-  로그인한 사용자가 생성한 세션 목록 조회
+  세션 목록 조회 (페이지네이션)
+  - Workspace 화면용
   """
   sessions(
     page: PageRequestInput!
   ): SessionPage!
 
   """
-  특정 세션 상세 조회
+  세션 목록 조회 (네비용, 페이지네이션 없음)
+  - GlobalNav 전용
   """
-  session(sessionId: ID!): SessionDetail!
+  mySessions: [SessionItem!]!
+
+  """
+  세션 상세 조회
+  - 워크스페이스 진입 시 사용
+  """
+  session(
+    sessionId: ID!
+  ): SessionDetail!
 }
 
 # =========================
-# Mutations (EXTEND)
+# Mutations
 # =========================
 
 extend type Mutation {
@@ -117,15 +138,21 @@ extend type Mutation {
   """
   세션 생성
   """
-  createSession(input: SessionCreateInput!): SessionItem!
+  createSession(
+    input: SessionCreateInput!
+  ): SessionItem!
 
   """
   세션 수정
   """
-  updateSession(input: SessionUpdateInput!): SessionItem!
+  updateSession(
+    input: SessionUpdateInput!
+  ): SessionItem!
 
   """
   세션 삭제 (Soft Delete)
   """
-  deleteSession(input: SessionDeleteInput!): SessionDeleteResult!
+  deleteSession(
+    input: SessionDeleteInput!
+  ): SessionDeleteResult!
 }

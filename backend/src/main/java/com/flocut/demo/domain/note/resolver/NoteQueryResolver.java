@@ -41,15 +41,6 @@ public class NoteQueryResolver {
         );
     }
 
-//    @QueryMapping
-//    public List<NoteResponseDTO> notesByStatus(
-//            @Argument Long sessionId,
-//            @Argument CommonStatus status,
-//            @AuthenticationPrincipal CustomUserDetails userDetails
-//    ) {
-//        return noteFacade.getNotesByStatusWithCache(sessionId, userDetails.getMember(), status);
-//    }
-
     //   노트 상세 조회 (미리보기 용)-> 디비만
     @QueryMapping
     public NoteDetailResponseDTO noteDetail(

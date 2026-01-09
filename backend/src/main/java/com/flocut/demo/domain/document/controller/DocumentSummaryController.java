@@ -17,6 +17,7 @@ public class DocumentSummaryController {
 
     private final DocumentSummaryService summaryService;
 
+//    노트랑 문서
     @PostMapping("/request")
     public ResponseEntity<Long> requestSummary(
             @RequestBody DocumentSummaryRequest request

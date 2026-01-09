@@ -51,6 +51,19 @@ public class SessionService {
     /**
      * 내 세션 목록 조회
      */
+    public List<SessionResponseDTO> getMySessions(Long memberId) {
+        return sessionRepository
+                .findByMemberMemberIdAndStatusOrderByRegdateDesc(
+                        memberId,
+                        SessionStatus.ACTIVE
+                )
+                .stream()
+                .map(this::toSessionResponse)
+                .toList();
+    }
+    /**
+     * 내 세션 목록 조회
+     */
     public PageResponseDTO<SessionResponseDTO> getMySessions(
             Long memberId,
             PageRequestDTO pageRequest

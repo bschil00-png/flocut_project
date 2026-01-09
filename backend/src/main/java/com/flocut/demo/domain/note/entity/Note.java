@@ -28,10 +28,10 @@ public class Note {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long noteId;
 
+    // AI 요약 결과와 연동
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "summary_id")
     private DocumentSummary summary;
-
 
     // 해당 노트가 속한 세션(현재 노트 위치) / 추후 노트 이동 및 복사를 위해 null 허용 변경
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,7 +50,7 @@ public class Note {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    // 추출한 요약본
+    // AI 요약 결과 원본(jsonb)을 문자열로 저장
     @Column(name = "summary_option", columnDefinition = "jsonb")
     @Type(JsonBinaryType.class)
     private String summaryOption;
