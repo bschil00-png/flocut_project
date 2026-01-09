@@ -16,32 +16,33 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AiFileRelayService {
 
-    private static final String NODE_AI_URL =
-            "http://localhost:8081/api/ai/document-summary";
+    //  운영 Node AI Relay (nginx + HTTPS)
+    private static final String NODE_AI_BASE_URL =
+            "https://node.imchobo.com";
+
+    private static final String DOCUMENT_SUMMARY_URL =
+            NODE_AI_BASE_URL + "/api/ai/document-summary";
 
     private static final String AUDIO_SUMMARY_URL =
-            "http://localhost:8081/api/ai/audio-summary";
+            NODE_AI_BASE_URL + "/api/ai/audio-summary";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+//   문서요약
     public void requestSummary(
             Long fileId,
             String s3Key,
             String filename,
             String contentType,
             Long sessionId,
-//            int roundNo,
             int versionNo
-
     ) {
         Map<String, Object> body = Map.of(
-
                 "fileId", fileId,
                 "s3Key", s3Key,
                 "filename", filename,
                 "contentType", contentType,
                 "sessionId", sessionId,
-//                "roundNo", roundNo,
                 "versionNo", versionNo
         );
 
@@ -52,18 +53,18 @@ public class AiFileRelayService {
                 new HttpEntity<>(body, headers);
 
         restTemplate.postForEntity(
-                NODE_AI_URL,
+                DOCUMENT_SUMMARY_URL,
                 request,
                 Void.class
         );
     }
-    // 음성요약 요청
+
+//  음성 요약
     public void requestAudioSummary(
             MultipartFile audioFile,
             Long sessionId
     ) {
         try {
-            // 🔹 multipart body 생성
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
             ByteArrayResource audioResource = new ByteArrayResource(audioFile.getBytes()) {
@@ -93,4 +94,3 @@ public class AiFileRelayService {
         }
     }
 }
-

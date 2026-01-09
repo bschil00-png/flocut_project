@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  node:
+    build: .
+    container_name: node-app
+    restart: always
+    env_file:
+      - .env
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:alpine
+    container_name: node-nginx
+    restart: always
+    ports:
+      - "9004:9004"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - node
