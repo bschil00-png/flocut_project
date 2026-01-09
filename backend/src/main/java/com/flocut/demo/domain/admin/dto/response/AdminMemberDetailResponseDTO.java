@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -19,6 +20,6 @@ public class AdminMemberDetailResponseDTO {
     private MemberStatus status;
     private UserRole role;
     private Boolean emailVerified;
-    private LocalDate regdate;
+    private LocalDateTime regdate;
 
 }

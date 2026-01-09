@@ -4,6 +4,7 @@ import com.flocut.demo.domain.admin.dto.response.AdminLoginHistoryResponseDTO;
 import com.flocut.demo.domain.admin.dto.response.AdminMemberDetailResponseDTO;
 import com.flocut.demo.domain.admin.dto.response.AdminMemberResponseDTO;
 import com.flocut.demo.domain.admin.entity.AdminActionLog;
+import com.flocut.demo.domain.admin.entity.LoginHistory;
 import com.flocut.demo.domain.admin.repository.AdminActionLogRepository;
 import com.flocut.demo.domain.admin.repository.LoginHistoryRepository;
 import com.flocut.demo.domain.member.entity.Member;
@@ -115,17 +116,43 @@ public class AdminMemberService {
     }
 
     // 로그인 이력 조회
-    public List<AdminLoginHistoryResponseDTO> getLoginHistory(Long memberId) {
-        return loginHistoryRepository
-                .findByMember_MemberIdOrderByLoginDateDesc(memberId)
-                .stream()
-                .map(h -> new AdminLoginHistoryResponseDTO(
-                        h.getLoginDate().toLocalDate(),
-                        h.getIp(),
-                        h.getDevice()
-                ))
-                .toList();
+    public PageResponseDTO<AdminLoginHistoryResponseDTO> getLoginHistory(
+            Long memberId,
+            PageRequestDTO pageRequest
+    ) {
+        Pageable pageable = PageRequest.of(
+                pageRequest.getPage(),
+                pageRequest.getSize(),
+                Sort.by(Sort.Direction.DESC, "loginDate")
+        );
+
+        Page<LoginHistory> result =
+                loginHistoryRepository.findByMember_MemberId(memberId, pageable);
+
+        List<AdminLoginHistoryResponseDTO> content =
+                result.getContent().stream()
+                        .map(h -> new AdminLoginHistoryResponseDTO(
+                                h.getLoginDate(),
+                                h.getIp(),
+                                h.getDevice()
+                        ))
+                        .toList();
+
+        return new PageResponseDTO<>(
+                content,
+                result.getTotalElements(),
+                result.getTotalPages(),
+                result.getNumber(),
+                result.getSize(),
+                result.hasNext(),
+                result.hasPrevious(),
+                result.isFirst(),
+                result.isLast()
+        );
     }
+
+
+
 
     // ======================
     // 🔒 관리자 검증 (2차 방어선)

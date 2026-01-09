@@ -1,10 +1,11 @@
-# Admin Query
-
+# Common
 
 input PageRequestInput {
   page: Int!
   size: Int!
 }
+
+# Admin Queries
 
 extend type Query {
 
@@ -12,12 +13,18 @@ extend type Query {
   adminMembers(
     page: PageRequestInput!
   ): AdminMemberPage!
-}
 
-extend type Query {
-  adminMember(memberId: ID!): AdminMemberDetail!
-}
+  # 관리자 회원 상세 조회
+  adminMember(
+    memberId: ID!
+  ): AdminMemberDetail!
 
+  # 관리자 회원 로그인 이력 조회 (페이지네이션)
+  adminLoginHistories(
+    memberId: ID!
+    page: PageRequestInput!
+  ): AdminLoginHistoryPage!
+}
 
 # Admin Member Types
 
@@ -41,6 +48,7 @@ type AdminMember {
   role: String!
   regdate: String!
 }
+
 type AdminMemberDetail {
   memberId: ID!
   email: String!
@@ -50,7 +58,24 @@ type AdminMemberDetail {
   role: String!
   emailVerified: Boolean!
   regdate: String!
-
 }
 
+# Admin Login History
 
+type AdminLoginHistoryPage {
+  content: [AdminLoginHistory!]!
+  totalElements: Int!
+  totalPages: Int!
+  pageNumber: Int!
+  pageSize: Int!
+  hasNext: Boolean!
+  hasPrevious: Boolean!
+  isFirst: Boolean!
+  isLast: Boolean!
+}
+
+type AdminLoginHistory {
+  loginAt: String!
+  ip: String
+  device: String!
+}
