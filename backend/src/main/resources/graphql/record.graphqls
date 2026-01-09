@@ -1,0 +1,26 @@
+extend type Query {
+
+  # 세션별 녹음 텍스트 조회 (페이지네이션)
+  recordsBySession(
+    sessionId: ID!
+    page: PageRequestInput!
+  ): PageResponseRecord!
+}
+
+type Record {
+  recordId: ID!
+  content: String!
+  createdAt: String!
+}
+
+type PageResponseRecord {
+  content: [Record!]!
+  totalElements: Int!
+  totalPages: Int!
+  pageNumber: Int!
+  pageSize: Int!
+  hasNext: Boolean!
+  hasPrevious: Boolean!
+  isFirst: Boolean!
+  isLast: Boolean!
+}

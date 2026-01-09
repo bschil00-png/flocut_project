@@ -5,9 +5,11 @@ import com.flocut.demo.domain.document.entity.DocumentSummary;
 import com.flocut.demo.domain.member.entity.Member;
 import com.flocut.demo.domain.note.en.NoteSourceType;
 import com.flocut.demo.domain.session.entity.Session;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -50,6 +52,7 @@ public class Note {
 
     // 추출한 요약본
     @Column(name = "summary_option", columnDefinition = "jsonb")
+    @Type(JsonBinaryType.class)
     private String summaryOption;
 
     // 노트 타입 (출처.. 노트/문서/오디오/AI)

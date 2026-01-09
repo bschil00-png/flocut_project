@@ -1,5 +1,6 @@
 package com.flocut.demo.domain.note.dto.response;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.flocut.demo.domain.note.en.NoteSourceType;
 
 // 노트 상세 조회
@@ -11,7 +12,7 @@ public record NoteDetailResponseDTO(
         String content,
         NoteSourceType sourceType,
         Long sourceId, //프론트에서 원본 보기 버튼 표시 여부 판단(manual 이면 null),
-        String summaryOption,
+        JsonNode summaryOption,
         String status,
         String regdate,
         String moddate
