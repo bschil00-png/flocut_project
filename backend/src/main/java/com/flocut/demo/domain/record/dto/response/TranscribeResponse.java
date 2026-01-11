@@ -1,4 +1,4 @@
-package com.flocut.demo.domain.record.dto.request;
+package com.flocut.demo.domain.record.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecordCreateRequest {
-    private Long sessionId;
-    private Long noteId;
-    private String content;
+public class TranscribeResponse {
+  private Long recordId;
+  private String transcript;
 }

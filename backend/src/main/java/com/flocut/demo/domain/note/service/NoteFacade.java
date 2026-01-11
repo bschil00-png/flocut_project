@@ -2,11 +2,14 @@ package com.flocut.demo.domain.note.service;
 
 import com.flocut.demo.domain.common.CommonStatus;
 import com.flocut.demo.domain.member.entity.Member;
+import com.flocut.demo.domain.member.repository.MemberRepository;
 import com.flocut.demo.domain.note.dto.request.NoteUpdateRequestDTO;
 import com.flocut.demo.domain.note.dto.response.NoteDetailResponseDTO;
 import com.flocut.demo.domain.note.dto.response.NoteResponseDTO;
 import com.flocut.demo.domain.note.entity.Note;
 import com.flocut.demo.domain.note.mapper.NoteMapper;
+import com.flocut.demo.domain.record.entity.RecordFile;
+import com.flocut.demo.domain.record.repository.RecordFileRepository;
 import com.flocut.demo.global.dto.PageRequestDTO;
 import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +19,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -37,8 +40,10 @@ public class NoteFacade {
     private static final String CACHE_KEY_PREFIX = "note:buffer:";
     private static final String INDEX_KEY = "note:buffer:index";
     private static final int CACHE_TTL_MINUTES = 30;
+    private final RecordFileRepository recordRepository;
+    private final MemberRepository memberRepository;
 
-    
+
     // 목록 조회 (DB + Redis 병합)
     
     public PageResponseDTO<NoteResponseDTO> getNotesByStatusWithCache(
@@ -126,7 +131,6 @@ public class NoteFacade {
 
     
     // 자동 저장
-    
     public void autoSave(Long noteId, Member member, String title, String content) {
 
         // 소유권 검증
@@ -313,5 +317,63 @@ public class NoteFacade {
         }
 
         return result;
+    }
+
+    @Transactional
+    public void appendRecordsToNote(Long noteId, Long sessionId, Member member) {
+        // 1. 병합 전, 현재 사용자가 타이핑 중이던 Redis 캐시를 DB로 먼저 밀어넣음 (데이터 유실 방지)
+
+        this.sync(noteId, member);
+
+        // 2. 해당 세션의 오디오 기록들 가져오기
+        List<RecordFile> records = recordRepository.findBySession_SessionIdOrderByCreatedAtAsc(sessionId);
+        if (records.isEmpty()) return;
+
+        // 3. 조각들을 하나로 합침
+        String fullSpeechText = records.stream()
+                .map(RecordFile::getContent)
+                .collect(Collectors.joining(" "));
+
+        // 4. 최신 노트 내용 가져오기
+        Note note = noteService.getNote(noteId, member);
+
+        // 5. 본문 구성 (기존 내용 뒤에 음성 기록임을 명시하여 추가)
+        StringBuilder sb = new StringBuilder();
+        if (note.getContent() != null && !note.getContent().isBlank()) {
+            sb.append(note.getContent()).append("\n\n");
+        }
+        sb.append("--- [음성 녹음 데이터 반영] ---\n").append(fullSpeechText);
+
+        // 6. DB 업데이트
+        noteService.updateNote(noteId, member, new NoteUpdateRequestDTO(null, sb.toString()));
+
+        // 7. [선택] 반영이 완료된 RecordFile들은 중복 반영 방지를 위해 삭제하거나 처리 완료 상태로 변경
+        recordRepository.deleteByRecordIdInAndMemberMemberId(
+                records.stream().map(RecordFile::getRecordId).toList(),
+                member.getMemberId()
+        );
+
+        // 8. Redis 캐시 초기화 (다음 조회 시 DB의 합쳐진 내용이 나오도록 함)
+        this.clearCache(noteId);
+    }
+
+    public void appendSingleRecordToNote(Long noteId, String newText, Long memberId) {
+        String key = CACHE_KEY_PREFIX + noteId;
+
+        // 1. 기존 캐시 내용 가져오기 (없으면 빈 문자열)
+        String currentContent = (String) redisTemplate.opsForHash().get(key, "content");
+
+        // 2. 캐시가 아예 없다면 DB에서 최초 1회 로드 (안정성)
+        if (currentContent == null) {
+            currentContent = noteService.getNote(noteId, memberRepository.getReferenceById(memberId)).getContent();
+        }
+
+        // 3. 내용 덧붙이기 (한 칸 띄우고 추가)
+        String updatedContent = currentContent + (currentContent.isEmpty() ? "" : " ") + newText;
+
+        // 4. Redis 업데이트 (이후 Scheduler가 DB로 자동 동기화함)
+        redisTemplate.opsForHash().put(key, "content", updatedContent);
+        redisTemplate.opsForHash().put(key, "lastModified", String.valueOf(System.currentTimeMillis()));
+        redisTemplate.opsForSet().add(INDEX_KEY, String.valueOf(noteId));
     }
 }

@@ -16,8 +16,8 @@ public interface NoteService {
   //    노트 생성
   Long createNote(Member member, NoteCreateRequestDTO dto);
 
-    // 요약 내용 노트에 저장
-    Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto);
+  // 요약 내용 노트에 저장
+  Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto);
 
   //    목록 조회
   PageResponseDTO<Note> getNotesByStatus(
@@ -48,4 +48,8 @@ public interface NoteService {
 
   //    노트 이동
   void moveNote(Long noteId, Long targetSessionId, Member member);
+
+  //  노트 요약 요청
+  Long requestNoteSummary(Long noteId, Member member);
+
 }

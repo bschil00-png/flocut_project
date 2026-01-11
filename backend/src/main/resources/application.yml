@@ -20,6 +20,7 @@ spring:
       - optional:classpath:secret/solapi.yml
       - optional:classpath:secret/redis.yml
       - optional:classpath:secret/application.yml
+      - optional:classpath:secret/openai.yml
 
   jpa:
     hibernate:

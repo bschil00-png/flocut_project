@@ -4,5 +4,6 @@ public enum FileStatus {
     UPLOADED,
     PARSED,
     FAILED,
-    DELETED
+    DELETED,
+    NOTE_TEMP // 노트 요약 요청시
 }

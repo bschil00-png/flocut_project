@@ -5,14 +5,16 @@ import com.flocut.demo.domain.session.entity.Session;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tbl_record")
 @Getter
+@Setter
 @NoArgsConstructor
-public class Record {
+public class RecordFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +34,7 @@ public class Record {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Record(Session session, Member member, String content) {
+    public RecordFile(Session session, Member member, String content) {
         this.session = session;
         this.member = member;
         this.content = content;
