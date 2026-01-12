@@ -82,6 +82,6 @@ public class AiSummaryCallbackService {
     } catch (Exception e) {
       log.warn("NOTE_TEMP S3 삭제 실패: {}", file.getS3Key(), e);
     }
-    fileRepository.delete(file);
+      file.softDelete();
   }
 }

@@ -127,6 +127,7 @@ public class DocumentSummaryQueryService {
     /* ======================================================
        🔨 summary_option 파싱 (서비스 전용 JSON)
        ====================================================== */
+
     private DocumentSummaryViewResponse parseSummaryOption(
             DocumentSummary summary
     ) {
@@ -148,10 +149,21 @@ public class DocumentSummaryQueryService {
                     new ArrayList<>();
 
             for (JsonNode node : root.path("sections")) {
+
+                JsonNode contentNode = node.path("content");
+
+                String content;
+                if (contentNode.isTextual()) {
+                    content = contentNode.asText();
+                } else {
+                    // 🔥 배열 / 객체는 JSON 문자열로 보존
+                    content = objectMapper.writeValueAsString(contentNode);
+                }
+
                 sections.add(
                         DocumentSummaryViewResponse.SectionResponse.builder()
-                                .title(node.path("title").asText())
-                                .content(node.path("content").asText())
+                                .title(node.path("section_title").asText())
+                                .content(content)
                                 .build()
                 );
             }
@@ -171,4 +183,49 @@ public class DocumentSummaryQueryService {
             throw new RuntimeException("summary_option 파싱 실패", e);
         }
     }
+
+//    private DocumentSummaryViewResponse parseSummaryOption(
+//            DocumentSummary summary
+//    ) {
+//
+//        try {
+//            JsonNode root =
+//                    objectMapper.readTree(summary.getSummaryOption());
+//
+//            String mainTopic =
+//                    root.path("mainTopic").asText(null);
+//
+//            List<String> keyTakeaways =
+//                    objectMapper.convertValue(
+//                            root.path("keyTakeaways"),
+//                            new TypeReference<List<String>>() {}
+//                    );
+//
+//            List<DocumentSummaryViewResponse.SectionResponse> sections =
+//                    new ArrayList<>();
+//
+//            for (JsonNode node : root.path("sections")) {
+//                sections.add(
+//                        DocumentSummaryViewResponse.SectionResponse.builder()
+//                                .title(node.path("section_title").asText())
+//                                .content(node.path("content").asText())
+//                                .build()
+//                );
+//            }
+//
+//            String finalDocument =
+//                    root.path("finalDocument").asText(null);
+//
+//            return DocumentSummaryViewResponse.builder()
+//                    .summaryId(summary.getSummaryId())
+//                    .mainTopic(mainTopic)
+//                    .keyTakeaways(keyTakeaways)
+//                    .sections(sections)
+//                    .finalDocument(finalDocument)
+//                    .build();
+//
+//        } catch (Exception e) {
+//            throw new RuntimeException("summary_option 파싱 실패", e);
+//        }
+//    }
 }

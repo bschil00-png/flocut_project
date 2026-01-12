@@ -8,6 +8,7 @@ import com.flocut.demo.domain.session.entity.Session;
 import com.flocut.demo.domain.session.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -21,7 +22,7 @@ public class DocumentSummaryWriteService {
     /**
      * DB row 생성 전용 (COMMIT 보장)
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DocumentSummary createSummary(
             Long fileId,
             Long sessionId
