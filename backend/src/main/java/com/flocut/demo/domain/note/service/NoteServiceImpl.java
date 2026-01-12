@@ -1,5 +1,7 @@
 package com.flocut.demo.domain.note.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flocut.demo.domain.common.CommonStatus;
 import com.flocut.demo.domain.document.entity.DocumentSummary;
 import com.flocut.demo.domain.document.repository.DocumentSummaryRepository;
@@ -34,6 +36,7 @@ public class NoteServiceImpl implements NoteService {
   private final NoteRepository noteRepository;
   private final SessionRepository sessionRepository;
   private final DocumentSummaryRepository documentSummaryRepository;
+  private final NoteSummaryService noteSummaryService;
 
   // 노트 생성
   @Override
@@ -58,48 +61,93 @@ public class NoteServiceImpl implements NoteService {
     return noteRepository.save(note).getNoteId();
   }
 
-    // 요약본에서 노트를 생성하는 로직
-    @Override
-    public Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto) {
-        DocumentSummary summary = documentSummaryRepository.findById(dto.getSummaryId())
-                .orElseThrow(() -> new IllegalArgumentException("요약 데이터를 찾을 수 없습니다."));
+  // 요약본에서 노트를 생성하는 로직
+  @Override
+  public Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto) {
+    DocumentSummary summary = documentSummaryRepository.findById(dto.getSummaryId())
+            .orElseThrow(() -> new IllegalArgumentException("요약 데이터를 찾을 수 없습니다."));
 
-        Session session = sessionRepository.findById(dto.getSessionId())
-                .orElseThrow(() -> new IllegalArgumentException("세션을 찾을 수 없습니다."));
+    Session session = sessionRepository.findById(dto.getSessionId())
+            .orElseThrow(() -> new IllegalArgumentException("세션을 찾을 수 없습니다."));
 
-        Note note = Note.builder()
-                .member(member)
-                .session(session)
-                .summary(summary)
-                .title(dto.getTitle() != null ? dto.getTitle() : "요약 노트 v" + summary.getVersionNo())
-                // 요약 텍스트를 노트 본문(content) 혹은 summaryOption에 초기화
-                .content(summary.getSummaryOption())
-                .sourceType(NoteSourceType.DOCUMENT)
-                .status(CommonStatus.ACTIVE)
-                .build();
+    String editableContent =
+            SummaryContentExtractor.extractEditableContent(
+                    summary.getSummaryOption()
+            );
 
-        return noteRepository.save(note).getNoteId();
+    Note note = Note.builder()
+            .member(member)
+            .session(session)
+            .summary(summary)
+            .title(
+                    dto.getTitle() != null
+                            ? dto.getTitle()
+                            : "요약 노트 v" + summary.getVersionNo()
+            )
+            .content(editableContent)
+            .sourceType(NoteSourceType.AI_SUMMARY) // ai 요약 으로 타입 수정
+            .status(CommonStatus.ACTIVE)
+            .build();
+
+    return noteRepository.save(note).getNoteId();
+  }
+
+  // ai결과물 변환 유틸
+  public final class SummaryContentExtractor {
+
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    private SummaryContentExtractor() {
     }
 
-    // 페이지네이션이 적용된 목록 조회
-    @Override
-    public PageResponseDTO<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status, PageRequestDTO pageRequest) {
-        Page<Note> page = noteRepository.findBySession_SessionIdAndMember_MemberIdAndStatus(
-                sessionId, member.getMemberId(), status,
-                PageRequest.of(pageRequest.getPage(), pageRequest.getSize(), Sort.by(Sort.Direction.DESC, "regdate"))
-        );
+    public static String extractEditableContent(String summaryOptionJson) {
+      if (summaryOptionJson == null) return "";
 
-        // 엔티티 페이지 객체를 공통 응답 DTO로 변환하여 반환
-        return new PageResponseDTO<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
-                page.getNumber(), page.getSize(), page.hasNext(), page.hasPrevious(),
-                page.isFirst(), page.isLast());
+      try {
+        JsonNode root = mapper.readTree(summaryOptionJson);
+
+        // 최종 다듬어진 문서를 content로 사용
+        return root.path("finalDocument").asText("");
+
+      } catch (Exception e) {
+        return "";
+      }
     }
-// 노트 접근 권한
-    @Override
-    public Note getNote(Long noteId, Member member) {
-        return noteRepository.findByNoteIdAndMember_MemberId(noteId, member.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("노트 권한이 없습니다."));
+  }
+
+//   노트 요약 요청
+  @Override
+  public Long requestNoteSummary(Long noteId, Member member) {
+
+    Note note = getNote(noteId, member);
+
+    // 내용 없는 노트 방어
+    if (note.getContent() == null || note.getContent().isBlank()) {
+      throw new IllegalStateException("내용이 없는 노트는 요약할 수 없습니다.");
     }
+
+    return noteSummaryService.requestSummary(note);
+  }
+  // 페이지네이션이 적용된 목록 조회
+  @Override
+  public PageResponseDTO<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status, PageRequestDTO pageRequest) {
+    Page<Note> page = noteRepository.findBySession_SessionIdAndMember_MemberIdAndStatus(
+            sessionId, member.getMemberId(), status,
+            PageRequest.of(pageRequest.getPage(), pageRequest.getSize(), Sort.by(Sort.Direction.DESC, "regdate"))
+    );
+
+    // 엔티티 페이지 객체를 공통 응답 DTO로 변환하여 반환
+    return new PageResponseDTO<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
+            page.getNumber(), page.getSize(), page.hasNext(), page.hasPrevious(),
+            page.isFirst(), page.isLast());
+  }
+
+  // 노트 접근 권한
+  @Override
+  public Note getNote(Long noteId, Member member) {
+    return noteRepository.findByNoteIdAndMember_MemberId(noteId, member.getMemberId())
+            .orElseThrow(() -> new IllegalArgumentException("노트 권한이 없습니다."));
+  }
 
   //    노트 업데이트
   @Override

@@ -155,6 +155,10 @@ public class FileService {
         if (!file.getMember().getMemberId().equals(memberId)) {
             throw new SecurityException("삭제 권한 없음");
         }
+//        노트 요약요청시 파일은 요약 콜백 쪽에서 요약 완료 시에 삭제 가능하게 추가했습니다.
+        if (file.getStatus() == FileStatus.NOTE_TEMP) {
+            throw new IllegalStateException("임시 요약 파일은 직접 삭제할 수 없습니다.");
+        }
 
         // ❌ 이미 삭제된 파일
         if (file.getStatus() == FileStatus.DELETED) {

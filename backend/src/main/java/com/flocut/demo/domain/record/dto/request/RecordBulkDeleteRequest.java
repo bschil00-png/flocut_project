@@ -5,5 +5,5 @@ import java.util.List;
 
 @Getter
 public class RecordBulkDeleteRequest {
-    private List<Long> recordIds;
+    private List<Long> recordId;
 }
