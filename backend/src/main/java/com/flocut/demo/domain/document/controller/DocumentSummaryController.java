@@ -3,12 +3,10 @@ package com.flocut.demo.domain.document.controller;
 
 import com.flocut.demo.domain.document.dto.request.DocumentSummaryRequest;
 import com.flocut.demo.domain.document.service.DocumentSummaryService;
+import com.flocut.demo.domain.document.service.DocumentSummaryWriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DocumentSummaryController {
 
     private final DocumentSummaryService summaryService;
+
 
 //    노트랑 문서
     @PostMapping("/request")
@@ -31,6 +30,14 @@ public class DocumentSummaryController {
                 );
 
         return ResponseEntity.ok(summaryId);
+    }
+
+    @DeleteMapping("/{summaryId}")
+    public ResponseEntity<Void> deleteSummary(
+            @PathVariable Long summaryId
+    ) {
+        summaryService.deleteSummary(summaryId);
+        return ResponseEntity.noContent().build(); // 204
     }
 }
 

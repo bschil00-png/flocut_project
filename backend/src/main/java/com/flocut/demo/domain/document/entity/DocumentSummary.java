@@ -62,13 +62,11 @@ public class DocumentSummary {
     public static DocumentSummary create(
             File file,
             Session session,
-//            int roundNo,
             int versionNo
     ) {
         DocumentSummary s = new DocumentSummary();
         s.file = file;
         s.session = session;
-//        s.roundNo = roundNo;
         s.versionNo = versionNo;
         s.status = SummaryStatus.REQUESTED;
         s.regdate = LocalDateTime.now();
@@ -94,4 +92,9 @@ public class DocumentSummary {
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void changeStatus(SummaryStatus status) {
+        this.status = status;
+    }
+
 }

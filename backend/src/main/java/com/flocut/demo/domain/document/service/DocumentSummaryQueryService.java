@@ -142,7 +142,8 @@ public class DocumentSummaryQueryService {
             List<String> keyTakeaways =
                     objectMapper.convertValue(
                             root.path("keyTakeaways"),
-                            new TypeReference<List<String>>() {}
+                            new TypeReference<List<String>>() {
+                            }
                     );
 
             List<DocumentSummaryViewResponse.SectionResponse> sections =
