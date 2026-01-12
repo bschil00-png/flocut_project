@@ -37,7 +37,7 @@ export default function PanelModal({ children }: PanelModalProps) {
             >
                 {/* header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border-light dark:border-border-dark">
-                    <h2 className="text-sm font-semibold">
+                    <h2 className="text-m font-semibold">
                         설정
                     </h2>
 

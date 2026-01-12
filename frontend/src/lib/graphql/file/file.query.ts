@@ -1,14 +1,24 @@
 import { gql } from "@apollo/client";
 
 export const SESSION_FILES_QUERY = gql`
-  query SessionFiles($sessionId: ID!) {
-    sessionFiles(sessionId: $sessionId) {
-      fileId
-      fileName
-      fileType
-      fileSize
-      status
-      regdate
+  query SessionFiles($sessionId: ID!, $page: PageRequestInput!) {
+    sessionFiles(sessionId: $sessionId, page: $page) {
+      content {
+        fileId
+        fileName
+        fileType
+        fileSize
+        status
+        regdate
+      }
+      totalElements
+      totalPages
+      pageNumber
+      pageSize
+      hasNext
+      hasPrevious
+      isFirst
+      isLast
     }
   }
 `;

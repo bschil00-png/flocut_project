@@ -16,7 +16,7 @@ type ConfirmDialogProps = {
 
 export default function ConfirmDialog({
                                           open,
-                                          title = "알림",
+                                          title = "",
                                           message,
                                           confirmText = "확인",
                                           cancelText,

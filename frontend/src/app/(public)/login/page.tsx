@@ -1,5 +1,4 @@
 import LoginForm from "@/app/components/auth/LoginForm";
-import LoginDemo from "@/app/components/auth/LoginDemo";
 
 export default function LoginPage() {
     return (
@@ -10,7 +9,6 @@ export default function LoginPage() {
                     <div className="w-full max-w-md lg:col-span-2 flex justify-center">
                         <LoginForm />
                     </div>
-
 
                 </div>
             </div>

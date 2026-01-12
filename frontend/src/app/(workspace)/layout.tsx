@@ -7,7 +7,7 @@ import { useAuthState } from "@/hooks/useAuthState";
 import { useAuthActions } from "@/hooks/useAuthActions";
 
 import GlobalNav from "@/app/components/layout/WorkspaceLayout/GlobalNav";
-import WorkspaceHeader from "@/app/components/layout/WorkspaceLayout/WorkspaceHeader";
+import WorkspaceHeader from "@/app/components/layout/WorkspaceLayout/workspace/WorkspaceHeader";
 
 export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -48,14 +48,14 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
   return (
     <div className="h-screen flex flex-col bg-background-light dark:bg-background-dark">
       <WorkspaceHeader />
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex min-h-0">
         <GlobalNav
           collapsed={collapsed}
           onToggle={() => setCollapsed(prev => !prev)}
           selectedSessionId={selectedSessionId}
           onSessionSelect={(id) => setSelectedSessionId(id)}
         />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 min-h-0 overflow-y-auto">
           {children}
         </main>
       </div>

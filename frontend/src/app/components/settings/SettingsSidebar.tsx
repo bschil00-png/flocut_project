@@ -16,7 +16,7 @@ export default function SettingsSidebar() {
 
     return (
         <aside className="w-60 border-r border-border-light dark:border-border-dark p-4">
-            <h2 className="mb-4 text-sm font-semibold">설정</h2>
+            <h2 className="mb-4 text-sm font-semibold">계정 관리</h2>
             <nav className="space-y-1">
                 {items.map((item) => {
                     const Icon = item.icon;

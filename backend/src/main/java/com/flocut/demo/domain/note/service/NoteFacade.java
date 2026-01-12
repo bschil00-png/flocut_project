@@ -14,11 +14,11 @@ import com.flocut.demo.global.dto.PageRequestDTO;
 import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -33,347 +33,171 @@ public class NoteFacade {
 
     private final NoteService noteService;
     private final NoteMapper noteMapper;
-
-    // Redis는 String-only 전략
     private final RedisTemplate<String, String> redisTemplate;
-
-    private static final String CACHE_KEY_PREFIX = "note:buffer:";
-    private static final String INDEX_KEY = "note:buffer:index";
-    private static final int CACHE_TTL_MINUTES = 30;
     private final RecordFileRepository recordRepository;
     private final MemberRepository memberRepository;
 
+    private static final String CACHE_KEY_PREFIX = "note:buffer:";
+    private static final String INDEX_KEY = "note:buffer:index";
+    private static final int CACHE_TTL_MINUTES = 60;
 
-    // 목록 조회 (DB + Redis 병합)
-    
+    private String getCacheKey(Long noteId) {
+        return CACHE_KEY_PREFIX + noteId;
+    }
+
+    // 목록 조회
     public PageResponseDTO<NoteResponseDTO> getNotesByStatusWithCache(
-            Long sessionId,
-            Member member,
-            CommonStatus status,
-            PageRequestDTO pageRequest
+            Long sessionId, Member member, CommonStatus status, PageRequestDTO pageRequest
     ) {
-
-        PageResponseDTO<Note> basePage =
-                noteService.getNotesByStatus(sessionId, member, status, pageRequest);
-
+        PageResponseDTO<Note> basePage = noteService.getNotesByStatus(sessionId, member, status, pageRequest);
         List<Note> notes = basePage.getContent();
+
         if (notes.isEmpty()) {
-            return new PageResponseDTO<>(
-                    List.of(),
-                    basePage.getTotalElements(),
-                    basePage.getTotalPages(),
-                    basePage.getPageNumber(),
-                    basePage.getPageSize(),
-                    basePage.isHasNext(),
-                    basePage.isHasPrevious(),
-                    basePage.isFirst(),
-                    basePage.isLast()
-            );
+            return new PageResponseDTO<>(new ArrayList<>(), basePage.getTotalElements(), basePage.getTotalPages(),
+                    basePage.getPageNumber(), basePage.getPageSize(), basePage.isHasNext(),
+                    basePage.isHasPrevious(), basePage.isFirst(), basePage.isLast());
         }
 
-        // Redis pipeline (title, lastModified만)
-        List<Object> pipeline =
-                redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-                    for (Note note : notes) {
-                        byte[] key = (CACHE_KEY_PREFIX + note.getNoteId()).getBytes();
-                        connection.hashCommands().hGet(key, "title".getBytes());
-                        connection.hashCommands().hGet(key, "lastModified".getBytes());
-                    }
-                    return null;
-                });
+        List<NoteResponseDTO> merged = new ArrayList<>();
 
-        List<NoteResponseDTO> merged = new ArrayList<>(notes.size());
+        for (Note note : notes) {
+            NoteResponseDTO base = noteMapper.toNoteResponseDTO(note);
+            String key = getCacheKey(note.getNoteId());
 
-        for (int i = 0; i < notes.size(); i++) {
-            NoteResponseDTO base = noteMapper.toNoteResponseDTO(notes.get(i));
+            String cachedTitle = null;
+            String cachedModified = null;
 
-            String cachedTitle =
-                    pipeline.get(i * 2) != null ? pipeline.get(i * 2).toString() : null;
-            String cachedModified =
-                    pipeline.get(i * 2 + 1) != null ? pipeline.get(i * 2 + 1).toString() : null;
+            try {
+                // Pipeline 대신 직접 opsForHash로 하나씩 조회
+                Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+                if (entries != null && !entries.isEmpty()) {
+                    cachedTitle = (String) entries.get("title");
+                    cachedModified = (String) entries.get("lastModified");
+                }
+            } catch (Exception e) {
+                log.error("Redis 조회 중 에러 발생 (ID: {}): {}", note.getNoteId(), e.getMessage());
+            }
+
+            if (cachedTitle != null) {
+                log.info("  NoteID: {}, Title: {}", note.getNoteId(), cachedTitle);
+            }
 
             String mergedModdate = base.moddate();
-
             if (cachedModified != null) {
                 try {
-                    mergedModdate =
-                            Instant.ofEpochMilli(Long.parseLong(cachedModified))
-                                    .atZone(ZoneId.systemDefault())
-                                    .toLocalDateTime()
-                                    .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                    mergedModdate = Instant.ofEpochMilli(Long.parseLong(cachedModified))
+                            .atZone(ZoneId.systemDefault()).toLocalDateTime()
+                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 } catch (Exception ignore) {}
             }
 
             merged.add(new NoteResponseDTO(
-                    base.noteId(),
-                    base.sessionId(),
-                    cachedTitle != null ? cachedTitle : base.title(),
-                    base.sourceType(),
-                    base.sourceId(),
-                    base.status(),
-                    base.regdate(),
-                    mergedModdate
+                    base.noteId(), base.sessionId(),
+                    (cachedTitle != null && !cachedTitle.isBlank()) ? cachedTitle : base.title(),
+                    base.sourceType(), base.sourceId(), base.status(), base.regdate(), mergedModdate
             ));
         }
 
-        return new PageResponseDTO<>(
-                merged,
-                basePage.getTotalElements(),
-                basePage.getTotalPages(),
-                basePage.getPageNumber(),
-                basePage.getPageSize(),
-                basePage.isHasNext(),
-                basePage.isHasPrevious(),
-                basePage.isFirst(),
-                basePage.isLast()
-        );
+        return new PageResponseDTO<>(merged, basePage.getTotalElements(), basePage.getTotalPages(),
+                basePage.getPageNumber(), basePage.getPageSize(), basePage.isHasNext(),
+                basePage.isHasPrevious(), basePage.isFirst(), basePage.isLast());
     }
 
-    
-    // 자동 저장
+    //  자동 저장 (동일한 opsForHash 사용)
     public void autoSave(Long noteId, Member member, String title, String content) {
-
-        // 소유권 검증
         noteService.getNote(noteId, member);
 
-        String key = CACHE_KEY_PREFIX + noteId;
+        String key = getCacheKey(noteId);
+        String now = String.valueOf(System.currentTimeMillis());
 
-        if (title != null) {
-            redisTemplate.opsForHash().put(key, "title", title);
-        }
-
-        if (content != null) {
-            redisTemplate.opsForHash().put(key, "content", content);
-        }
-
-        redisTemplate.opsForHash().put(
-                key,
-                "lastModified",
-                String.valueOf(System.currentTimeMillis())
-        );
-
-        redisTemplate.opsForSet().add(INDEX_KEY, String.valueOf(noteId));
-        redisTemplate.expire(key, CACHE_TTL_MINUTES, TimeUnit.MINUTES);
-
-        // TTL 보호 로직
-        Long ttl = redisTemplate.getExpire(key, TimeUnit.MINUTES);
-        if (ttl != null && ttl > 0 && ttl < 10) {
-            log.warn(
-                    "TTL 부족 감지 - 캐시 유실 위험 [noteId={}, TTL={}분]",
-                    noteId,
-                    ttl
-            );
+        try {
+            if (title != null) redisTemplate.opsForHash().put(key, "title", title);
+            if (content != null) redisTemplate.opsForHash().put(key, "content", content);
+            redisTemplate.opsForHash().put(key, "lastModified", now);
+            redisTemplate.expire(key, CACHE_TTL_MINUTES, TimeUnit.MINUTES);
+            redisTemplate.opsForSet().add(INDEX_KEY, String.valueOf(noteId));
+            log.info("[autoSave] Redis 저장 완료: ID={}, Title={}", noteId, title);
+        } catch (Exception e) {
+            log.error("[autoSave Error] ID={}: {}", noteId, e.getMessage());
         }
     }
 
-    
-    // 상세 조회
-    
+    //  상세 조회 (수정 중인 내용 포함)
     public NoteDetailResponseDTO getNoteWithCache(Long noteId, Member member) {
-
         Note note = noteService.getNote(noteId, member);
-        String key = CACHE_KEY_PREFIX + noteId;
+        String key = getCacheKey(noteId);
 
-        Map<String, String> cache =
-                toStringMap(redisTemplate.opsForHash().entries(key));
+        Map<Object, Object> cache = redisTemplate.opsForHash().entries(key);
 
-        if (cache.isEmpty()) {
+        if (cache == null || cache.isEmpty()) {
             return noteMapper.toNoteDetailResponseDTO(note);
         }
 
         NoteDetailResponseDTO base = noteMapper.toNoteDetailResponseDTO(note);
-
         return new NoteDetailResponseDTO(
-                base.noteId(),
-                base.sessionId(),
-                cache.getOrDefault("title", base.title()),
-                cache.getOrDefault("content", base.content()),
-                base.sourceType(),
-                base.sourceId(),
-                base.summaryOption(),
-                base.status(),
-                base.regdate(),
-                base.moddate()
+                base.noteId(), base.sessionId(),
+                (String) cache.getOrDefault("title", base.title()),
+                (String) cache.getOrDefault("content", base.content()),
+                base.sourceType(), base.sourceId(), base.summaryOption(),
+                base.status(), base.regdate(), base.moddate()
         );
     }
 
-    
-    // 수동 저장
-    
     @Transactional
     public void sync(Long noteId, Member member) {
-
-        String key = CACHE_KEY_PREFIX + noteId;
-
-        Map<String, String> cache =
-                toStringMap(redisTemplate.opsForHash().entries(key));
-
-        if (cache.isEmpty()) return;
-
-        String title = cache.get("title");
-        String content = cache.get("content");
-
-        if (title == null && content == null) return;
-
-        noteService.updateNote(
-                noteId,
-                member,
-                new NoteUpdateRequestDTO(title, content)
-        );
-
-        redisTemplate.delete(key);
-        redisTemplate.opsForSet().remove(INDEX_KEY, String.valueOf(noteId));
+        NoteDetailResponseDTO cached = getNoteWithCache(noteId, member);
+        if (!hasCachedData(noteId)) return;
+        noteService.updateNote(noteId, member, new NoteUpdateRequestDTO(cached.title(), cached.content()));
+        clearCache(noteId);
+        log.info("[Sync] DB 반영 완료: ID={}", noteId);
     }
 
-    
-    // 노트 이동 (캐시 보호 포함)
-    
-    @Transactional
-    public void moveNoteWithCache(Long noteId, Long targetSessionId, Member member) {
-
-        // 이동 전에 현재 편집 중인 Redis 데이터를 DB에 먼저 반영
-        this.sync(noteId, member);
-
-        // 실제 DB 세션 이동 처리
-        noteService.moveNote(noteId, targetSessionId, member);
-
-        log.info(
-                "노트 이동 완료: noteId={}, targetSessionId={}",
-                noteId,
-                targetSessionId
-        );
-    }
-
-    
-    // 시스템 자동 동기화
-    
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void systemSync(Long noteId) {
-
-        String key = CACHE_KEY_PREFIX + noteId;
-
-        String lastModified =
-                (String) redisTemplate.opsForHash().get(key, "lastModified");
-
-        if (lastModified == null) {
+        String key = getCacheKey(noteId);
+        Map<Object, Object> cache = redisTemplate.opsForHash().entries(key);
+        if (cache == null || cache.isEmpty()) {
             redisTemplate.opsForSet().remove(INDEX_KEY, String.valueOf(noteId));
             return;
         }
-
-        long elapsed = System.currentTimeMillis() - Long.parseLong(lastModified);
-        if (elapsed < 300_000) return;
-
-        Map<String, String> cache =
-                toStringMap(redisTemplate.opsForHash().entries(key));
-
-        if (cache.isEmpty()) {
-            redisTemplate.opsForSet().remove(INDEX_KEY, String.valueOf(noteId));
-            return;
-        }
-
-        noteService.updateNoteSystem(
-                noteId,
-                new NoteUpdateRequestDTO(
-                        cache.get("title"),
-                        cache.get("content")
-                )
-        );
-
+        noteService.updateNoteSystem(noteId, new NoteUpdateRequestDTO((String)cache.get("title"), (String)cache.get("content")));
         redisTemplate.opsForSet().remove(INDEX_KEY, String.valueOf(noteId));
-        redisTemplate.expire(key, CACHE_TTL_MINUTES, TimeUnit.MINUTES);
     }
 
-    
-    // 캐시 유틸
-    
     public void clearCache(Long noteId) {
-        redisTemplate.delete(CACHE_KEY_PREFIX + noteId);
+        redisTemplate.delete(getCacheKey(noteId));
         redisTemplate.opsForSet().remove(INDEX_KEY, String.valueOf(noteId));
     }
 
     public boolean hasCachedData(Long noteId) {
-        return Boolean.TRUE.equals(
-                redisTemplate.hasKey(CACHE_KEY_PREFIX + noteId)
-        );
+        return Boolean.TRUE.equals(redisTemplate.hasKey(getCacheKey(noteId)));
     }
 
-    
-    // Redis Hash → String Map 변환 (타입 경계)
-    private Map<String, String> toStringMap(Map<Object, Object> source) {
-
-        Map<String, String> result = new HashMap<>();
-
-        if (source == null || source.isEmpty()) {
-            return result;
-        }
-
-        for (Map.Entry<Object, Object> entry : source.entrySet()) {
-            if (entry.getKey() != null && entry.getValue() != null) {
-                result.put(
-                        entry.getKey().toString(),
-                        entry.getValue().toString()
-                );
-            }
-        }
-
-        return result;
+    @Transactional
+    public void moveNoteWithCache(Long noteId, Long targetSessionId, Member member) {
+        this.sync(noteId, member);
+        noteService.moveNote(noteId, targetSessionId, member);
     }
 
     @Transactional
     public void appendRecordsToNote(Long noteId, Long sessionId, Member member) {
-        // 1. 병합 전, 현재 사용자가 타이핑 중이던 Redis 캐시를 DB로 먼저 밀어넣음 (데이터 유실 방지)
-
         this.sync(noteId, member);
-
-        // 2. 해당 세션의 오디오 기록들 가져오기
         List<RecordFile> records = recordRepository.findBySession_SessionIdOrderByCreatedAtAsc(sessionId);
         if (records.isEmpty()) return;
-
-        // 3. 조각들을 하나로 합침
-        String fullSpeechText = records.stream()
-                .map(RecordFile::getContent)
-                .collect(Collectors.joining(" "));
-
-        // 4. 최신 노트 내용 가져오기
+        String fullSpeechText = records.stream().map(RecordFile::getContent).collect(Collectors.joining(" "));
         Note note = noteService.getNote(noteId, member);
-
-        // 5. 본문 구성 (기존 내용 뒤에 음성 기록임을 명시하여 추가)
         StringBuilder sb = new StringBuilder();
-        if (note.getContent() != null && !note.getContent().isBlank()) {
-            sb.append(note.getContent()).append("\n\n");
-        }
+        if (note.getContent() != null && !note.getContent().isBlank()) sb.append(note.getContent()).append("\n\n");
         sb.append("--- [음성 녹음 데이터 반영] ---\n").append(fullSpeechText);
-
-        // 6. DB 업데이트
         noteService.updateNote(noteId, member, new NoteUpdateRequestDTO(null, sb.toString()));
-
-        // 7. [선택] 반영이 완료된 RecordFile들은 중복 반영 방지를 위해 삭제하거나 처리 완료 상태로 변경
-        recordRepository.deleteByRecordIdInAndMemberMemberId(
-                records.stream().map(RecordFile::getRecordId).toList(),
-                member.getMemberId()
-        );
-
-        // 8. Redis 캐시 초기화 (다음 조회 시 DB의 합쳐진 내용이 나오도록 함)
+        recordRepository.deleteByRecordIdInAndMemberMemberId(records.stream().map(RecordFile::getRecordId).toList(), member.getMemberId());
         this.clearCache(noteId);
     }
 
     public void appendSingleRecordToNote(Long noteId, String newText, Long memberId) {
-        String key = CACHE_KEY_PREFIX + noteId;
-
-        // 1. 기존 캐시 내용 가져오기 (없으면 빈 문자열)
-        String currentContent = (String) redisTemplate.opsForHash().get(key, "content");
-
-        // 2. 캐시가 아예 없다면 DB에서 최초 1회 로드 (안정성)
-        if (currentContent == null) {
-            currentContent = noteService.getNote(noteId, memberRepository.getReferenceById(memberId)).getContent();
-        }
-
-        // 3. 내용 덧붙이기 (한 칸 띄우고 추가)
-        String updatedContent = currentContent + (currentContent.isEmpty() ? "" : " ") + newText;
-
-        // 4. Redis 업데이트 (이후 Scheduler가 DB로 자동 동기화함)
-        redisTemplate.opsForHash().put(key, "content", updatedContent);
-        redisTemplate.opsForHash().put(key, "lastModified", String.valueOf(System.currentTimeMillis()));
-        redisTemplate.opsForSet().add(INDEX_KEY, String.valueOf(noteId));
+        Member member = memberRepository.getReferenceById(memberId);
+        NoteDetailResponseDTO current = getNoteWithCache(noteId, member);
+        String updatedContent = (current.content() == null ? "" : current.content()) + " " + newText;
+        autoSave(noteId, member, current.title(), updatedContent);
     }
 }

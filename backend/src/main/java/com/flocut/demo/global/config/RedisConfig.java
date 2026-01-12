@@ -10,13 +10,21 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
     @Bean
-    public RedisTemplate<String, String> redisTemplate(
-            RedisConnectionFactory factory
-    ) {
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
+
+        StringRedisSerializer s = new StringRedisSerializer();
+
+        // 일반 키/밸류 설정
+        template.setKeySerializer(s);
+        template.setValueSerializer(s);
+
+        //  해시(Hash) 데이터 직렬화 설정
+        template.setHashKeySerializer(s);
+        template.setHashValueSerializer(s);
+
+        template.afterPropertiesSet();
         return template;
     }
 }

@@ -24,7 +24,7 @@ export const DOCUMENT_LIST_QUERY = gql`
 
 
 
-//일단 임시
+//문서 정보
 export const DOCUMENT_DETAIL_QUERY = gql`
   query document($documentId: Int!) {
     document(documentId: $documentId) {

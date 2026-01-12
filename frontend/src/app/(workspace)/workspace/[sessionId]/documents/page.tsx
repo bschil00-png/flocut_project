@@ -7,22 +7,23 @@ import {useState, Fragment} from "react";
 import Checkbox from "@/app/components/ui/form/Checkbox";
 import DocumentListItem from "@/app/components/documents/DocumentListItem";
 import {FileText, Loader2} from "lucide-react";
+import Pagination from "@/app/components/ui/pagination/Pagination";
 
 export default function DocumentsPage() {
     const router = useRouter();
     const {sessionId} = useParams<{ sessionId: string }>();
-    const {files, loading, refetch} = useSessionFiles(Number(sessionId));
 
-
-    const [requestSummary, setRequestSummary] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-
+    //  서버 페이징을 위한 상태 (0-based)
+    const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 20;
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedFiles = files.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(files.length / itemsPerPage);
+    const {filePage, files, loading, refetch} = useSessionFiles(
+        Number(sessionId),
+        currentPage,
+        itemsPerPage
+    );
+
+    const [requestSummary, setRequestSummary] = useState(false);
 
     const openDetail = (fileId: number) => {
         router.push(`/workspace/${sessionId}?type=document&id=${fileId}`);
@@ -38,7 +39,7 @@ export default function DocumentsPage() {
                         문서
                     </h1>
                     <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            {files.length}개
+            {filePage?.totalElements || 0}개
           </span>
                 </div>
 
@@ -86,7 +87,7 @@ export default function DocumentsPage() {
                     <>
                         <div className="p-4 sm:p-6">
                             <div className="space-y-2">
-                                {paginatedFiles.map((file) => (
+                                {files.map((file) => (
                                     <div
                                         key={file.fileId}
                                         onClick={() => openDetail(file.fileId)}
@@ -101,56 +102,17 @@ export default function DocumentsPage() {
                             </div>
                         </div>
 
-                        {totalPages > 1 && (
-                            <div className="flex items-center justify-center gap-2 pb-6">
-                                <button
-                                    onClick={() =>
-                                        setCurrentPage((prev) => Math.max(1, prev - 1))
-                                    }
-                                    disabled={currentPage === 1}
-                                    className="px-3 py-1.5 rounded border text-sm disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                >
-                                    이전
-                                </button>
-
-                                {Array.from({length: totalPages}, (_, i) => i + 1)
-                                    .filter(
-                                        (page) =>
-                                            page === 1 ||
-                                            page === totalPages ||
-                                            (page >= currentPage - 2 &&
-                                                page <= currentPage + 2)
-                                    )
-                                    .map((page, idx, arr) => (
-                                        <Fragment key={page}>
-                                            {idx > 0 && arr[idx - 1] !== page - 1 && (
-                                                <span className="px-2">...</span>
-                                            )}
-                                            <button
-                                                onClick={() => setCurrentPage(page)}
-                                                className={`px-3 py-1.5 rounded text-sm transition-colors ${
-                                                    currentPage === page
-                                                        ? "bg-pink-500 text-white"
-                                                        : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                                                }`}
-                                            >
-                                                {page}
-                                            </button>
-                                        </Fragment>
-                                    ))}
-
-                                <button
-                                    onClick={() =>
-                                        setCurrentPage((prev) =>
-                                            Math.min(totalPages, prev + 1)
-                                        )
-                                    }
-                                    disabled={currentPage === totalPages}
-                                    className="px-3 py-1.5 rounded border text-sm disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                >
-                                    다음
-                                </button>
-                            </div>
+                        {/*  서버 페이징 메타데이터를 사용하도록 Pagination 교체 */}
+                        {filePage && filePage.totalPages > 1 && (
+                            <Pagination
+                                pageNumber={filePage.pageNumber}
+                                totalPages={filePage.totalPages}
+                                hasNext={filePage.hasNext}
+                                hasPrevious={filePage.hasPrevious}
+                                isFirst={filePage.isFirst}
+                                isLast={filePage.isLast}
+                                onChange={(page) => setCurrentPage(page)}
+                            />
                         )}
                     </>
                 )}

@@ -1,9 +1,11 @@
+// hooks/notes/useNoteCreate.ts
+"use client";
+
 import { useState, useCallback } from "react";
 import { createNote } from "@/lib/rest/note/notes.rest";
 import { NoteCreateInput } from "@/lib/graphql/note/note.type";
 import { toast } from "sonner";
 
-// onCreated 콜백 추가
 export function useNoteCreate(
     sessionId: number,
     onCreated?: () => void
@@ -26,9 +28,6 @@ export function useNoteCreate(
                 });
 
                 toast.success("노트가 생성되었습니다");
-
-                //  생성 완료 후 콜백 실행
-                // (리스트 refetch 용도)
                 onCreated?.();
 
                 return noteId;
