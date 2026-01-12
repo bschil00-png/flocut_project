@@ -1,23 +1,34 @@
-import {useQuery} from "@apollo/client/react";
-import {DOCUMENT_SUMMARY_QUERY} from "@/lib/graphql/summary/summary.query";
-import {DocumentSummaryQueryResult} from "@/lib/graphql/summary/summary.type";
+"use client";
 
-// 문서 요약 상태 조회
-// 그래프큐엘 응답 타입
-export function useDocumentSummary(fileId: number) {
-    const { data, loading, error, refetch } = useQuery<DocumentSummaryQueryResult>(
-        DOCUMENT_SUMMARY_QUERY,
-        {
-            variables: { fileId },
-            skip: !fileId,
-            pollInterval: 3000, // 3초마다 폴링
-        }
+import {
+  DOCUMENT_SUMMARY_QUERY,
+} from "@/lib/graphql/summary/summary.query";
+import {
+  DocumentSummaryQueryResult,
+} from "@/lib/graphql/summary/summary.type";
+import {useQuery} from "@apollo/client/react";
+
+interface Options {
+  enabled?: boolean;
+}
+
+export function useDocumentSummary(
+  fileId: number,
+  options?: Options
+) {
+  const { data, loading, refetch } =
+    useQuery<DocumentSummaryQueryResult>(
+      DOCUMENT_SUMMARY_QUERY,
+      {
+        variables: { fileId },
+        skip: options?.enabled === false || !fileId,
+        fetchPolicy: "network-only",
+      }
     );
 
-    return {
-        data,
-        loading,
-        error,
-        refetch,
-    };
+  return {
+    summary: data?.documentSummaryByFileId ?? null,
+    loading,
+    refetch,
+  };
 }

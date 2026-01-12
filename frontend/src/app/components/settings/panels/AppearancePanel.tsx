@@ -1,142 +1,151 @@
-// src/app/components/settings/panels/AppearancePanel.tsx
 "use client";
 
 import { useTheme } from "next-themes";
 import { useDispatch, useSelector } from "react-redux";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Laptop } from "lucide-react";
 import { useEffect, useState } from "react";
-import Card from "@/app/components/ui/card/Card";
+
 import Divider from "@/app/components/ui/divider/Divider";
 import { setColorTheme, ColorTheme } from "@/store/slice/uislice";
 import { RootState } from "@/store";
+import { applyColorTheme } from "@/lib/theme/colorTheme";
 
 export default function AppearancePanel() {
     const { theme, setTheme } = useTheme();
     const dispatch = useDispatch();
     const colorTheme = useSelector((state: RootState) => state.ui.colorTheme);
 
-    //  하이드레이션 에러 방지
     const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    const colorThemes: { value: ColorTheme; label: string; class: string }[] = [
+    const colorThemes: {
+        value: ColorTheme;
+        label: string;
+        class: string;
+    }[] = [
         { value: "pink", label: "핑크", class: "from-pink-500 to-violet-500" },
         { value: "blue", label: "블루", class: "from-blue-500 to-cyan-500" },
-        { value: "navy", label: "네이비", class: "from-indigo-600 to-blue-600" },
+        { value: "navy", label: "네이비", class: "from-indigo-600 to-blue-700" },
     ];
 
-    const handleColorThemeChange = (newTheme: ColorTheme) => {
-        dispatch(setColorTheme(newTheme));
-
-        document.documentElement.classList.remove("theme-pink", "theme-blue", "theme-navy");
-        if (newTheme !== "pink") {
-            document.documentElement.classList.add(`theme-${newTheme}`);
-        }
+    const handleColorThemeChange = (theme: ColorTheme) => {
+        dispatch(setColorTheme(theme));
+        applyColorTheme(theme);
     };
 
-    //  마운트 전에는 로딩 표시
-    if (!mounted) {
-        return (
-            <div className="max-w-2xl space-y-8">
-                <div>
-                    <h2 className="text-xl font-bold">테마 설정</h2>
-                    <p className="text-sm text-text-muted-light dark:text-text-muted-dark mt-1">
-                        로딩 중...
-                    </p>
-                </div>
-            </div>
-        );
-    }
+    if (!mounted) return null;
 
     return (
-        <div className="max-w-2xl space-y-8">
+        <div className="max-w-2xl space-y-10">
+            {/* 헤더 */}
             <div>
                 <h2 className="text-xl font-bold">테마 설정</h2>
                 <p className="text-sm text-text-muted-light dark:text-text-muted-dark mt-1">
-                    다크모드 및 컬러 테마를 선택합니다.
+                    화면 모드와 컬러 테마를 설정합니다.
                 </p>
             </div>
 
             <Divider />
 
             {/* 다크모드 */}
-            <div>
-                <h3 className="text-base font-semibold mb-4">다크모드</h3>
-                <div className="grid grid-cols-2 gap-4">
-                    {/* 라이트 모드 */}
-                    <Card
-                        interactive
-                        padding="md"
-                        variant={theme === "light" ? "default" : "outlined"}
-                        onClick={() => {
-                            console.log("라이트 모드 클릭");
-                            setTheme("light");
-                        }}
-                        className={`
-              cursor-pointer
-              ${theme === "light" ? "ring-2 ring-accent" : ""}
-            `}
-                    >
-                        <div className="flex flex-col items-center gap-3">
-                            <Sun size={32} className="text-accent" />
-                            <span className="font-medium">라이트</span>
-                        </div>
-                    </Card>
+            <section className="space-y-4">
+                <h3 className="text-base font-semibold">화면 모드</h3>
 
-                    {/* 다크 모드 */}
-                    <Card
-                        interactive
-                        padding="md"
-                        variant={theme === "dark" ? "default" : "outlined"}
-                        onClick={() => {
-                            console.log("다크 모드 클릭");
-                            setTheme("dark");
-                        }}
-                        className={`
-              cursor-pointer
-              ${theme === "dark" ? "ring-2 ring-accent" : ""}
-            `}
-                    >
-                        <div className="flex flex-col items-center gap-3">
-                            <Moon size={32} className="text-accent" />
-                            <span className="font-medium">다크</span>
-                        </div>
-                    </Card>
+                <div className="grid grid-cols-3 gap-3">
+                    <ThemeOption
+                        active={theme === "light"}
+                        label="라이트"
+                        icon={<Sun size={18} />}
+                        onClick={() => setTheme("light")}
+                    />
+                    <ThemeOption
+                        active={theme === "dark"}
+                        label="다크"
+                        icon={<Moon size={18} />}
+                        onClick={() => setTheme("dark")}
+                    />
+                    <ThemeOption
+                        active={theme === "system"}
+                        label="시스템"
+                        icon={<Laptop size={18} />}
+                        onClick={() => setTheme("system")}
+                    />
                 </div>
-            </div>
+            </section>
 
             <Divider />
 
             {/* 컬러 테마 */}
-            <div>
-                <h3 className="text-base font-semibold mb-4">컬러 테마</h3>
-                <div className="grid grid-cols-3 gap-4">
-                    {colorThemes.map((ct) => (
-                        <Card
-                            key={ct.value}
-                            interactive
-                            padding="md"
-                            variant={colorTheme === ct.value ? "default" : "outlined"}
-                            onClick={() => {
-                                console.log("컬러 테마 클릭:", ct.value);
-                                handleColorThemeChange(ct.value);
-                            }}
-                            className={`
-                cursor-pointer
-                ${colorTheme === ct.value ? "ring-2 ring-accent" : ""}
-              `}
-                        >
-                            <div className="flex flex-col items-center gap-3">
-                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${ct.class}`} />
-                                <span className="font-medium">{ct.label}</span>
-                            </div>
-                        </Card>
-                    ))}
+            <section className="space-y-4">
+                <h3 className="text-base font-semibold">컬러 테마</h3>
+
+                <div className="flex gap-6">
+                    {colorThemes.map((ct) => {
+                        const active = colorTheme === ct.value;
+
+                        return (
+                            <button
+                                key={ct.value}
+                                onClick={() => handleColorThemeChange(ct.value)}
+                                className={`
+                                    flex flex-col items-center gap-2
+                                    transition
+                                    ${active ? "scale-105" : "opacity-80 hover:opacity-100"}
+                                `}
+                            >
+                                <div
+                                    className={`
+                                        w-14 h-14 rounded-full
+                                        bg-gradient-to-br ${ct.class}
+                                        ring-2
+                                        ${active ? "ring-accent" : "ring-border-light dark:ring-border-dark"}
+                                    `}
+                                />
+                                <span
+                                    className={`text-sm font-medium ${
+                                        active ? "text-accent" : "text-text-muted-light dark:text-text-muted-dark"
+                                    }`}
+                                >
+                                    {ct.label}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
-            </div>
+            </section>
         </div>
+    );
+}
+
+function ThemeOption({
+                         active,
+                         label,
+                         icon,
+                         onClick,
+                     }: {
+    active: boolean;
+    label: string;
+    icon: React.ReactNode;
+    onClick: () => void;
+}) {
+    return (
+        <button
+            onClick={onClick}
+            className={`
+                h-14 rounded-xl
+                border
+                flex items-center justify-center gap-2
+                text-sm font-medium
+                transition
+                ${
+                active
+                    ? "border-accent bg-accent-soft text-accent"
+                    : "border-border-light dark:border-border-dark hover:bg-surface-light dark:hover:bg-surface-hover"
+            }
+            `}
+        >
+            {icon}
+            {label}
+        </button>
     );
 }

@@ -1,23 +1,21 @@
-// 노트 상태
+
+ //  노트 상태
 export type NoteStatus =
     | "ACTIVE"      // 정상 사용
     | "ARCHIVED"    // 보관
-    | "DELETED"     // 휴지통(soft delete)
-    | "READY";      // 백엔드에 존재 (필요 없으면 UI 레벨에서 숨김)
+    | "DELETED"     // 휴지통
+    | "READY";      // 백엔드에만 존재 (UI에서 숨김 가능)
 
-
-// 노트 생성 출처
-// 어떤 AI 결과를 기반으로 만들어졌는지 구분
+  // 노트 생성 출처
 export type NoteSourceType =
     | "MANUAL"
+  | "AI_SUMMARY"
     | "DOCUMENT"
     | "AUDIO"
     | "COMPARE"
     | "COACHING";
 
-
-// 노트 목록 아이템
-// 세션 상세 화면에서 노트 리스트를 그릴 때 사용
+ //  노트 목록 아이템 (NoteResponseDTO)
 export interface NoteListItem {
     noteId: number;
     sessionId: number;
@@ -29,24 +27,45 @@ export interface NoteListItem {
 
     status: NoteStatus;
 
-    regdate: string; // ISO
-    moddate: string; // ISO
+    regdate: string; // ISO string
+    moddate: string; // ISO string
 }
 
-// notesByStatus Query 전체 응답
+ //  노트 페이지 응답 (NotePage)
+export interface NotePage {
+    content: NoteListItem[];
+
+    totalElements: number;
+    totalPages: number;
+
+    pageNumber: number; // 0-based
+    pageSize: number;
+
+    hasNext: boolean;
+    hasPrevious: boolean;
+
+    isFirst: boolean;
+    isLast: boolean;
+}
+
+
+  // notesByStatus Query 전체 응답
+
 export interface NotesByStatusResponse {
-    notesByStatus: NoteListItem[];
+    notesByStatus: NotePage;
 }
 
 
-// 노트 수정 입력값
-// Redis + DB 병합 결과
+  // 노트 상세 응답 (NoteDetailResponseDTO)
+
 export interface NoteDetailResponse {
     noteId: number;
     sessionId: number;
 
     title: string | null;
     content: string | null;
+
+    summaryOption?: any; // GraphQL scalar JSON
 
     sourceType: NoteSourceType;
     sourceId: number | null;
@@ -57,16 +76,13 @@ export interface NoteDetailResponse {
     moddate: string;
 }
 
-// 노트 생성 입력값
-// 요약 버튼 클릭 시 사용
+
+ // 노트 생성 입력값
 export interface NoteCreateInput {
-    sessionId: number;       // 소속 세션
-    title: string;           // 초기 제목
-    content: string;         // 초기 본문 (AI 요약 결과)
+    sessionId: number;
+    title: string;
+    content: string;
+
     sourceType?: NoteSourceType;
     sourceId?: number;
 }
-
-
-
-

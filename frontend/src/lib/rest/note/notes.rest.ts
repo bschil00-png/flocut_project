@@ -10,6 +10,19 @@ export const createNote = (payload: {
   sourceId?: number;
 }) => api.post<number>("/api/notes", payload);
 
+//  노트 요약 본 저장
+export const createNoteFromSummary = (payload: {
+  summaryId: number;
+  sessionId: number;
+  title?: string;
+}) =>
+  api.post<number>("/api/notes/from-summary", payload);
+
+
+// //  노트 요약 요청 ->summary 쪽으로 이동
+// export const requestNoteSummary = (noteId: number) =>
+//   api.post<{ summaryId: number }>(`/api/notes/${noteId}/summary`);
+
 // 자동 저장 (타이핑 중 주기적으로 호출)
 export const autoSaveNote = (
   noteId: number,

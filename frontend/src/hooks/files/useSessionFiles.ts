@@ -1,19 +1,24 @@
-
 import { SESSION_FILES_QUERY } from "@/lib/graphql/file/file.query";
 import { SessionFilesQueryResult } from "@/lib/graphql/file/file.type";
-import {useQuery} from "@apollo/client/react";
+import { useQuery } from "@apollo/client/react";
 
-export function useSessionFiles(sessionId: number) {
+export function useSessionFiles(sessionId: number, page: number = 0, size: number = 20) {
     const { data, loading, error, refetch } = useQuery<SessionFilesQueryResult>(
         SESSION_FILES_QUERY,
         {
-            variables: { sessionId },
+            variables: {
+                sessionId,
+                page: { page, size }
+            },
             skip: !sessionId,
+            fetchPolicy: "network-only"
         }
     );
 
     return {
-        files: data?.sessionFiles || [],
+        // 배열이 아닌 Page 객체 전체를 반환하거나 content를 안전하게 추출
+        filePage: data?.sessionFiles,
+        files: data?.sessionFiles.content || [],
         loading,
         error,
         refetch,

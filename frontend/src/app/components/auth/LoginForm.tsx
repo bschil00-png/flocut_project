@@ -202,7 +202,7 @@ export default function LoginForm() {
             href="/find-email"
             className="text-text-muted-light dark:text-text-muted-dark hover:text-accent transition-colors"
           >
-            이메일 찾기
+            아이디 찾기
           </Link>
           <span className="text-border-light dark:text-border-dark">|</span>
           <Link

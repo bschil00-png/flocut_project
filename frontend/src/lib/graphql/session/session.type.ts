@@ -36,6 +36,18 @@ export interface SessionDetail {
 }
 
 
+export interface SessionPage {
+    content: SessionItem[];
+    totalElements: number;
+    totalPages: number;
+    pageNumber: number;
+    pageSize: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+    isFirst: boolean;
+    isLast: boolean;
+}
+
 // Mutation Inputs
 
 export interface SessionCreateInput {
@@ -54,17 +66,14 @@ export interface SessionDeleteInput {
 }
 
 
-// Mutation Results
+export interface MySessionsQueryResponse {
+    mySessions: SessionItem[];
+}
 
-export interface SessionDeleteResult {
-    sessionId: number;
-    deleted: boolean;
-    message?: string | null;
-}
-// GraphQL Query Response Types
 export interface SessionsQueryResponse {
-    sessions: SessionItem[];
+    sessions: SessionPage;
 }
+
 export interface SessionDetailQueryResponse {
     session: SessionDetail;
 }
