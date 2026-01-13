@@ -14,7 +14,8 @@ public record NoteDetailResponseDTO(
         Object summaryOption,
         String status,
         String regdate,
-        String moddate
+        String moddate,
+        String deletedAt
 ){
     
 }

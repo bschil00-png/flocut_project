@@ -13,43 +13,46 @@ import com.flocut.demo.global.dto.PageResponseDTO;
 import java.util.List;
 
 public interface NoteService {
-  //    노트 생성
-  Long createNote(Member member, NoteCreateRequestDTO dto);
+    //    노트 생성
+    Long createNote(Member member, NoteCreateRequestDTO dto);
 
-  // 요약 내용 노트에 저장
-  Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto);
+    // 요약 내용 노트에 저장
+    Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto);
 
-  //    목록 조회
-  PageResponseDTO<Note> getNotesByStatus(
-          Long sessionId,
-          Member member,
-          CommonStatus status,
-          PageRequestDTO pageRequest
-  );
+    //    목록 조회
+    PageResponseDTO<Note> getNotesByStatus(
+            Long sessionId,
+            Member member,
+            CommonStatus status,
+            PageRequestDTO pageRequest
+    );
 //  List<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status);
 
-  //    노트 단건 조회
-  Note getNote(Long noteId, Member member);
+    //    노트 단건 조회
+    Note getNote(Long noteId, Member member);
 
-  //    수정 : 변경 감지
-  void updateNote(Long noteId, Member member, NoteUpdateRequestDTO dto);
+    //    수정 : 변경 감지
+    void updateNote(Long noteId, Member member, NoteUpdateRequestDTO dto);
 
-  //    삭제 (소프트 딜리트)
-  void deleteNote(Long noteId, Member member);
+    //    삭제 (소프트 딜리트)
+    void deleteNote(Long noteId, Member member);
 
-  // 복구 로직 (30일 이전엔 가능)
-  void restoreNote(Long noteId, Member member);
+    //  전체 삭제된 노트 조회
+    PageResponseDTO<Note> getAllDeletedNotes(Member member, PageRequestDTO pageRequest);
 
-  //    영구 삭제 (휴지통에서 )
-  void hardDeleteNote(Long noteId, Member member);
+    // 복구 로직 (30일 이전엔 가능)
+    void restoreNote(Long noteId, Member member);
 
-  // 시스템 자동 동기화용 (권한 체크 제외)
-  void updateNoteSystem(Long noteId, NoteUpdateRequestDTO dto);
+    //    영구 삭제 (휴지통에서 )
+    void hardDeleteNote(Long noteId, Member member);
 
-  //    노트 이동
-  void moveNote(Long noteId, Long targetSessionId, Member member);
+    // 시스템 자동 동기화용 (권한 체크 제외)
+    void updateNoteSystem(Long noteId, NoteUpdateRequestDTO dto);
 
-  //  노트 요약 요청
-  Long requestNoteSummary(Long noteId, Member member);
+    //    노트 이동
+    void moveNote(Long noteId, Long targetSessionId, Member member);
+
+    //  노트 요약 요청
+    Long requestNoteSummary(Long noteId, Member member);
 
 }

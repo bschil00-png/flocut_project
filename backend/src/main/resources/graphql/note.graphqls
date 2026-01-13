@@ -5,9 +5,13 @@ extend type Query {
         sessionId: ID!
         status: CommonStatus!
         page: PageRequestInput!
-      ): NotePage!
+    ): NotePage!
 
     noteDetail(noteId: ID!): NoteDetailResponseDTO
+
+    allDeletedNotes(
+        page: PageRequestInput!
+    ): NotePage!
 }
 
 enum CommonStatus {
@@ -42,6 +46,7 @@ type NoteResponseDTO {
     status: String
     regdate: String
     moddate: String
+    deletedAt: String
 }
 
 type NoteDetailResponseDTO {
@@ -55,4 +60,5 @@ type NoteDetailResponseDTO {
     status: String
     regdate: String
     moddate: String
+    deletedAt: String
 }

@@ -16,22 +16,23 @@ import java.util.Map;
 public interface NoteMapper {
 
 
-    // 목록 조회용 변환
     @Mapping(source = "session.sessionId", target = "sessionId")
     @Mapping(source = "sourceType", target = "sourceType", qualifiedByName = "enumToString")
     @Mapping(source = "status", target = "status", qualifiedByName = "enumToString")
     @Mapping(source = "regdate", target = "regdate", qualifiedByName = "dateToString")
     @Mapping(source = "moddate", target = "moddate", qualifiedByName = "dateToString")
+    @Mapping(source = "deletedAt", target = "deletedAt", qualifiedByName = "dateToString")
     NoteResponseDTO toNoteResponseDTO(Note note);
 
-    // 상세 조회용 변환
     @Mapping(source = "session.sessionId", target = "sessionId")
     @Mapping(source = "sourceType", target = "sourceType", qualifiedByName = "enumToString")
     @Mapping(source = "status", target = "status", qualifiedByName = "enumToString")
     @Mapping(source = "regdate", target = "regdate", qualifiedByName = "dateToString")
     @Mapping(source = "moddate", target = "moddate", qualifiedByName = "dateToString")
+    @Mapping(source = "deletedAt", target = "deletedAt", qualifiedByName = "dateToString")
     @Mapping(target = "summaryOption", expression = "java(jsonToMap(note.getSummaryOption()))")
     NoteDetailResponseDTO toNoteDetailResponseDTO(Note note);
+
 
     // 리스트 변환
     List<NoteResponseDTO> toNoteResponseDTOList(List<Note> notes);

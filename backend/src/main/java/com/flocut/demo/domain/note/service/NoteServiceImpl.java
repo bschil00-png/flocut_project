@@ -100,7 +100,7 @@ public class NoteServiceImpl implements NoteService {
     return noteRepository.save(note).getNoteId();
   }
 
-//   * summary_option JSON에서 mainTopic 추출 (제목용)
+//   summary_option JSON에서 mainTopic 추출 (제목용)
   private String extractMainTopic(String summaryOptionJson) {
     if (summaryOptionJson == null || summaryOptionJson.isBlank()) {
       return null;
@@ -128,6 +128,7 @@ public class NoteServiceImpl implements NoteService {
 
     return noteSummaryService.requestSummary(note);
   }
+
   // 페이지네이션이 적용된 목록 조회
   @Override
   public PageResponseDTO<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status, PageRequestDTO pageRequest) {
@@ -141,6 +142,35 @@ public class NoteServiceImpl implements NoteService {
             page.getNumber(), page.getSize(), page.hasNext(), page.hasPrevious(),
             page.isFirst(), page.isLast());
   }
+
+    // 전체 삭제된 노트 조회
+    @Override
+    public PageResponseDTO<Note> getAllDeletedNotes(
+            Member member,
+            PageRequestDTO pageRequest
+    ) {
+        Page<Note> page = noteRepository.findByMember_MemberIdAndStatus(
+                member.getMemberId(),
+                CommonStatus.DELETED,
+                PageRequest.of(
+                        pageRequest.getPage(),
+                        pageRequest.getSize(),
+                        Sort.by(Sort.Direction.DESC, "deletedAt")
+                )
+        );
+
+        return new PageResponseDTO<>(
+                page.getContent(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getNumber(),
+                page.getSize(),
+                page.hasNext(),
+                page.hasPrevious(),
+                page.isFirst(),
+                page.isLast()
+        );
+    }
 
   // 노트 접근 권한
   @Override
