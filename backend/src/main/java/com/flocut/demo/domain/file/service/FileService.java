@@ -20,11 +20,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.util.Set;
+
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class FileService {
+
+    private static final Set<String> ALLOWED_TYPES = Set.of(
+            "txt",
+            "docx"
+    );
 
     private final FileRepository fileRepository;
     private final MemberRepository memberRepository;
@@ -46,6 +53,13 @@ public class FileService {
         //  세션 소유자 검증
         if (!session.getMember().getMemberId().equals(memberId)) {
             throw new SecurityException("세션 접근 권한 없음");
+        }
+
+        String fileType = extractFileType(file);
+        if (!ALLOWED_TYPES.contains(fileType)) {
+            throw new IllegalArgumentException(
+                    "지원하지 않는 파일 형식입니다. (txt, docx만 업로드 가능)"
+            );
         }
 
         //  S3 key 생성
