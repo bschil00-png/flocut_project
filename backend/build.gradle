@@ -65,6 +65,8 @@ dependencies {
     implementation "software.amazon.awssdk:s3"
     implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
+    // pdf 텍스트 변환
+    implementation 'org.apache.pdfbox:pdfbox:2.0.30'
 
 
     implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
