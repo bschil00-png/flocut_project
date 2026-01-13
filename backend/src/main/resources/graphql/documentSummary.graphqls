@@ -46,6 +46,7 @@ type DocumentSummaryHistoryPage {
   isLast: Boolean!
 }
 
+
 type DocumentSummaryView {
   summaryId: ID
   mainTopic: String

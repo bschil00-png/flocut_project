@@ -69,4 +69,5 @@ public interface DocumentSummaryRepository
             @Param("sessionId") Long sessionId,
             @Param("status") SummaryStatus status
     );
+
 }
