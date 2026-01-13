@@ -1,20 +1,37 @@
 extend type Query {
-  documentSummaryViewBySummaryId(summaryId: ID!): DocumentSummaryView
 
-   documentLatestSummaryByFile(fileId: ID!): DocumentSummaryView
+  """
+  summaryId 기준 단건 조회 (COMPLETED만)
+  """
+  documentSummaryViewBySummaryId(
+    summaryId: ID!
+  ): DocumentSummaryView
 
-   documentSummaryByVersion(
-       fileId: ID!
-       sessionId: ID!
-       versionNo: Int!
-     ): DocumentSummaryView
+  """
+  file + session 기준 최신 COMPLETED 요약 조회
+  """
+  documentLatestSummaryByFile(
+    fileId: ID!
+    sessionId: ID!
+  ): DocumentSummaryView
 
+  """
+  file + session + version 기준 요약 조회
+  """
+  documentSummaryByVersion(
+    fileId: ID!
+    sessionId: ID!
+    versionNo: Int!
+  ): DocumentSummaryView
 
-   documentSummaryHistory(
-       fileId: ID!
-       sessionId: ID!
-       page: PageRequestInput!
-     ): DocumentSummaryHistoryPage!
+  """
+  요약 히스토리 조회 (상태 전체)
+  """
+  documentSummaryHistory(
+    fileId: ID!
+    sessionId: ID!
+    page: PageRequestInput!
+  ): DocumentSummaryHistoryPage!
 }
 
 type DocumentSummaryHistoryPage {
@@ -42,7 +59,6 @@ type SummarySection {
   content: String
 }
 
-
 type DocumentSummaryHistoryItem {
   summaryId: ID!
   versionNo: Int!
@@ -54,5 +70,5 @@ enum SummaryStatus {
   REQUESTED
   COMPLETED
   FAILED
+  DELETED
 }
-

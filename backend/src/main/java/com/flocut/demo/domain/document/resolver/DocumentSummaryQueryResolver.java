@@ -19,32 +19,41 @@ public class DocumentSummaryQueryResolver {
     private final DocumentSummaryQueryService queryService;
 
 
-    // 🔥 summaryId 기준 조회 (노트/히스토리/상세)
+    // summaryId 기준 단건 조회 (COMPLETED만)
     @QueryMapping
     public DocumentSummaryViewResponse documentSummaryViewBySummaryId(
             @Argument Long summaryId
     ) {
         return queryService.getSummaryViewBySummaryId(summaryId);
     }
-//  file 기준조회
+
+    // file 기준 "최신 COMPLETED 요약"
     @QueryMapping
     public DocumentSummaryViewResponse documentLatestSummaryByFile(
-            @Argument Long fileId
-//            @Argument Long sessionId
+            @Argument Long fileId,
+            @Argument Long sessionId
     ) {
-//        return queryService.getLatestSummaryViewByFile(fileId, sessionId);
-        return queryService.getLatestSummaryViewByFile(fileId);
+        return queryService.getLatestCompletedSummaryByFile(
+                fileId,
+                sessionId
+        );
     }
-//  file, sessionm version 기준조회
+
+    // file + session + version 기준 조회
     @QueryMapping
     public DocumentSummaryViewResponse documentSummaryByVersion(
             @Argument Long fileId,
             @Argument Long sessionId,
             @Argument int versionNo
     ) {
-        return queryService.getSummaryByVersion(fileId, sessionId, versionNo);
+        return queryService.getSummaryByVersion(
+                fileId,
+                sessionId,
+                versionNo
+        );
     }
 
+    // 요약 히스토리 (상태 전체 노출)
     @QueryMapping
     public PageResponseDTO<DocumentSummaryHistoryItem> documentSummaryHistory(
             @Argument Long fileId,

@@ -25,12 +25,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class DocumentSummaryQueryService {
 
+
     private final DocumentSummaryRepository summaryRepository;
     private final ObjectMapper objectMapper;
 
-    /* ======================================================
-       📌 summaryId 기준 단건 조회
-       ====================================================== */
+    // summaryId 기준 단건 조회 (COMPLETED만)
     public DocumentSummaryViewResponse getSummaryViewBySummaryId(Long summaryId) {
 
         DocumentSummary summary =
@@ -43,14 +42,19 @@ public class DocumentSummaryQueryService {
         return parseSummaryOption(summary);
     }
 
-    /* ======================================================
-       📌 file 기준 최신 요약 조회
-       ====================================================== */
-    public DocumentSummaryViewResponse getLatestSummaryViewByFile(Long fileId) {
+    // file + session 기준 최신 COMPLETED 요약
+    public DocumentSummaryViewResponse getLatestCompletedSummaryByFile(
+            Long fileId,
+            Long sessionId
+    ) {
 
         DocumentSummary summary =
                 summaryRepository
-                        .findTopByFileFileIdOrderBySummaryIdDesc(fileId)
+                        .findLatestByFileAndSessionAndStatus(
+                                fileId,
+                                sessionId,
+                                SummaryStatus.COMPLETED
+                        )
                         .orElseThrow(() ->
                                 new IllegalArgumentException("완료된 요약 없음")
                         );
@@ -58,9 +62,7 @@ public class DocumentSummaryQueryService {
         return parseSummaryOption(summary);
     }
 
-    /* ======================================================
-       📌 file + session + version 기준 조회
-       ====================================================== */
+    // file + session + version 조회 (DELETED 제외 )
     public DocumentSummaryViewResponse getSummaryByVersion(
             Long fileId,
             Long sessionId,
@@ -81,9 +83,7 @@ public class DocumentSummaryQueryService {
         return parseSummaryOption(summary);
     }
 
-    /* ======================================================
-       📌 요약 히스토리 조회
-       ====================================================== */
+    // 히스토리 조회 (DELETED 제외)
     public PageResponseDTO<DocumentSummaryHistoryItem> getSummaryHistory(
             Long fileId,
             Long sessionId,
@@ -91,9 +91,10 @@ public class DocumentSummaryQueryService {
     ) {
 
         Page<DocumentSummary> page =
-                summaryRepository.findByFileFileIdAndSessionSessionId(
+                summaryRepository.findByFileFileIdAndSessionSessionIdAndStatusNot(
                         fileId,
                         sessionId,
+                        SummaryStatus.DELETED,
                         PageRequest.of(
                                 pageRequest.getPage(),
                                 pageRequest.getSize(),
@@ -124,14 +125,10 @@ public class DocumentSummaryQueryService {
         );
     }
 
-    /* ======================================================
-       🔨 summary_option 파싱 (서비스 전용 JSON)
-       ====================================================== */
-
+    // summary_option 파싱
     private DocumentSummaryViewResponse parseSummaryOption(
             DocumentSummary summary
     ) {
-
         try {
             JsonNode root =
                     objectMapper.readTree(summary.getSummaryOption());
@@ -142,8 +139,7 @@ public class DocumentSummaryQueryService {
             List<String> keyTakeaways =
                     objectMapper.convertValue(
                             root.path("keyTakeaways"),
-                            new TypeReference<List<String>>() {
-                            }
+                            new TypeReference<List<String>>() {}
                     );
 
             List<DocumentSummaryViewResponse.SectionResponse> sections =
@@ -153,13 +149,10 @@ public class DocumentSummaryQueryService {
 
                 JsonNode contentNode = node.path("content");
 
-                String content;
-                if (contentNode.isTextual()) {
-                    content = contentNode.asText();
-                } else {
-                    // 🔥 배열 / 객체는 JSON 문자열로 보존
-                    content = objectMapper.writeValueAsString(contentNode);
-                }
+                String content =
+                        contentNode.isTextual()
+                                ? contentNode.asText()
+                                : objectMapper.writeValueAsString(contentNode);
 
                 sections.add(
                         DocumentSummaryViewResponse.SectionResponse.builder()
@@ -184,49 +177,4 @@ public class DocumentSummaryQueryService {
             throw new RuntimeException("summary_option 파싱 실패", e);
         }
     }
-
-//    private DocumentSummaryViewResponse parseSummaryOption(
-//            DocumentSummary summary
-//    ) {
-//
-//        try {
-//            JsonNode root =
-//                    objectMapper.readTree(summary.getSummaryOption());
-//
-//            String mainTopic =
-//                    root.path("mainTopic").asText(null);
-//
-//            List<String> keyTakeaways =
-//                    objectMapper.convertValue(
-//                            root.path("keyTakeaways"),
-//                            new TypeReference<List<String>>() {}
-//                    );
-//
-//            List<DocumentSummaryViewResponse.SectionResponse> sections =
-//                    new ArrayList<>();
-//
-//            for (JsonNode node : root.path("sections")) {
-//                sections.add(
-//                        DocumentSummaryViewResponse.SectionResponse.builder()
-//                                .title(node.path("section_title").asText())
-//                                .content(node.path("content").asText())
-//                                .build()
-//                );
-//            }
-//
-//            String finalDocument =
-//                    root.path("finalDocument").asText(null);
-//
-//            return DocumentSummaryViewResponse.builder()
-//                    .summaryId(summary.getSummaryId())
-//                    .mainTopic(mainTopic)
-//                    .keyTakeaways(keyTakeaways)
-//                    .sections(sections)
-//                    .finalDocument(finalDocument)
-//                    .build();
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("summary_option 파싱 실패", e);
-//        }
-//    }
 }

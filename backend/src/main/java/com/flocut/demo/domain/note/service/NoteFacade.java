@@ -94,7 +94,7 @@ public class NoteFacade {
             merged.add(new NoteResponseDTO(
                     base.noteId(), base.sessionId(),
                     (cachedTitle != null && !cachedTitle.isBlank()) ? cachedTitle : base.title(),
-                    base.sourceType(), base.sourceId(), base.status(), base.regdate(), mergedModdate
+                    base.sourceType(), base.sourceId(), base.status(), base.regdate(), mergedModdate,  base.deletedAt()
             ));
         }
 
@@ -139,7 +139,7 @@ public class NoteFacade {
                 (String) cache.getOrDefault("title", base.title()),
                 (String) cache.getOrDefault("content", base.content()),
                 base.sourceType(), base.sourceId(), base.summaryOption(),
-                base.status(), base.regdate(), base.moddate()
+                base.status(), base.regdate(), base.moddate(),  base.deletedAt()
         );
     }
 

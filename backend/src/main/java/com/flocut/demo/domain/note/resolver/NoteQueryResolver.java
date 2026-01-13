@@ -52,5 +52,31 @@ public class NoteQueryResolver {
         return noteMapper.toNoteDetailResponseDTO(note);
     }
 
+    //    삭제된 노트 조회(휴지통)
+    @QueryMapping
+    public PageResponseDTO<NoteResponseDTO> allDeletedNotes(
+            @Argument PageRequestDTO page,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        PageResponseDTO<Note> result = noteService.getAllDeletedNotes(
+                userDetails.getMember(),
+                page
+        );
+
+        return new PageResponseDTO<>(
+                result.getContent()
+                        .stream()
+                        .map(noteMapper::toNoteResponseDTO)
+                        .toList(),
+                result.getTotalElements(),
+                result.getTotalPages(),
+                result.getPageNumber(),
+                result.getPageSize(),
+                result.isHasNext(),
+                result.isHasPrevious(),
+                result.isFirst(),
+                result.isLast()
+        );
+    }
 
 }

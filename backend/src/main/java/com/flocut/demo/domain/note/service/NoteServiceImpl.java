@@ -61,7 +61,7 @@ public class NoteServiceImpl implements NoteService {
     return noteRepository.save(note).getNoteId();
   }
 
-  // 요약본에서 노트를 생성하는 로직
+  // 요약본에서 노트를 생성하는 로직 (개선 버전)
   @Override
   public Long createNoteFromSummary(Member member, NoteCreateFromSummaryRequestDTO dto) {
     DocumentSummary summary = documentSummaryRepository.findById(dto.getSummaryId())
@@ -70,48 +70,48 @@ public class NoteServiceImpl implements NoteService {
     Session session = sessionRepository.findById(dto.getSessionId())
             .orElseThrow(() -> new IllegalArgumentException("세션을 찾을 수 없습니다."));
 
-    String editableContent =
-            SummaryContentExtractor.extractEditableContent(
-                    summary.getSummaryOption()
-            );
+    //  개선된 HTML 변환 로직 적용
+    String editableContent = SummaryContentExtractor.extractEditableContent(
+            summary.getSummaryOption()
+    );
+
+    // 제목 생성
+    String noteTitle;
+    if (dto.getTitle() != null && !dto.getTitle().isBlank()) {
+      noteTitle = dto.getTitle();
+    } else {
+      // mainTopic이 있으면 사용, 없으면 기본 제목
+      String mainTopic = extractMainTopic(summary.getSummaryOption());
+      noteTitle = mainTopic != null && !mainTopic.isBlank()
+              ? mainTopic
+              : "요약 노트 v" + summary.getVersionNo();
+    }
 
     Note note = Note.builder()
             .member(member)
             .session(session)
             .summary(summary)
-            .title(
-                    dto.getTitle() != null
-                            ? dto.getTitle()
-                            : "요약 노트 v" + summary.getVersionNo()
-            )
+            .title(noteTitle)
             .content(editableContent)
-            .sourceType(NoteSourceType.AI_SUMMARY) // ai 요약 으로 타입 수정
+            .sourceType(NoteSourceType.AI_SUMMARY)
             .status(CommonStatus.ACTIVE)
             .build();
 
     return noteRepository.save(note).getNoteId();
   }
 
-  // ai결과물 변환 유틸
-  public final class SummaryContentExtractor {
-
-    private static final ObjectMapper mapper = new ObjectMapper();
-
-    private SummaryContentExtractor() {
+//   summary_option JSON에서 mainTopic 추출 (제목용)
+  private String extractMainTopic(String summaryOptionJson) {
+    if (summaryOptionJson == null || summaryOptionJson.isBlank()) {
+      return null;
     }
 
-    public static String extractEditableContent(String summaryOptionJson) {
-      if (summaryOptionJson == null) return "";
-
-      try {
-        JsonNode root = mapper.readTree(summaryOptionJson);
-
-        // 최종 다듬어진 문서를 content로 사용
-        return root.path("finalDocument").asText("");
-
-      } catch (Exception e) {
-        return "";
-      }
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode root = mapper.readTree(summaryOptionJson);
+      return root.path("mainTopic").asText(null);
+    } catch (Exception e) {
+      return null;
     }
   }
 
@@ -128,6 +128,7 @@ public class NoteServiceImpl implements NoteService {
 
     return noteSummaryService.requestSummary(note);
   }
+
   // 페이지네이션이 적용된 목록 조회
   @Override
   public PageResponseDTO<Note> getNotesByStatus(Long sessionId, Member member, CommonStatus status, PageRequestDTO pageRequest) {
@@ -141,6 +142,35 @@ public class NoteServiceImpl implements NoteService {
             page.getNumber(), page.getSize(), page.hasNext(), page.hasPrevious(),
             page.isFirst(), page.isLast());
   }
+
+    // 전체 삭제된 노트 조회
+    @Override
+    public PageResponseDTO<Note> getAllDeletedNotes(
+            Member member,
+            PageRequestDTO pageRequest
+    ) {
+        Page<Note> page = noteRepository.findByMember_MemberIdAndStatus(
+                member.getMemberId(),
+                CommonStatus.DELETED,
+                PageRequest.of(
+                        pageRequest.getPage(),
+                        pageRequest.getSize(),
+                        Sort.by(Sort.Direction.DESC, "deletedAt")
+                )
+        );
+
+        return new PageResponseDTO<>(
+                page.getContent(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getNumber(),
+                page.getSize(),
+                page.hasNext(),
+                page.hasPrevious(),
+                page.isFirst(),
+                page.isLast()
+        );
+    }
 
   // 노트 접근 권한
   @Override

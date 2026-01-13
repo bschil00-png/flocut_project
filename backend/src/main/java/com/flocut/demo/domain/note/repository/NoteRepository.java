@@ -24,6 +24,13 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     // 단건 조회 시 상태와 소유권을 동시에 확인하기 위한 메서드
     Optional<Note> findByNoteIdAndMember_MemberId(Long noteId, Long memberId);
 
+    //    전체 삭제된 노트 조회
+    Page<Note> findByMember_MemberIdAndStatus(
+            Long memberId,
+            CommonStatus status,
+            Pageable pageable
+    );
+
     // 스케줄러 전용: 시스템 전체에서 30일 지난 삭제 데이터 찾기
     List<Note> findByStatusAndDeletedAtBefore(CommonStatus status, LocalDateTime dateTime);
 }
