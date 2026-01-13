@@ -1,14 +1,21 @@
 export type WorkspaceItemType = "note" | "document" | "audio";
 
 export interface WorkspaceItem {
-  id: string;
-  type: WorkspaceItemType;
-  title: string;
-  date: string;
+    id: string;
+    type: WorkspaceItemType;
+    title: string;
+    date: string; // 표시용 (moddate ?? regdate)
 
-  noteId?: number;
-  fileId?: number;
-  status?: string;
+    // 정렬용 필드 추가
+    regdate: string; // 생성일
+    moddate?: string; // 수정일 (optional)
+
+    noteId?: number;
+    fileId?: number;
+    status?: string;
 }
 
 export type WorkspaceFilter = WorkspaceItemType | "all";
+
+export type SortBy = "recent" | "created" | "title";
+export type ViewMode = "list" | "grid";

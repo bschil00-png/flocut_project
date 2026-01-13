@@ -9,19 +9,10 @@ import { index as store } from "@/store";
 import { apolloClient } from "@/lib/apollo/clients";
 import { AuthProvider } from "@/provider/AuthProvider";
 import AuthInitializer from "@/provider/AuthInitializer";
-import useInitUITheme from "@/hooks/ui/useInitUITheme";
-import { useAuthRevalidation } from "@/hooks/useAuthRevalidation";
 import {OfflineBanner} from "@/app/components/layout/OfflineBanner";
+import {AuthRevalidator, ProfileSyncInitializer, UIInitializer} from "@/provider/Initializers";
 
-function UIInitializer() {
-    useInitUITheme();
-    return null;
-}
 
-function AuthRevalidator() {
-    useAuthRevalidation();
-    return null;
-}
 
 export function Providers({ children }: { children: ReactNode }) {
     return (
@@ -31,6 +22,7 @@ export function Providers({ children }: { children: ReactNode }) {
                 <ApolloProvider client={apolloClient}>
                     <AuthInitializer />
                     <AuthRevalidator />
+                    <ProfileSyncInitializer />
                     <OfflineBanner />
                     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                         {children}

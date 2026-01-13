@@ -29,6 +29,7 @@ export interface NoteListItem {
 
     regdate: string; // ISO string
     moddate: string; // ISO string
+    deletedAt?: string | null;
 }
 
  //  노트 페이지 응답 (NotePage)
@@ -48,13 +49,15 @@ export interface NotePage {
     isLast: boolean;
 }
 
-
   // notesByStatus Query 전체 응답
 
 export interface NotesByStatusResponse {
     notesByStatus: NotePage;
 }
-
+ // allDeletedNotes Query 응답
+ export interface AllDeletedNotesResponse {
+     allDeletedNotes: NotePage;
+ }
 
   // 노트 상세 응답 (NoteDetailResponseDTO)
 
@@ -74,6 +77,7 @@ export interface NoteDetailResponse {
 
     regdate: string;
     moddate: string;
+    deletedAt?: string | null;
 }
 
 

@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import {gql} from "@apollo/client";
 
 export const NOTES_BY_STATUS_QUERY = gql`
   query NotesByStatus(
@@ -32,6 +32,32 @@ export const NOTES_BY_STATUS_QUERY = gql`
     }
   }
 `;
+//  휴지통에서 전체 노트 조회(삭제 상태)
+export const ALL_DELETED_NOTES_QUERY = gql`
+  query AllDeletedNotes($page: PageRequestInput!) {
+    allDeletedNotes(page: $page) {
+      content {
+        noteId
+        sessionId
+        title
+        sourceType
+        sourceId
+        status
+        regdate
+        moddate
+        deletedAt
+      }
+      totalElements
+      totalPages
+      pageNumber
+      pageSize
+      hasNext
+      hasPrevious
+      isFirst
+      isLast
+    }
+  }
+`;
 
 export const NOTE_DETAIL_QUERY = gql`
   query NoteDetail($noteId: ID!) {
@@ -46,6 +72,7 @@ export const NOTE_DETAIL_QUERY = gql`
       status
       regdate
       moddate
+      deletedAt
     }
   }
 `;

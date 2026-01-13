@@ -3,31 +3,43 @@
 import "@/app/globals.css";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
+
 import { useAuthState } from "@/hooks/useAuthState";
 import { useAuthActions } from "@/hooks/useAuthActions";
+import { useMediaQuery } from "@/hooks/common/useMediaQuery";
 
 import GlobalNav from "@/app/components/layout/WorkspaceLayout/GlobalNav";
 import WorkspaceHeader from "@/app/components/layout/WorkspaceLayout/workspace/WorkspaceHeader";
 
-export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+export type NavMode = "full" | "icon" | "hidden";
 
-  const router = useRouter();
-  const pathname = usePathname();
+export default function WorkspaceLayout({
+                                            children,
+                                        }: {
+    children: React.ReactNode;
+}) {
+    const router = useRouter();
+    const pathname = usePathname();
 
-  const { user, loading, initialized } = useAuthState();
-  const { ensureAuth } = useAuthActions();
-  const checkedRef = useRef(false);
+    const { user, loading, initialized } = useAuthState();
+    const { ensureAuth } = useAuthActions();
 
-  //  최초 인증
-  useEffect(() => {
-    if (checkedRef.current) return;
-    checkedRef.current = true;
-    ensureAuth();
-  }, [ensureAuth]);
+    const isMobile = useMediaQuery("(max-width: 768px)");
+    const isTablet = useMediaQuery("(max-width: 1024px)");
 
-  // 아직 인증 확인 자체가 끝나지 않음
+    const [navMode, setNavMode] = useState<NavMode>("full");
+    const [selectedSessionId, setSelectedSessionId] =
+        useState<number | null>(null);
+
+    const authCheckedRef = useRef(false);
+
+    /** ================= 인증 ================= */
+    useEffect(() => {
+        if (authCheckedRef.current) return;
+        authCheckedRef.current = true;
+        ensureAuth();
+    }, [ensureAuth]);
+
     useEffect(() => {
         if (!initialized || loading) return;
         if (!user) {
@@ -35,30 +47,75 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         }
     }, [initialized, loading, user, pathname, router]);
 
-  // 렌더 가드
-    if (!initialized || loading) {
-        return null;
-    }
+    /** ================= 반응형 네비 ================= */
+    useEffect(() => {
+        if (isMobile) {
+            setNavMode("hidden");
+        } else if (isTablet) {
+            setNavMode("icon");
+        } else {
+            setNavMode("full");
+        }
+    }, [isMobile, isTablet]);
 
-    if (!user) {
-        return null;
-    }
+    if (!initialized || loading || !user) return null;
 
+    /** ================= 모달 라우트 판별 ================= */
+    const isModalRoute = pathname.startsWith("/settings");
 
-  return (
-    <div className="h-screen flex flex-col bg-background-light dark:bg-background-dark">
-      <WorkspaceHeader />
-      <div className="flex-1 flex min-h-0">
-        <GlobalNav
-          collapsed={collapsed}
-          onToggle={() => setCollapsed(prev => !prev)}
-          selectedSessionId={selectedSessionId}
-          onSessionSelect={(id) => setSelectedSessionId(id)}
-        />
-        <main className="flex-1 min-h-0 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+    /** GlobalNav에는 hidden을 넘기지 않는다 */
+    const navViewMode: "full" | "icon" =
+        navMode === "icon" ? "icon" : "full";
+
+    return (
+        <div className="h-screen flex flex-col bg-background-light dark:bg-background-dark">
+            {/* ================= Header ================= */}
+            <WorkspaceHeader
+                onMenuClick={() => {
+                    // 모바일: hidden → full
+                    // 태블릿: icon → full
+                    setNavMode("full");
+                }}
+            />
+
+            <div className="flex flex-1 min-h-0 relative">
+                {/* ================= 모바일 네비 overlay (투명) ================= */}
+                {isMobile && navMode === "full" && (
+                    <div
+                        className="fixed inset-0 top-14 z-40 bg-transparent"
+                        onClick={() => setNavMode("hidden")}
+                    />
+                )}
+
+                {/* ================= GlobalNav ================= */}
+                {navMode !== "hidden" && (
+                    <div
+                        className={`
+              relative flex-shrink-0
+              ${
+                            isModalRoute
+                                ? "pointer-events-none opacity-60"
+                                : "z-50"
+                        }
+            `}
+                    >
+                        <GlobalNav
+                            mode={navViewMode}
+                            selectedSessionId={selectedSessionId}
+                            onSessionSelect={(id) => {
+                                if (isModalRoute) return; //  모달일 땐 완전 차단
+                                setSelectedSessionId(id);
+                                if (isMobile) setNavMode("hidden");
+                            }}
+                        />
+                    </div>
+                )}
+
+                {/* ================= Main ================= */}
+                <main className="flex-1 min-w-0 min-h-0 overflow-hidden relative z-10">
+                    {children}
+                </main>
+            </div>
+        </div>
+    );
 }

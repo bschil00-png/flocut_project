@@ -5,10 +5,13 @@ import {
     updateMyProfile,
     deleteMyAccount,
 } from "@/lib/rest/member/member.rest";
+import {useDispatch} from "react-redux";
+import {setAvatarId} from "@/store/slice/uislice";
 
 // 마이페이지 전용 액션
 export function useProfileActions() {
     const { ensureAuth, logout } = useAuthActions();
+    const dispatch = useDispatch();
 
     // 프로필 수정
     // PATCH 후 me 재조회로 member 동기화
@@ -19,6 +22,10 @@ export function useProfileActions() {
     }) {
         await updateMyProfile(payload);
         await ensureAuth();
+        // 이미지 동기화
+        if (payload.profileImage) {
+            dispatch(setAvatarId(payload.profileImage));
+        }
     }
 
     // 회원 탈퇴

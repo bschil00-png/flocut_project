@@ -1,3 +1,4 @@
+// src/app/components/notes/editor/TiptapEditor.tsx
 "use client";
 
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
@@ -9,12 +10,13 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Color from "@tiptap/extension-color";
+import { TextStyle } from "@tiptap/extension-text-style";
 
 import { useEffect, useState } from "react";
+import { useMediaQuery } from "@/hooks/common/useMediaQuery";
 
 import BubbleMenuToolbar from "./BubbleMenuToolbar";
 import MobileBottomToolbar from "./MobileBottomToolbar";
-import {TextStyle} from "@tiptap/extension-text-style";
 
 type TiptapEditorProps = {
     content: string;
@@ -34,6 +36,9 @@ export default function TiptapEditor({
                                          showMobileToolbar = true,
                                      }: TiptapEditorProps) {
     const [isMounted, setIsMounted] = useState(false);
+
+    // 반응형 감지
+    const isMobile = useMediaQuery("(max-width: 768px)");
 
     useEffect(() => {
         setIsMounted(true);
@@ -55,11 +60,8 @@ export default function TiptapEditor({
                     keepAttributes: false,
                 },
             }),
-
-            // Color 기능 필수 확장
             TextStyle,
             Color,
-
             Underline,
             TextAlign.configure({
                 types: ["heading", "paragraph"],
@@ -139,7 +141,9 @@ export default function TiptapEditor({
         <div className="tiptap-wrapper">
             {editable && <BubbleMenuToolbar editor={editor} />}
             <EditorContent editor={editor} />
-            {editable && showMobileToolbar && (
+
+            {/*  모바일에서만 하단 툴바 표시 */}
+            {editable && showMobileToolbar && isMobile && (
                 <MobileBottomToolbar editor={editor} />
             )}
         </div>

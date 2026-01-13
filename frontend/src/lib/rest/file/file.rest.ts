@@ -31,3 +31,8 @@ export async function getFileText(fileId: number): Promise<string> {
 export async function getFilePreviewUrl(fileId: number): Promise<string> {
     return api.get<string>(`/api/files/${fileId}/preview`);
 }
+
+//파일 삭제
+export async function deleteFile(fileId: number): Promise<void> {
+    return api.delete(`/api/files/${fileId}`);
+}

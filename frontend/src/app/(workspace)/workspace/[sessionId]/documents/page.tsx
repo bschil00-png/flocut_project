@@ -1,23 +1,23 @@
+// src/app/(workspace)/workspace/[sessionId]/documents/page.tsx
 "use client";
 
-import {useRouter, useParams} from "next/navigation";
-import {useSessionFiles} from "@/hooks/files/useSessionFiles";
+import { useRouter, useParams } from "next/navigation";
+import { useSessionFiles } from "@/hooks/files/useSessionFiles";
 import FileUploadButton from "@/app/components/files/FileUploadButton";
-import {useState, Fragment} from "react";
+import { useState } from "react";
 import Checkbox from "@/app/components/ui/form/Checkbox";
 import DocumentListItem from "@/app/components/documents/DocumentListItem";
-import {FileText, Loader2} from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import Pagination from "@/app/components/ui/pagination/Pagination";
 
 export default function DocumentsPage() {
     const router = useRouter();
-    const {sessionId} = useParams<{ sessionId: string }>();
+    const { sessionId } = useParams<{ sessionId: string }>();
 
-    //  서버 페이징을 위한 상태 (0-based)
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 20;
 
-    const {filePage, files, loading, refetch} = useSessionFiles(
+    const { filePage, files, loading, refetch } = useSessionFiles(
         Number(sessionId),
         currentPage,
         itemsPerPage
@@ -30,15 +30,14 @@ export default function DocumentsPage() {
     };
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-slate-950 overflow-hidden">
+        <div className="h-full flex flex-col bg-white dark:bg-surface-dark overflow-hidden">
             {/* Header */}
-            <div
-                className="h-14 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
+            <div className="h-14 border-b border-border-light dark:border-border-dark flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
                 <div className="flex items-center gap-4">
-                    <h1 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-200">
+                    <h1 className="text-base sm:text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
                         문서
                     </h1>
-                    <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    <span className="text-xs sm:text-sm text-text-muted-light dark:text-text-muted-dark">
             {filePage?.totalElements || 0}개
           </span>
                 </div>
@@ -63,18 +62,17 @@ export default function DocumentsPage() {
             <div className="flex-1 overflow-y-auto">
                 {loading ? (
                     <div className="flex items-center justify-center h-full">
-                        <Loader2 className="animate-spin text-pink-500" size={32}/>
+                        <Loader2 className="animate-spin text-accent" size={32} />
                     </div>
                 ) : files.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                        <div
-                            className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center mb-4">
-                            <FileText size={32} className="text-slate-400"/>
+                        <div className="w-16 h-16 rounded-full bg-surface-light dark:bg-surface-dark flex items-center justify-center mb-4">
+                            <FileText size={32} className="text-text-muted-light dark:text-text-muted-dark" />
                         </div>
-                        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <h3 className="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark mb-2">
                             문서가 없습니다
                         </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                        <p className="text-sm text-text-muted-light dark:text-text-muted-dark mb-6">
                             첫 번째 문서를 업로드해보세요
                         </p>
                         <FileUploadButton
@@ -102,7 +100,6 @@ export default function DocumentsPage() {
                             </div>
                         </div>
 
-                        {/*  서버 페이징 메타데이터를 사용하도록 Pagination 교체 */}
                         {filePage && filePage.totalPages > 1 && (
                             <Pagination
                                 pageNumber={filePage.pageNumber}
