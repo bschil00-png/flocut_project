@@ -27,9 +27,7 @@ public class DocumentTextService {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
-    /**
-     * 파일 업로드 직후 호출 (기존 유지)
-     */
+
     public DocumentText createEmptyText(File file) {
 
         if (documentTextRepository.existsByFile_FileId(file.getFileId())) {
@@ -55,7 +53,7 @@ public class DocumentTextService {
 
         String type = file.getFileType();
 
-        // 🔐 TXT
+        // TXT
         if ("txt".equals(type)) {
             try (InputStream s3Stream = s3Client.getObject(
                     GetObjectRequest.builder()
@@ -70,7 +68,7 @@ public class DocumentTextService {
             }
         }
 
-        // 🔐 DOCX
+        //  DOCX
         if ("docx".equals(type)) {
             try (InputStream s3Stream = s3Client.getObject(
                     GetObjectRequest.builder()

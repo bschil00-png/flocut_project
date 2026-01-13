@@ -21,14 +21,14 @@ public class DocumentSummaryService {
             Long fileId,
             Long sessionId
     ) {
-        // ✅ 1️⃣ DB row 생성 + COMMIT 완료
+        // DB row 생성 + COMMIT 완료
         DocumentSummary summary =
                 writeService.createSummary(
                         fileId,
                         sessionId
                 );
 
-        // ✅ 2️⃣ 외부(Node / n8n) 호출 → 이제 안전
+        //  외부(Node / n8n) 호출
         aiFileRelayService.requestSummary(
                 summary.getFile().getFileId(),
                 summary.getFile().getS3Key(),

@@ -154,9 +154,9 @@ public class AdminMemberService {
 
 
 
-    // ======================
-    // 🔒 관리자 검증 (2차 방어선)
-    // ======================
+
+    //  관리자 검증
+
     private Long getCurrentAdminId() {
 
         Authentication authentication =
@@ -178,9 +178,9 @@ public class AdminMemberService {
         return admin.getMemberId();
     }
 
-    // ======================
+
     //  내부 공통 메서드
-    // ======================
+
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));

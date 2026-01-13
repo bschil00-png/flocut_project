@@ -45,7 +45,7 @@ public class AdminMemberResolver {
     public AdminMemberDetailResponseDTO adminMember(
             @Argument Long memberId
     ) {
-        checkAdmin(); // 🔥 1차 방어
+        checkAdmin();
         return adminMemberService.getMemberDetail(memberId);
     }
 

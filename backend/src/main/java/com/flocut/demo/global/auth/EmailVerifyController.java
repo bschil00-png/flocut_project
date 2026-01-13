@@ -20,18 +20,18 @@ public class EmailVerifyController {
     @GetMapping("/auth/verify")
     public String verifyEmail(@RequestParam("token") String token) {
 
-        // 1) 토큰으로 회원 찾기
+        // 1 토큰으로 회원 찾기
         Member member = memberRepository.findByEmailVerifyToken(token)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못되었거나 만료된 인증 링크입니다.")
                 );
 
-        // 2) 이미 인증된 경우
+        // 2 이미 인증된 경우
         if (Boolean.TRUE.equals(member.getEmailVerified())) {
             return "redirect:http://localhost:3000/login?verified=already";
         }
 
-        // 3) 인증 완료 처리
+        // 3 인증 완료 처리
         member.setEmailVerified(true);
         member.setStatus(MemberStatus.ACTIVE);
         member.setEmailVerifyToken(null);

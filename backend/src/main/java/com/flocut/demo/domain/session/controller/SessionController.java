@@ -21,9 +21,7 @@ public class SessionController {
     private final SessionService sessionService;
     private final MemberService memberService;
 
-    /**
-     * 세션 생성
-     */
+
     @PostMapping
     public ResponseEntity<SessionResponseDTO> createSession(
             @RequestBody SessionCreateRequestDTO request,
@@ -36,9 +34,7 @@ public class SessionController {
         );
     }
 
-    /**
-     * 세션 수정
-     */
+
     @PatchMapping("/{sessionId}")
     public ResponseEntity<SessionResponseDTO> updateSession(
             @PathVariable Long sessionId,
@@ -50,15 +46,13 @@ public class SessionController {
         return ResponseEntity.ok(
                 sessionService.updateSession(
                         member.getMemberId(),
-                        sessionId,      // 🔥 path id 전달
+                        sessionId,
                         request
                 )
         );
     }
 
-    /**
-     * 세션 삭제 (Soft Delete)
-     */
+
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<SessionDeleteResponseDTO> deleteSession(
             @PathVariable Long sessionId,

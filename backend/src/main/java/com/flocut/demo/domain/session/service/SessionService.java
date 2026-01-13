@@ -30,9 +30,7 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final MemberRepository memberRepository;
 
-    /**
-     * 세션 생성
-     */
+
     public SessionResponseDTO createSession(Long memberId, SessionCreateRequestDTO dto) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
@@ -48,9 +46,7 @@ public class SessionService {
         return toSessionResponse(session);
     }
 
-    /**
-     * 내 세션 목록 조회
-     */
+
     public List<SessionResponseDTO> getMySessions(Long memberId) {
         return sessionRepository
                 .findByMemberMemberIdAndStatusOrderByRegdateDesc(
@@ -61,9 +57,8 @@ public class SessionService {
                 .map(this::toSessionResponse)
                 .toList();
     }
-    /**
-     * 내 세션 목록 조회
-     */
+
+
     public PageResponseDTO<SessionResponseDTO> getMySessions(
             Long memberId,
             PageRequestDTO pageRequest
@@ -99,9 +94,7 @@ public class SessionService {
         );
     }
 
-    /**
-     * 세션 상세 조회
-     */
+
     public SessionDetailResponseDTO getSessionDetail(Long memberId, Long sessionId) {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
@@ -123,9 +116,7 @@ public class SessionService {
         );
     }
 
-    /**
-     * 세션 수정 (패턴 C)
-     */
+
     public SessionResponseDTO updateSession(
             Long memberId,
             Long sessionId,
@@ -164,9 +155,7 @@ public class SessionService {
     }
 
 
-    /* =========================
-       내부 공통 메서드
-       ========================= */
+       //내부 공통 메서드
 
     private void validateOwner(Session session, Long memberId) {
         if (!session.getMember().getMemberId().equals(memberId)) {

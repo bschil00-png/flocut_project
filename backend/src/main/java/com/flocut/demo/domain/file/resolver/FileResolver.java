@@ -7,13 +7,11 @@ import com.flocut.demo.domain.member.service.MemberService;
 import com.flocut.demo.global.dto.PageRequestDTO;
 import com.flocut.demo.global.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor

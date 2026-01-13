@@ -18,7 +18,6 @@ public class LoginHistory {
     @Column(name = "login_history_id", nullable = false)
     private Long loginHistoryId;
 
-    // 🔥 FK 연관관계
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "member_id",

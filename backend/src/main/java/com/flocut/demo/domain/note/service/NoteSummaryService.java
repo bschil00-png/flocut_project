@@ -48,6 +48,9 @@ public class NoteSummaryService {
                         note.getSession().getSessionId()
                 );
 
+        note.setSummary(summary);
+
+
         // AI 호출
         aiFileRelayService.requestSummary(
                 tempFile.getFileId(),

@@ -14,7 +14,7 @@ public interface PasswordResetTokenRepository
 
     Optional<PasswordResetToken> findByToken(String token);
 
-    // ⭐ 추가: 아직 유효한 토큰 존재 여부 확인
+    // 아직 유효한 토큰 존재 여부 확인
     @Query("""
         SELECT t FROM PasswordResetToken t
         WHERE t.member = :member

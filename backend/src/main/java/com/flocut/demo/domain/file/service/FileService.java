@@ -43,16 +43,16 @@ public class FileService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("세션 없음"));
 
-        // 🔐 세션 소유자 검증
+        //  세션 소유자 검증
         if (!session.getMember().getMemberId().equals(memberId)) {
             throw new SecurityException("세션 접근 권한 없음");
         }
 
-        // ✅ S3 key 생성 (지금 구조에 딱 맞음)
+        //  S3 key 생성
         String s3Key = "member/%d/document/%s"
                 .formatted(memberId, file.getOriginalFilename());
 
-        // ✅ 실제 S3 업로드
+        //  S3 업로드
         s3UploadService.upload(file, s3Key);
 
         File saved = File.create(
@@ -124,7 +124,7 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
 
-        // 🔐 본인 파일 체크
+        //  본인 파일 체크
         if (!file.getMember().getMemberId().equals(memberId)) {
             throw new SecurityException("접근 권한 없음");
         }
@@ -151,7 +151,7 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
 
-        // 🔐 소유자 검증
+        //  소유자 검증
         if (!file.getMember().getMemberId().equals(memberId)) {
             throw new SecurityException("삭제 권한 없음");
         }
@@ -160,15 +160,15 @@ public class FileService {
             throw new IllegalStateException("임시 요약 파일은 직접 삭제할 수 없습니다.");
         }
 
-        // ❌ 이미 삭제된 파일
+        //  이미 삭제된 파일
         if (file.getStatus() == FileStatus.DELETED) {
             throw new IllegalStateException("이미 삭제된 파일");
         }
 
-        // 1️⃣ S3 실제 파일 삭제
+        //  S3 실제 파일 삭제
         s3UploadService.delete(file.getS3Key());
 
-        // 2️⃣ DB 소프트 삭제
+        //  DB 소프트 삭제
         file.softDelete();
     }
 

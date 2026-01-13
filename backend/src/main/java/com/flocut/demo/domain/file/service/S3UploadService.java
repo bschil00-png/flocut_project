@@ -34,12 +34,12 @@ public class S3UploadService {
 
             String contentType = file.getContentType();
 
-            // ✅ text 파일만 인코딩 감지
+            //  text 파일만 인코딩 감지
             if (contentType != null && contentType.startsWith("text")) {
 
                 Charset detected = EncodingUtil.detectCharset(originalBytes);
 
-                // 🔁 UTF-8로 통일
+                //  UTF-8로 통일
                 String text = new String(originalBytes, detected);
                 byte[] utf8Bytes = text.getBytes(StandardCharsets.UTF_8);
 
@@ -79,7 +79,7 @@ public class S3UploadService {
 
         String responseType = mimeType;
 
-        // 🔥 text 계열이면 무조건 UTF-8로 덮어쓰기
+        //  text 계열이면 무조건 UTF-8로 덮어쓰기
         if (mimeType != null && mimeType.startsWith("text")) {
             responseType = mimeType + "; charset=UTF-8";
         }
@@ -87,7 +87,7 @@ public class S3UploadService {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
-                .responseContentType(responseType) // ✅ 여기 핵심
+                .responseContentType(responseType)
                 .build();
 
         GetObjectPresignRequest presignRequest =

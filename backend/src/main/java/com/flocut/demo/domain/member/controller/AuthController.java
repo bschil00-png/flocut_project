@@ -42,9 +42,8 @@ public class AuthController {
     private final RedisTemplate<String, String> redisTemplate;
     private final LoginHistoryRepository loginHistoryRepository;
 
-    // =========================
     // 회원가입
-    // =========================
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid MemberRegisterRequestDTO request) {
 
@@ -69,9 +68,7 @@ public class AuthController {
 
 
 
-    // =========================
     // 로그인
-    // =========================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO request, HttpServletRequest httpRequest) {
 
@@ -88,8 +85,7 @@ public class AuthController {
                     )
             );
 
-//            String accessToken = jwtUtil.generateAccessToken(member.getEmail());
-//            String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
+
             String accessToken = jwtUtil.generateAccessToken(
                     member.getEmail(),
                     member.getRole().name()
@@ -134,21 +130,17 @@ public class AuthController {
                     .body(new LoginResponseDTO(member.getMemberId(), accessToken,refreshToken)); //access토큰과 refresh토근 설정인데 일단 null로 설정
 
         } catch (IllegalArgumentException  e) {
-            // ⭐ Service에서 던진 메시지를 그대로 전달
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponseDTO(e.getMessage()));
         }catch (Exception e) {
-            // 예상 못 한 서버 에러
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponseDTO("서버 오류가 발생했습니다."));
         }
     }
 
-    // =========================
     // refresh
-    // =========================
 
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(HttpServletRequest request) {
@@ -179,7 +171,7 @@ public class AuthController {
                 member.getRole().name()
         );
 
-        //  여기 핵심: SecurityContext 세팅
+        //  SecurityContext 세팅
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
                         member.getEmail(),
@@ -204,9 +196,7 @@ public class AuthController {
     }
 
 
-    // =========================
     // 로그아웃
-    // =========================
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
 
@@ -243,22 +233,4 @@ public class AuthController {
                 .build();
     }
 
-    // =========================
-    // 로그인 유지 확인
-    // =========================
-//     프론트에서 작성해주신 그래프큐엘에 있는 me로 변경했습니다.
-//    @GetMapping("/me")
-//    public ResponseEntity<?> me(Authentication authentication) {
-//
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            return ResponseEntity
-//                    .status(HttpStatus.UNAUTHORIZED)
-//                    .body("로그인이 필요합니다.");
-//        }
-//
-//        String email = authentication.getName();
-//        Member member = memberService.findByEmail(email);
-//
-//        return ResponseEntity.ok(memberMapper.toDto(member));
-//    }
 }

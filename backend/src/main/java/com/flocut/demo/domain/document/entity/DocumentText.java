@@ -18,7 +18,7 @@ public class DocumentText {
     @Column(name = "doc_text_id")
     private Long docTextId;
 
-    // 🔗 File 1:1
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id", nullable = false, unique = true)
     private File file;
@@ -35,7 +35,7 @@ public class DocumentText {
     @Column(nullable = false)
     private LocalDateTime regdate;
 
-    /* 생성 전용 */
+
     public static DocumentText create(
             File file,
             String language,

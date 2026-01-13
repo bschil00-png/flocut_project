@@ -22,18 +22,14 @@ public class MemberResolver {
     private final MemberMapper memberMapper;
 
 
-    // =========================
     // 회원 조회
-    // =========================
     @QueryMapping
     public MemberDTO member(@Argument Long id) {
         Member member = memberService.getMember(id);
         return memberMapper.toDto(member);
     }
 
-    // =========================
-    // 🔥 마이페이지 조회 (GraphQL)
-    // =========================
+    //  마이페이지 조회
     @QueryMapping
     public MemberProfileResponseDTO me() {
         return memberService.getMyProfile();
