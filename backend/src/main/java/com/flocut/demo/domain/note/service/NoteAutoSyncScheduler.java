@@ -21,11 +21,9 @@ public class NoteAutoSyncScheduler {
     private static final String INDEX_KEY = "note:buffer:index";
 
     // 5분마다 실행
-    @Scheduled(fixedDelay = 1000 * 60 * 5)
+    @Scheduled(fixedDelay = 1000 * 60 * 1)
     public void autoSyncToDb() {
 
-        //  보안 컨텍스트 초기화 (스케줄러 스레드 안전성 보장)
-        SecurityContextHolder.clearContext();
 
         //  동기화 대상 목록 조회
         // RedisTemplate<String, String> 설정에 따라 StringSerializer가 적용

@@ -36,6 +36,7 @@ public class FileController {
                 fileService.upload(file, member.getMemberId(), sessionId)
         );
     }
+
     //이미지,pdf 등
     @GetMapping("/{fileId}/preview")
     public ResponseEntity<String> previewFile(
@@ -46,6 +47,7 @@ public class FileController {
         String url = fileService.generatePreviewUrl(fileId, member.getMemberId());
         return ResponseEntity.ok(url);
     }
+
     //text,docx 파일
     @GetMapping("/{fileId}/preview/text")
     public ResponseEntity<String> previewText(
