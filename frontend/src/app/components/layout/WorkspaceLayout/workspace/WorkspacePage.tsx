@@ -1,8 +1,7 @@
-// src/app/components/layout/WorkspaceLayout/workspace/WorkspacePage.tsx
 "use client";
 
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 
 import ResizablePanelLayout from "../ResizablePanelLayout";
 import WorkspaceContent from "./WorkspaceContent";
@@ -15,20 +14,27 @@ import { useWorkspaceSelection } from "@/hooks/workspace/useWorkspaceSelection";
 import {
     WorkspaceItem,
     WorkspaceFilter,
+    SortBy,
+    ViewMode,
 } from "@/hooks/workspace/workspace";
 
 export default function WorkspacePage() {
     const { sessionId } = useParams<{ sessionId: string }>();
 
+    const [filter, setFilter] = useState<WorkspaceFilter>("all");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [sortBy, setSortBy] = useState<SortBy>("recent");
+    const [viewMode, setViewMode] = useState<ViewMode>("list");
+    const [clientPage, setClientPage] = useState(0);
+
     const {
-        notes,
+        allNotes,
         files,
         loading,
-        notePageData,
-        setNotePage,
         refetchNotes,
         refetchFiles,
-    } = useWorkspaceQuery();
+        forceRefetch,
+    } = useWorkspaceQuery(sortBy);
 
     const {
         selectedItems,
@@ -44,91 +50,157 @@ export default function WorkspacePage() {
         openNewNote,
     } = useWorkspaceRouting();
 
-    const [filter, setFilter] = useState<WorkspaceFilter>("all");
-
-    //  리스트 데이터 가공 및 정렬 로직
-    const items: WorkspaceItem[] = useMemo(() => {
+    // 전체 아이템 목록
+    const allItems: WorkspaceItem[] = useMemo(() => {
         const merged: WorkspaceItem[] = [
-            ...notes.map((n): WorkspaceItem => ({
+            ...allNotes.map((n) => ({
                 id: `note-${n.noteId}`,
                 type: "note" as const,
                 title: n.title ?? "제목 없음",
-                // 백엔드의 mergedModdate(Redis 우선)를 정렬 기준으로 사용
                 date: n.moddate ?? n.regdate ?? "",
+                regdate: n.regdate ?? "",
+                moddate: n.moddate ?? "",
                 noteId: n.noteId,
             })),
-            ...files.map((f): WorkspaceItem => ({
+            ...files.map((f) => ({
                 id: `document-${f.fileId}`,
                 type: "document" as const,
                 title: f.fileName,
                 date: f.regdate ?? "",
+                regdate: f.regdate ?? "",
+                moddate: f.regdate ?? "",
                 fileId: f.fileId,
-                status: f.status,
             })),
         ];
 
         const filtered =
-            filter === "all" ? merged : merged.filter((i) => i.type === filter);
+            filter === "all"
+                ? merged
+                : merged.filter((i) => i.type === filter);
 
-        //  수정 시 최상단으로 오도록 최신순(date 기준) 정렬
-        return filtered.sort((a, b) => {
-            try {
-                const dateA = new Date(a.date).getTime();
-                const dateB = new Date(b.date).getTime();
+        const searched = searchQuery.trim()
+            ? filtered.filter((item) =>
+                item.title
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase().trim())
+            )
+            : filtered;
 
-                if (isNaN(dateA) || isNaN(dateB)) return 0;
+        const sorted = [...searched].sort((a, b) => {
+            if (sortBy === "title") {
+                return a.title.localeCompare(b.title, "ko-KR");
+            }
+
+            if (sortBy === "created") {
+                const dateA = new Date(a.regdate || a.date).getTime();
+                const dateB = new Date(b.regdate || b.date).getTime();
                 return dateB - dateA;
-            } catch (error) {
-                return 0;
+            }
+
+            const dateA = new Date(a.moddate || a.regdate || a.date).getTime();
+            const dateB = new Date(b.moddate || b.regdate || b.date).getTime();
+            return dateB - dateA;
+        });
+
+        return sorted;
+    }, [allNotes, files, filter, searchQuery, sortBy]);
+
+    const pageSize = 20;
+    const totalPages = Math.ceil(allItems.length / pageSize);
+    const startIdx = clientPage * pageSize;
+    const pagedItems = allItems.slice(startIdx, startIdx + pageSize);
+
+    const pageData = {
+        pageNumber: clientPage,
+        totalPages,
+        totalElements: allItems.length,
+        hasNext: clientPage < totalPages - 1,
+        hasPrevious: clientPage > 0,
+        isFirst: clientPage === 0,
+        isLast: clientPage === totalPages - 1,
+    };
+
+    useEffect(() => {
+        setClientPage(0);
+    }, [sortBy, filter, searchQuery]);
+
+    const handleNoteCreated = useCallback(
+        async (noteId: number) => {
+            await forceRefetch();
+            setClientPage(0);
+        },
+        [forceRefetch]
+    );
+
+    const handleNoteUpdated = useCallback(
+        async () => {
+            await refetchNotes();
+        },
+        [refetchNotes]
+    );
+
+    const handleSelectAll = useCallback(() => {
+        const allItemIds = pagedItems.map((item) => item.id);
+        allItemIds.forEach((id) => {
+            if (!selectedItems.has(id)) {
+                toggleSelectItem(id);
             }
         });
-    }, [notes, files, filter]);
+    }, [pagedItems, selectedItems, toggleSelectItem]);
 
-    const handleItemClick = (item: WorkspaceItem) => {
-        openItem(item.type, item.noteId ?? item.fileId!);
-    };
-
-    // 패널에서 데이터 변경 시 호출되는 콜백
-    const handleNoteUpdated = (payload?: { noteId: number; title: string; moddate: string }) => {
-        console.log("[WorkspacePage] 리스트 업데이트 트리거:", payload?.title);
-        refetchNotes(); // fetchPolicy: "network-only"를 통해 서버의 최신 Redis 데이터를 가져옴
-    };
+    // 대량 삭제 완료 핸들러
+    const handleBulkDeleteComplete = useCallback(async () => {
+        await Promise.all([refetchNotes(), refetchFiles()]);
+    }, [refetchNotes, refetchFiles]);
 
     return (
         <ResizablePanelLayout
             isOpen={!!selectedId}
-            left={
+            left={(isCompact) => (
                 <div className="flex flex-col h-full min-h-0">
                     <WorkspaceHeaderBar
                         filter={filter}
                         onChangeFilter={setFilter}
                         selectedCount={selectedItems.size}
                         onClearSelection={clearSelection}
+                        onSelectAll={handleSelectAll}
+                        totalItems={pagedItems.length}
                         sessionId={Number(sessionId)}
                         onUploaded={refetchFiles}
                         onNewNote={openNewNote}
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        sortBy={sortBy}
+                        onSortChange={setSortBy}
+                        viewMode={viewMode}
+                        onViewModeChange={setViewMode}
+                        allItems={allItems}
+                        selectedItems={selectedItems}
+                        onBulkDeleteComplete={handleBulkDeleteComplete}
                     />
 
-                    <div className="flex-1 min-h-0 overflow-y-auto">
-                        <WorkspaceContent
-                            loading={loading}
-                            items={items}
-                            sessionId={Number(sessionId)}
-                            selectedItems={selectedItems}
-                            onToggleSelect={toggleSelectItem}
-                            onItemClick={handleItemClick}
-                            notePageData={notePageData}
-                            onPageChange={setNotePage}
-                            onDeleted={refetchNotes}
-                        />
-                    </div>
+                    <WorkspaceContent
+                        compact={isCompact}
+                        loading={loading}
+                        items={pagedItems}
+                        selectedItems={selectedItems}
+                        onToggleSelect={toggleSelectItem}
+                        onItemClick={(item) =>
+                            openItem(item.type, item.noteId ?? item.fileId!)
+                        }
+                        notePageData={pageData}
+                        onPageChange={setClientPage}
+                        onDeleted={handleNoteUpdated}
+                        viewMode={viewMode}
+                    />
                 </div>
-            }
+            )}
             right={
                 <WorkspacePanel
                     selectedId={selectedId}
                     selectedType={selectedType}
                     onClose={closePanel}
+                    onCreated={handleNoteCreated}
                     onUpdated={handleNoteUpdated}
                 />
             }

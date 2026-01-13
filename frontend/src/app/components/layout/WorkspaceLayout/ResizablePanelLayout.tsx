@@ -3,75 +3,118 @@
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
-  isOpen: boolean;
-  left: React.ReactNode;
-  right: React.ReactNode;
-  initialWidth?: number;
+    isOpen: boolean;
+    left: (compact: boolean) => React.ReactNode;
+    right: React.ReactNode;
+    initialWidth?: number;
 };
 
 export default function ResizablePanelLayout({
-                                               isOpen,
-                                               left,
-                                               right,
-                                               initialWidth = 600,
+                                                 isOpen,
+                                                 left,
+                                                 right,
+                                                 initialWidth = 600,
                                              }: Props) {
-  const [panelWidth, setPanelWidth] = useState(initialWidth);
-  const isDraggingRef = useRef(false);
+    const [panelWidth, setPanelWidth] = useState(initialWidth);
+    const [isCompact, setIsCompact] = useState(false);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
+    const isDraggingRef = useRef(false);
+    const isFullWhileDraggingRef = useRef(false);
 
-      const newWidth = window.innerWidth - e.clientX;
-      const maxWidth = window.innerWidth * 0.8;
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDraggingRef.current) return;
 
-      setPanelWidth(Math.max(400, Math.min(maxWidth, newWidth)));
-    };
+            const vw = window.innerWidth;
+            const newPanelWidth = vw - e.clientX;
 
-    const handleMouseUp = () => {
-      isDraggingRef.current = false;
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
+            const minPanel = 360;
+            const maxPanel = vw * 0.85;
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+            const clamped = Math.max(
+                minPanel,
+                Math.min(maxPanel, newPanelWidth)
+            );
 
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, []);
+            setPanelWidth(clamped);
 
-  return (
-    <div className="h-full flex relative min-h-0">
-      {/* LEFT */}
-      <div
-        className="flex flex-col flex-1 min-h-0"
-        style={{
-          width: isOpen ? `calc(100% - ${panelWidth}px)` : "100%",
-        }}
-      >
-        {left}
-      </div>
+            const leftWidth = vw - clamped;
+            const leftRatio = leftWidth / vw;
 
-      {/* RIGHT */}
-      {isOpen && (
-        <>
-          {/* RESIZER */}
-          <div
-            onMouseDown={() => (isDraggingRef.current = true)}
-            className="hidden lg:block w-1 cursor-ew-resize hover:bg-accent"
-          />
+            // 🔑 compact 판단 (리스트 UI용)
+            setIsCompact(leftRatio <= 0.3);
 
-          <div
-            className="flex flex-col min-h-0 border-l bg-white dark:bg-surface-dark"
-            style={{ width: panelWidth }}
-          >
-            {right}
-          </div>
-        </>
-      )}
-    </div>
-  );
+            // 🔑 전체 패널은 "드래그 중일 때만"
+            isFullWhileDraggingRef.current = leftRatio <= 0.3;
+        };
+
+        const handleMouseUp = () => {
+            isDraggingRef.current = false;
+            isFullWhileDraggingRef.current = false;
+
+            document.body.style.cursor = "";
+            document.body.style.userSelect = "";
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+
+        return () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, []);
+
+    const showFullPanel =
+        isOpen &&
+        isDraggingRef.current &&
+        isFullWhileDraggingRef.current;
+
+    // ✅ 드래그 중 + 30% 이하일 때만 전체
+    if (showFullPanel) {
+        return (
+            <div className="h-full w-full overflow-hidden">
+                {right}
+            </div>
+        );
+    }
+
+    return (
+        <div className="h-full flex min-h-0">
+            {/* LEFT */}
+            <div
+                className="flex flex-col min-h-0 overflow-hidden transition-all duration-200"
+                style={{
+                    width: isOpen
+                        ? `calc(100% - ${panelWidth}px)`
+                        : "100%",
+                }}
+            >
+                {left(isCompact)}
+            </div>
+
+            {/* RIGHT */}
+            {isOpen && (
+                <>
+                    {/* RESIZER */}
+                    <div
+                        onMouseDown={() => {
+                            isDraggingRef.current = true;
+                            document.body.style.cursor = "ew-resize";
+                            document.body.style.userSelect = "none";
+                        }}
+                        className="w-1 cursor-ew-resize bg-border-light hover:bg-accent"
+                    />
+
+                    {/* PANEL */}
+                    <div
+                        className="flex flex-col min-h-0 border-l border-border-light bg-white"
+                        style={{ width: panelWidth }}
+                    >
+                        {right}
+                    </div>
+                </>
+            )}
+        </div>
+    );
 }

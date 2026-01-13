@@ -3,6 +3,7 @@ import { setAuthUser, clearAuth } from "@/store/slice/authSlice";
 import { getMeByGraphQL } from "@/lib/graphql/auth/auth.client";
 import * as authRest from "@/lib/rest/auth/auth.rest";
 import { useCallback } from "react";
+import {setAvatarId} from "@/store/slice/uislice";
 
 export function useAuthActions() {
     const dispatch = useDispatch();
@@ -95,6 +96,7 @@ export function useAuthActions() {
     const logout = useCallback(async () => {
         await authRest.logout();
         dispatch(clearAuth());
+        dispatch(setAvatarId("gradient-1"));
     }, [dispatch]);
 
     return { ensureAuth, login, logout };

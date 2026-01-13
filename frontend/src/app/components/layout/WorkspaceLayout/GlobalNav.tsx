@@ -5,28 +5,21 @@ import { useRouter } from "next/navigation";
 import {
     Home,
     Calendar,
-    FileText,
-    Sparkles,
-    GitCompare,
-    Star,
     Plus,
     Settings,
-    ChevronLeft,
-    ChevronRight,
     FolderOpen,
-    StickyNote,
-    Trash2,
     ChevronDown,
+    StickyNote,
+    FileText,
+    Trash2,
 } from "lucide-react";
 
-import CreateSessionModal from "../../sessions/CreateSessionModal";
+import CreateSessionModal from "@/app/components/sessions/CreateSessionModal";
 import SessionEditModal from "@/app/components/sessions/SessionEditModal";
 import SessionDeleteModal from "@/app/components/sessions/SessionDeleteModal";
-import {useMySessions} from "@/hooks/sessions/usrMySession";
+import { useMySessions } from "@/hooks/sessions/usrMySession";
 
-/* =========================
-   Types
-   ========================= */
+export type NavMode = "full" | "icon";
 
 interface Session {
     sessionId: number;
@@ -34,164 +27,103 @@ interface Session {
 }
 
 interface Props {
-    collapsed: boolean;
-    onToggle: () => void;
+    mode: NavMode;
     selectedSessionId: number | null;
-    onSessionSelect: (sessionId: number) => void;
+    onSessionSelect: (id: number) => void;
 }
 
-/* =========================
-   GlobalNav
-   ========================= */
-
 export default function GlobalNav({
-                                      collapsed,
-                                      onToggle,
+                                      mode,
                                       selectedSessionId,
                                       onSessionSelect,
                                   }: Props) {
     const router = useRouter();
     const [openCreate, setOpenCreate] = useState(false);
 
-    // 네비 전용 세션 조회 (페이지네이션 없음)
     const { sessions, refetch } = useMySessions();
-
-    /* =========================
-       기존 네비 섹션 복구
-       ========================= */
-
-    const primaryNav = [
-        { href: "/workspace", label: "대시보드", icon: Home },
-        { href: "/recent", label: "최근 내역", icon: Calendar },
-    ];
-
-    const documentNav = [
-        { href: "/documents", label: "원본 문서", icon: FileText },
-        { href: "/summaries", label: "AI 요약본", icon: Sparkles },
-        { href: "/comparisons", label: "문서 비교", icon: GitCompare },
-    ];
-
-    const quickNav = [
-        { href: "/favorites", label: "즐겨찾기", icon: Star },
-    ];
+    const showLabel = mode === "full";
 
     return (
         <aside
             className={`
-        h-full flex-shrink-0 transition-all duration-300
+        h-full flex-shrink-0
         bg-surface-light dark:bg-surface-dark
-        ${collapsed ? "w-16" : "w-64"}
+        border-r border-border-light dark:border-border-dark
+        transition-all duration-300
+        ${showLabel ? "w-64" : "w-16"}
       `}
         >
             <nav className="flex flex-col h-full">
                 {/* ================= Header ================= */}
-                <div className="h-14 flex items-center justify-between px-4">
-                    {!collapsed && <span className="font-bold">FLOCUT</span>}
-                    <button onClick={onToggle}>
-                        {collapsed ? <ChevronRight /> : <ChevronLeft />}
+                <div className="h-14 flex items-center justify-between px-3 border-b">
+                    {showLabel && (
+                        <span className="font-bold text-lg truncate">FLOCUT</span>
+                    )}
+
+                    <button
+                        onClick={() => setOpenCreate(true)}
+                        className="p-2 rounded-lg hover:bg-accent-soft"
+                        title="새 세션"
+                    >
+                        <Plus size={18} />
                     </button>
                 </div>
 
                 {/* ================= Main ================= */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-6">
-                    {/* ---------- Primary Nav ---------- */}
-                    <div className="space-y-1">
-                        {primaryNav.map((item) => (
-                            <NavButton
-                                key={item.href}
-                                icon={item.icon}
-                                label={item.label}
-                                collapsed={collapsed}
-                                onClick={() => router.push(item.href)}
-                            />
-                        ))}
+                <div className="flex-1 overflow-y-auto p-2 space-y-4">
+                    <NavButton
+                        icon={Home}
+                        label="대시보드"
+                        showLabel={showLabel}
+                        onClick={() => router.push("/workspace")}
+                    />
+                    <NavButton
+                        icon={Calendar}
+                        label="최근 내역"
+                        showLabel={showLabel}
+                        onClick={() => router.push("/recent")}
+                    />
+
+                    {/* ================= Sessions ================= */}
+                    <div>
+                        {showLabel && (
+                            <div className="px-2 mb-2 text-[11px] font-bold opacity-60">
+                                프로젝트
+                            </div>
+                        )}
+
+                        <div className="space-y-1">
+                            {sessions.map((session) => (
+                                <SessionItem
+                                    key={session.sessionId}
+                                    session={session}
+                                    active={selectedSessionId === session.sessionId}
+                                    showLabel={showLabel}
+                                    onSelect={() => {
+                                        onSessionSelect(session.sessionId);
+                                        router.push(`/workspace/${session.sessionId}`);
+                                    }}
+                                    onUpdated={refetch}
+                                    onDeleted={refetch}
+                                />
+                            ))}
+                        </div>
                     </div>
-
-                    {/* ---------- Document Nav ---------- */}
-                    {!collapsed && (
-                        <div>
-                            <div className="px-2 mb-2 text-[11px] font-bold opacity-60 uppercase">
-                                문서 관리
-                            </div>
-                            <div className="space-y-1">
-                                {documentNav.map((item) => (
-                                    <NavButton
-                                        key={item.href}
-                                        icon={item.icon}
-                                        label={item.label}
-                                        collapsed={false}
-                                        onClick={() => router.push(item.href)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ---------- Quick Nav ---------- */}
-                    {!collapsed && (
-                        <div>
-                            <div className="px-2 mb-2 text-[11px] font-bold opacity-60 uppercase">
-                                빠른 접근
-                            </div>
-                            <div className="space-y-1">
-                                {quickNav.map((item) => (
-                                    <NavButton
-                                        key={item.href}
-                                        icon={item.icon}
-                                        label={item.label}
-                                        collapsed={false}
-                                        onClick={() => router.push(item.href)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ---------- Sessions ---------- */}
-                    {!collapsed && (
-                        <div>
-                            <div className="flex items-center justify-between mb-2 px-2">
-                <span className="text-[11px] font-bold opacity-60 uppercase">
-                  프로젝트
-                </span>
-                                <button onClick={() => setOpenCreate(true)}>
-                                    <Plus size={14} />
-                                </button>
-                            </div>
-
-                            <div className="space-y-1">
-                                {sessions.map((session) => (
-                                    <SessionItem
-                                        key={session.sessionId}
-                                        session={session}
-                                        active={selectedSessionId === session.sessionId}
-                                        onSelect={() => {
-                                            onSessionSelect(session.sessionId);
-                                            router.push(`/workspace/${session.sessionId}`);
-                                        }}
-                                        onUpdated={refetch}
-                                        onDeleted={refetch}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* ================= Footer ================= */}
-                <div className="p-3 space-y-1">
+                <div className="p-2 border-t space-y-1">
                     <NavButton
                         icon={Trash2}
                         label="휴지통"
-                        collapsed={collapsed}
+                        showLabel={showLabel}
                         danger
                         onClick={() => router.push("/trash")}
                     />
-
                     <NavButton
                         icon={Settings}
                         label="설정"
-                        collapsed={collapsed}
+                        showLabel={showLabel}
                         onClick={() => router.push("/settings/profile")}
                     />
                 </div>
@@ -209,25 +141,26 @@ export default function GlobalNav({
     );
 }
 
-/* =========================
-   SessionItem
-   ========================= */
+/* ================================================================= */
+/* ======================= Session Item ============================= */
+/* ================================================================= */
 
 function SessionItem({
                          session,
                          active,
+                         showLabel,
                          onSelect,
                          onUpdated,
                          onDeleted,
                      }: {
     session: Session;
     active: boolean;
+    showLabel: boolean;
     onSelect: () => void;
     onUpdated: () => void;
     onDeleted: () => void;
 }) {
     const router = useRouter();
-
     const [openTree, setOpenTree] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
@@ -237,24 +170,38 @@ function SessionItem({
             <button
                 onClick={onSelect}
                 className={`
-          w-full flex items-center gap-2 px-3 py-2 rounded
+          w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm
           ${active ? "bg-accent-soft font-semibold" : "hover:bg-accent-soft"}
         `}
             >
                 <FolderOpen size={16} />
-                <span className="flex-1 truncate text-left">
-          {session.sessionTitle}
-        </span>
-                <ChevronDown
-                    size={14}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenTree((v) => !v);
-                    }}
-                />
+
+                {showLabel && (
+                    <>
+            <span className="flex-1 truncate text-left">
+              {session.sessionTitle}
+            </span>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenTree((v) => !v);
+                            }}
+                            className="p-1 rounded hover:bg-black/10"
+                        >
+                            <ChevronDown
+                                size={14}
+                                className={`transition-transform ${
+                                    openTree ? "rotate-180" : ""
+                                }`}
+                            />
+                        </button>
+                    </>
+                )}
             </button>
 
-            {openTree && (
+            {/* ================= Tree ================= */}
+            {openTree && showLabel && (
                 <div className="ml-6 mt-1 space-y-1 text-sm">
                     <TreeItem
                         icon={StickyNote}
@@ -274,13 +221,13 @@ function SessionItem({
                     <div className="border-t pt-1 mt-1 space-y-1">
                         <button
                             onClick={() => setOpenEdit(true)}
-                            className="w-full text-left px-2 py-1 hover:bg-accent-soft rounded"
+                            className="w-full text-left px-2 py-1 text-xs hover:bg-accent-soft rounded"
                         >
                             이름 변경
                         </button>
                         <button
                             onClick={() => setOpenDelete(true)}
-                            className="w-full text-left px-2 py-1 text-red-500 hover:bg-red-50 rounded"
+                            className="w-full text-left px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded"
                         >
                             삭제
                         </button>
@@ -288,6 +235,7 @@ function SessionItem({
                 </div>
             )}
 
+            {/* ================= Modals ================= */}
             <SessionEditModal
                 open={openEdit}
                 onClose={() => setOpenEdit(false)}
@@ -307,34 +255,38 @@ function SessionItem({
     );
 }
 
-/* =========================
-   UI Helpers
-   ========================= */
+/* ================================================================= */
+/* ======================= Shared UI ================================ */
+/* ================================================================= */
 
 function NavButton({
                        icon: Icon,
                        label,
-                       collapsed,
+                       showLabel,
                        onClick,
                        danger,
                    }: {
     icon: any;
     label: string;
-    collapsed: boolean;
+    showLabel: boolean;
     onClick: () => void;
     danger?: boolean;
 }) {
     return (
         <button
             onClick={onClick}
+            title={label}
             className={`
-        w-full flex items-center gap-3 px-3 py-2 rounded
-        hover:bg-accent-soft
-        ${danger ? "text-red-500 hover:bg-red-50" : ""}
+        w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+        ${
+                danger
+                    ? "text-red-500 hover:bg-red-50"
+                    : "hover:bg-accent-soft"
+            }
       `}
         >
             <Icon size={18} />
-            {!collapsed && label}
+            {showLabel && <span className="truncate">{label}</span>}
         </button>
     );
 }
@@ -351,7 +303,7 @@ function TreeItem({
     return (
         <button
             onClick={onClick}
-            className="w-full flex items-center gap-2 px-2 py-1 rounded hover:bg-accent-soft"
+            className="w-full flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-accent-soft"
         >
             <Icon size={14} />
             <span>{label}</span>

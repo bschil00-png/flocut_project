@@ -12,6 +12,9 @@ type FileUploadButtonProps = {
     requestSummary?: boolean;
     onUploadComplete?: () => void;
     onSuccess?: () => void;
+
+    /** 아이콘만 표시 (반응형용) */
+    iconOnly?: boolean;
 };
 
 export default function FileUploadButton({
@@ -19,6 +22,7 @@ export default function FileUploadButton({
                                              requestSummary = false,
                                              onUploadComplete,
                                              onSuccess,
+                                             iconOnly = false,
                                          }: FileUploadButtonProps) {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [loading, setLoading] = useState(false);
@@ -27,7 +31,9 @@ export default function FileUploadButton({
         if (!loading) inputRef.current?.click();
     };
 
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -38,10 +44,10 @@ export default function FileUploadButton({
             const uploaded = await uploadFile(file, sessionId);
             toast.success("문서 업로드 완료");
 
-            // 업로드 완료 직후
+            // 업로드 완료 콜백
             onUploadComplete?.();
 
-            // 요약 요청 (sessionId가 있고, requestSummary가 true일 때만)
+            // 요약 요청
             if (requestSummary && uploaded.sessionId) {
                 await requestDocumentSummary({
                     fileId: uploaded.fileId,
@@ -50,7 +56,6 @@ export default function FileUploadButton({
                 toast.success("AI 요약 요청이 접수되었습니다.");
             }
 
-            // 모든 작업 완료 후
             onSuccess?.();
         } catch (err) {
             console.error(err);
@@ -68,9 +73,16 @@ export default function FileUploadButton({
                 size="sm"
                 onClick={openPicker}
                 disabled={loading}
+                aria-label="문서 업로드"
+                title="문서 업로드"
+                className={iconOnly ? "w-9 h-9 p-0 flex items-center justify-center" : ""}
             >
-                <Upload size={16} />
-                {loading ? "업로드 중..." : "문서 업로드"}
+            <Upload size={16} />
+                {!iconOnly && (
+                    <span className="ml-1">
+            {loading ? "업로드 중..." : "문서 업로드"}
+          </span>
+                )}
             </Button>
 
             <input

@@ -1,8 +1,8 @@
-// src/app/components/layout/WorkspaceLayout/workspace/WorkspacePanel.tsx
 "use client";
 
 import { useParams } from "next/navigation";
 import UnifiedPanel from "@/app/components/layout/WorkspaceLayout/workspace/panel/UnifiedPanel";
+import { useMediaQuery } from "@/hooks/common/useMediaQuery";
 
 type UpdatedPayload = {
     noteId: number;
@@ -14,18 +14,23 @@ type Props = {
     selectedId: string | null;
     selectedType: "note" | "document" | "audio" | null;
     onClose: () => void;
-    onUpdated: (payload: UpdatedPayload) => void;
+    onCreated?: (noteId: number) => void;
+    onUpdated: () => void;
 };
 
-export default function WorkspacePanel({ selectedId, selectedType, onClose, onUpdated }: Props) {
+export default function WorkspacePanel({
+                                           selectedId,
+                                           selectedType,
+                                           onClose,
+                                           onCreated,
+                                           onUpdated,
+                                       }: Props) {
     const { sessionId } = useParams<{ sessionId: string }>();
 
-    if (!selectedId || !selectedType) return null;
+    const isMobile = useMediaQuery("(max-width: 768px)");
+    const isTablet = useMediaQuery("(max-width: 1024px)");
 
-    const handleUpdated = (payload: UpdatedPayload) => {
-        console.log(" [WorkspacePanel] UnifiedPanel 데이터를 Page로 전달:", payload);
-        onUpdated(payload);
-    };
+    if (!selectedId || !selectedType) return null;
 
     return (
         <UnifiedPanel
@@ -33,7 +38,9 @@ export default function WorkspacePanel({ selectedId, selectedType, onClose, onUp
             id={selectedId}
             sessionId={Number(sessionId)}
             onClose={onClose}
-            onUpdated={handleUpdated}
+            onCreated={onCreated}
+            onUpdated={onUpdated}
+            isMobile={isMobile || isTablet}
         />
     );
 }

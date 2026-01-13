@@ -1,65 +1,48 @@
-// 요약 상태 Enum
+// 요약 상태
 export enum SummaryStatus {
-  REQUESTED = "REQUESTED",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
+    REQUESTED = "REQUESTED",
+    COMPLETED = "COMPLETED",
+    FAILED = "FAILED",
+    DELETED = "DELETED",
 }
 
 export interface SummarySection {
-  title: string;
-  content: string;
+    title: string;
+    content: string;
 }
 
 export interface SummaryView {
-  summaryId: number;
-  mainTopic?: string | null;
-  keyTakeaways?: string[] | null;
-  sections?: SummarySection[] | null;
-  finalDocument?: string | null;
+    summaryId: number;
+    mainTopic?: string | null;
+    keyTakeaways?: string[] | null;
+    sections?: SummarySection[] | null;
+    finalDocument?: string | null;
 }
 
 export interface SummaryViewQueryResult {
-  documentSummaryViewBySummaryId: SummaryView | null;
+    documentSummaryViewBySummaryId: SummaryView | null;
 }
 
-
-// 문서 요약 타입
-
-
-export interface DocumentSummary {
-  summaryId: number;
-  fileId: number;
-  sessionId: number;
-  status: SummaryStatus;
-  summaryText: string | null;
-  summaryOption?: string | null;
-  modelVersion: string | null;
-  versionNo: number;
-  regdate: string;
+// 히스토리
+export interface SummaryHistoryItem {
+    summaryId: number;
+    versionNo: number;
+    status: SummaryStatus;
+    createdAt: string;
 }
 
-export interface DocumentSummaryQueryResult {
-  documentSummaryByFileId: DocumentSummary | null;
+export interface SummaryHistoryPage {
+    content: SummaryHistoryItem[];
+    totalElements: number;
+    totalPages: number;
+    pageNumber: number;
+    pageSize: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+    isFirst: boolean;
+    isLast: boolean;
 }
 
-
-// 노트 요약 타입
-export interface NoteSummary {
-  summaryId: number;
-  noteId: number;
-  sessionId: number;
-  status: SummaryStatus;
-  summaryText: string | null;
-  summaryOption?: string | null;
-  modelVersion: string | null;
-  versionNo: number;
-  regdate: string;
+export interface SummaryHistoryQueryResult {
+    documentSummaryHistory: SummaryHistoryPage;
 }
-
-export interface NoteSummaryQueryResult {
-  noteSummaryByNoteId: NoteSummary | null;
-}
-
-
-// 공용 타입 (UI에서 사용)
-export type AnySummary = DocumentSummary | NoteSummary;

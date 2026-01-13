@@ -5,6 +5,166 @@
        사용법: globals.css에서 @import './tiptap.css'; 추가
      */
 
+         /* ===== Tiptap 에디터 스타일 개선 ===== */
+
+         /* 기본 에디터 스타일 */
+     .tiptap-wrapper {
+         width: 100%;
+     }
+
+     .tiptap-wrapper .ProseMirror {
+         outline: none;
+         min-height: 300px;
+     }
+
+     .tiptap-wrapper .ProseMirror p {
+         margin-bottom: 1em;
+         line-height: 1.7;
+     }
+
+     /* Placeholder 스타일 */
+     .tiptap-wrapper .ProseMirror p.is-editor-empty:first-child::before {
+         content: attr(data-placeholder);
+         float: left;
+         color: #9ca3af;
+         pointer-events: none;
+         height: 0;
+     }
+
+     .dark .tiptap-wrapper .ProseMirror p.is-editor-empty:first-child::before {
+         color: #6b7280;
+     }
+
+     /* 제목 스타일 (H1, H2, H3) */
+     .tiptap-wrapper .ProseMirror h1 {
+         font-size: 2em;
+         font-weight: 700;
+         margin: 1.5em 0 0.5em 0;
+         line-height: 1.3;
+     }
+
+     .tiptap-wrapper .ProseMirror h2 {
+         font-size: 1.5em;
+         font-weight: 700;
+         margin: 1.2em 0 0.4em 0;
+         line-height: 1.4;
+     }
+
+     .tiptap-wrapper .ProseMirror h3 {
+         font-size: 1.25em;
+         font-weight: 600;
+         margin: 1em 0 0.3em 0;
+         line-height: 1.5;
+     }
+
+     /* 리스트 스타일 */
+     .tiptap-wrapper .ProseMirror ul,
+     .tiptap-wrapper .ProseMirror ol {
+         padding-left: 1.5em;
+         margin-bottom: 1em;
+     }
+
+     .tiptap-wrapper .ProseMirror li {
+         margin-bottom: 0.5em;
+     }
+
+     /* 인용 스타일 */
+     .tiptap-wrapper .ProseMirror blockquote {
+         border-left: 4px solid var(--accent);
+         padding-left: 1em;
+         margin: 1em 0;
+         font-style: italic;
+         color: #6b7280;
+     }
+
+     .dark .tiptap-wrapper .ProseMirror blockquote {
+         color: #9aa1ad;
+     }
+
+     /* 코드 스타일 */
+     .tiptap-wrapper .ProseMirror code {
+         background: rgba(242, 85, 85, 0.1);
+         padding: 0.2em 0.4em;
+         border-radius: 4px;
+         font-family: 'Courier New', monospace;
+         font-size: 0.9em;
+     }
+
+     /* 하이라이트 스타일 */
+     .tiptap-wrapper .ProseMirror mark {
+         background: #fef08a;
+         padding: 0.1em 0.2em;
+         border-radius: 2px;
+     }
+
+     .dark .tiptap-wrapper .ProseMirror mark {
+         background: rgba(254, 240, 138, 0.3);
+     }
+
+     /* 링크 스타일 */
+     .tiptap-wrapper .ProseMirror a {
+         color: var(--accent);
+         text-decoration: underline;
+         cursor: pointer;
+     }
+
+     .tiptap-wrapper .ProseMirror a:hover {
+         text-decoration: none;
+     }
+
+     /* 이미지 스타일 */
+     .tiptap-wrapper .ProseMirror img {
+         max-width: 100%;
+         height: auto;
+         border-radius: 8px;
+         margin: 1em 0;
+         display: block;
+     }
+
+     /* 구분선 스타일 */
+     .tiptap-wrapper .ProseMirror hr {
+         border: none;
+         border-top: 2px solid #e4e6eb;
+         margin: 2em 0;
+     }
+
+     .dark .tiptap-wrapper .ProseMirror hr {
+         border-top-color: rgba(255, 255, 255, 0.1);
+     }
+
+     /* 선택 영역 스타일 */
+     .tiptap-wrapper .ProseMirror ::selection {
+         background: rgba(242, 85, 85, 0.2);
+     }
+
+     /* 포커스 시 애니메이션 */
+     .tiptap-wrapper .ProseMirror:focus {
+         animation: fadeIn 0.2s ease-in;
+     }
+
+     @keyframes fadeIn {
+         from { opacity: 0.8; }
+         to { opacity: 1; }
+     }
+
+     /* 모바일 최적화 */
+     @media (max-width: 768px) {
+         .tiptap-wrapper .ProseMirror {
+             font-size: 16px; /* iOS 줌 방지 */
+         }
+
+         .tiptap-wrapper .ProseMirror h1 {
+             font-size: 1.75em;
+         }
+
+         .tiptap-wrapper .ProseMirror h2 {
+             font-size: 1.4em;
+         }
+
+         .tiptap-wrapper .ProseMirror h3 {
+             font-size: 1.2em;
+         }
+     }
      /* 기본 에디터 컨테이너 */
  .ProseMirror {
      outline: none;

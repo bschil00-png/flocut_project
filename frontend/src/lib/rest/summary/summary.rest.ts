@@ -17,3 +17,8 @@ export async function requestDocumentSummary(
 export async function requestNoteSummary(noteId: number): Promise<number> {
   return api.post<number>(`/api/notes/${noteId}/summary`);
 }
+
+//요약본 삭제
+export async function deleteSummary(summaryId: number): Promise<void> {
+    return api.delete(`/api/documents/summaries/${summaryId}`);
+}
