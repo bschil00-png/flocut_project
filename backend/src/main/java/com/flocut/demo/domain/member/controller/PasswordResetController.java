@@ -20,7 +20,7 @@ public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;
 
-    // 1️⃣ 이메일 입력
+    //  이메일 입력
     @PostMapping("/reset-request")
     public ResponseEntity<?> requestReset(
             @RequestBody PasswordResetRequestDTO dto
@@ -29,7 +29,7 @@ public class PasswordResetController {
         return ResponseEntity.ok("이메일 전송 완료");
     }
 
-    // 2️⃣ 새 비밀번호 설정
+    //  새 비밀번호 설정
     @PostMapping("/reset")
     public ResponseEntity<?> resetPassword(
             @RequestBody PasswordChangeRequestDTO dto

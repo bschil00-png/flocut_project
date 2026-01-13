@@ -39,7 +39,7 @@ public class Session {
     @UpdateTimestamp
     private LocalDateTime moddate;
 
-    /* 생성 */
+
     public static Session create(Member member, String title, String description) {
         Session session = new Session();
         session.member = member;
@@ -49,7 +49,7 @@ public class Session {
         return session;
     }
 
-    /* PATCH */
+
     public void changeTitle(String title) {
         if (title == null || title.isBlank()) return;
         this.sessionTitle = title;
@@ -60,7 +60,7 @@ public class Session {
         this.description = description;
     }
 
-    /* 상태 전이 */
+
     public void archive() {
         this.status = SessionStatus.ARCHIVED;
     }

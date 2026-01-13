@@ -83,7 +83,7 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-    // 🔥 role 추출
+    //  role 추출
     public String getRoleFromToken(String token) {
         return getClaims(token).get("role", String.class);
     }

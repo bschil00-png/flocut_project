@@ -12,6 +12,10 @@ extend type Query {
     allDeletedNotes(
         page: PageRequestInput!
     ): NotePage!
+
+
+    noteLatestSummary(noteId: ID!): DocumentSummaryView
+
 }
 
 enum CommonStatus {

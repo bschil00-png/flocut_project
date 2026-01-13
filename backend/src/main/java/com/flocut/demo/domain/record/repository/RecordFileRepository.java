@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface RecordFileRepository
         extends JpaRepository<RecordFile, Long> { // Record -> RecordFile 변경
 
-    // 세션별 리스트 조회 (정렬 순서 유지)
+    // 세션별 리스트 조회
     List<RecordFile> findBySession_SessionIdOrderByCreatedAtAsc(Long sessionId);
     // 세션 및 회원별 페이지네이션 조회
     Page<RecordFile> findBySessionSessionIdAndSessionMemberMemberIdOrderByCreatedAtDesc(

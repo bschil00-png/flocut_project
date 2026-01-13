@@ -122,7 +122,7 @@ public class EmailService {
 
       helper.setTo(toEmail);
       helper.setSubject("[FLOCUT] 이메일 인증을 완료해주세요");
-      helper.setText(htmlContent, true); // ⭐ HTML 메일
+      helper.setText(htmlContent, true); //
 
       mailSender.send(message);
       System.out.println("📧 인증 메일 발송 성공: " + toEmail);

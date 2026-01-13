@@ -39,7 +39,7 @@ public class GoogleOAuthService {
 
     public LoginResponseDTO processGoogleLogin(String code) {
 
-        // 1️⃣ Google access_token 요청
+        //  Google access_token 요청
         String tokenUrl = "https://oauth2.googleapis.com/token";
 
         RestTemplate restTemplate = new RestTemplate();
@@ -62,7 +62,7 @@ public class GoogleOAuthService {
 
         String googleAccessToken = (String) tokenResponse.get("access_token");
 
-        // 2️⃣ 사용자 정보 요청
+        //  사용자 정보 요청
         String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
 
         HttpHeaders headers = new HttpHeaders();
@@ -85,12 +85,12 @@ public class GoogleOAuthService {
         String email = (String) userInfo.get("email");
         String name = (String) userInfo.get("name");
 
-        // 3️⃣ 회원 조회 / 자동 가입
+        //  회원 조회 / 자동 가입
         Member member = memberRepository.findByEmail(email)
                 .orElse(null);
 
         if (member == null) {
-            // ✅ 최초 가입
+            // 최초 가입
             member = memberRepository.save(
                     Member.builder()
                             .email(email)
@@ -101,9 +101,9 @@ public class GoogleOAuthService {
                             .build()
             );
         } else {
-            // 🔥 기존 회원 상태 분기
+            //  기존 회원 상태 분기
             if (member.getStatus() == MemberStatus.DELETED) {
-                // ✅ 재가입 처리
+                //  재가입 처리
                 member.reactivate();   // status = ACTIVE
                 memberRepository.save(member);
             }
@@ -123,7 +123,7 @@ public class GoogleOAuthService {
 
 
 
-        // 4️⃣ 🔥 Access / Refresh Token 생성
+        //  Access / Refresh Token 생성
 //        String accessToken = jwtUtil.generateAccessToken(email);
 //        String refreshToken = jwtUtil.generateRefreshToken(email);
         String accessToken = jwtUtil.generateAccessToken(
@@ -136,7 +136,7 @@ public class GoogleOAuthService {
                 member.getRole().name()
         );
 
-        // 5️⃣ 🔥 Redis 저장
+        //  Redis 저장
         redisTemplate.opsForValue().set(
                 "refresh:" + email,
                 refreshToken,
@@ -146,8 +146,7 @@ public class GoogleOAuthService {
 //                TimeUnit.MINUTES
         );
 
-        // ❗ GoogleOAuthService는 "쿠키를 직접 다루지 않는다"
-        // → Controller에서 쿠키 설정
+
 
         return new LoginResponseDTO(
                 member.getMemberId(),

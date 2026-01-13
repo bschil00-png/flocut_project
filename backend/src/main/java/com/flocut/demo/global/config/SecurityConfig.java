@@ -67,10 +67,10 @@ public class SecurityConfig {
 
 
                         .requestMatchers("/api/sessions/**").authenticated()
-                        // 🔒 GraphQL 엔드포인트는 인증 필수
+
                         .requestMatchers("/graphql").permitAll()
 
-                        // 🔒 관리자 REST API
+                        //  관리자 REST API
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // 그 외

@@ -1,6 +1,9 @@
 package com.flocut.demo.domain.note.resolver;
 
 import com.flocut.demo.domain.common.CommonStatus;
+import com.flocut.demo.domain.document.dto.response.DocumentSummaryHistoryItem;
+import com.flocut.demo.domain.document.dto.response.DocumentSummaryViewResponse;
+import com.flocut.demo.domain.document.service.DocumentSummaryQueryService;
 import com.flocut.demo.domain.note.dto.response.NoteDetailResponseDTO;
 import com.flocut.demo.domain.note.dto.response.NoteResponseDTO;
 import com.flocut.demo.domain.note.entity.Note;
@@ -25,6 +28,7 @@ public class NoteQueryResolver {
     private final NoteServiceImpl noteService;
     private final NoteMapper noteMapper;
     private final NoteFacade noteFacade;
+    private final DocumentSummaryQueryService documentSummaryQueryService;
 
     @QueryMapping
     public PageResponseDTO<NoteResponseDTO> notesByStatus(
@@ -78,5 +82,24 @@ public class NoteQueryResolver {
                 result.isLast()
         );
     }
+
+    @QueryMapping
+    public DocumentSummaryViewResponse noteLatestSummary(
+            @Argument Long noteId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Note note = noteService.getNote(noteId, userDetails.getMember());
+
+        if (note.getSummary() == null) {
+            throw new IllegalStateException("이 노트에는 요약 결과가 없습니다.");
+        }
+
+        // summaryId 기준으로
+        return documentSummaryQueryService
+                .getSummaryViewBySummaryId(
+                        note.getSummary().getSummaryId()
+                );
+    }
+
 
 }

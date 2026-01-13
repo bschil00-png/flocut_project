@@ -28,9 +28,9 @@ public class WhisperService {
   private static final String WHISPER_API_URL = "https://api.openai.com/v1/audio/transcriptions";
   private final RestTemplate restTemplate = new RestTemplate();
 
-  /**
-   * 음성 파일을 Whisper API로 전송하여 텍스트로 변환
-   */
+
+   // 음성 파일을 Whisper API로 전송하여 텍스트로 변환
+
   public String transcribe(MultipartFile audioFile, String language) {
     try {
       log.info("Whisper STT 시작 - 파일: {}, 언어: {}", audioFile.getOriginalFilename(), language);
@@ -58,9 +58,9 @@ public class WhisperService {
     }
   }
 
-  /**
-   * OpenAI Whisper API 호출
-   */
+
+   // OpenAI Whisper API 호출
+
   private String callWhisperApi(File audioFile, String language) {
     try {
       // HTTP Headers
@@ -101,9 +101,9 @@ public class WhisperService {
     }
   }
 
-  /**
-   * MultipartFile을 임시 File로 변환
-   */
+
+   // MultipartFile을 임시 File로 변환
+
   private File convertMultipartFileToFile(MultipartFile multipartFile) throws IOException {
     String originalFilename = multipartFile.getOriginalFilename();
     String extension = originalFilename != null && originalFilename.contains(".")

@@ -23,7 +23,7 @@ public class MemberController {
                 request.getProfileImage()
         );
     }
-    // 🔥 회원 탈퇴 (소프트 삭제)
+    //  회원 탈퇴
     @DeleteMapping("/me")
     public void deleteMyAccount() {
         memberService.deleteMyAccount();

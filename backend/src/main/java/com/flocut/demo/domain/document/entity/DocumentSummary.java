@@ -29,8 +29,6 @@ public class DocumentSummary {
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
-//    @Column(name = "round_no", nullable = false)
-//    private int roundNo;
 
     @Column(name = "version_no", nullable = false)
     private int versionNo;
@@ -58,7 +56,7 @@ public class DocumentSummary {
     @Column(name = "status", nullable = false, length = 20)
     private SummaryStatus status;
 
-    /* ===== 생성 ===== */
+
     public static DocumentSummary create(
             File file,
             Session session,

@@ -77,7 +77,7 @@ public class MemberService {
             throw new IllegalArgumentException("이메일 인증이 필요합니다.");
         }
 
-        System.out.println("✅ 로그인 성공: " + member.getEmail());
+        System.out.println(" 로그인 성공: " + member.getEmail());
         System.out.println("=== LOGIN DEBUG END ===");
 
         return member;
@@ -124,7 +124,7 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("회원 없음"));
 
-        // 🔹 null이 아닌 것만 수정
+        //  null이 아닌 것만 수정
         if (name != null && !name.isBlank()) {
             member.setName(name);
         }
@@ -159,10 +159,10 @@ public class MemberService {
             return;
         }
 
-        // 🔥 소프트 삭제
+        //  소프트 삭제
         member.setStatus(MemberStatus.DELETED);
 
-        // 선택: 개인정보 최소화 (권장)
+        // 개인정보 최소화
         member.setTel(null);
         member.setProfileImage(null);
     }

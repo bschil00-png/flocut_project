@@ -65,7 +65,7 @@ public class Member {
         if (this.status == null) {
             this.status = MemberStatus.READY;
         }
-        // 🔥 기본 권한은 USER
+
         if (this.role == null) {
             this.role = UserRole.USER;
         }
