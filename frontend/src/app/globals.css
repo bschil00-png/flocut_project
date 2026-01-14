@@ -1,0 +1,204 @@
+@import './tiptap.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+    height: 100%;
+}
+
+
+/*스크롤바 - 기존 커스텀 스크롤바*/
+@layer utilities {
+    /* 얇고 세련된 커스텀 스크롤바 */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:active {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb:active {
+        background-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+
+    .dark .custom-scrollbar {
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+
+    /* ===== 새로 추가: 매우 얇은 스크롤바 (GlobalNav용) ===== */
+    .thin-scrollbar::-webkit-scrollbar {
+        width: 3px; /* 3px로 매우 얇게 */
+    }
+
+    .thin-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .thin-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.08);
+        border-radius: 20px;
+    }
+
+    .dark .thin-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .thin-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .dark .thin-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .thin-scrollbar::-webkit-scrollbar-thumb:active {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .dark .thin-scrollbar::-webkit-scrollbar-thumb:active {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Firefox */
+    .thin-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+    }
+
+    .dark .thin-scrollbar {
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+}
+
+/* ===== 기본 (pink) ===== */
+:root {
+    --accent: #f25555;
+    --accent-hover: #d93f3f;   /* 더 확실하게 */
+    --accent-soft: rgba(242, 85, 85, 0.15);
+}
+
+/* ===== dark + pink ===== */
+.dark {
+    --accent: #ff7a7a;
+    --accent-hover: #ff5c5c;
+    --accent-soft: rgba(255, 122, 122, 0.18);
+}
+
+/* ===== blue ===== */
+.theme-blue {
+    --accent: #364f6b;
+    --accent-hover: #2c415a;
+    --accent-soft: rgba(54, 79, 107, 0.15);
+}
+
+.dark.theme-blue {
+    --accent: #7aa2ff;
+    --accent-hover: #9bb8ff;
+    --accent-soft: rgba(122, 162, 255, 0.18);
+}
+
+/* ===== navy ===== */
+.theme-navy {
+    --accent: #1f2a37;
+    --accent-hover: #18202b;
+    --accent-soft: rgba(31, 42, 55, 0.15);
+}
+
+.dark.theme-navy {
+    --accent: #8aa4c8;
+    --accent-hover: #a4bce0;
+    --accent-soft: rgba(138, 164, 200, 0.18);
+}
+
+
+/*챗봇 애니메이션 효과*/
+@keyframes avatar-float {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.animate-avatar-float {
+    animation: avatar-float 3.8s ease-in-out infinite;
+}
+
+/*애니메이션 효과 -> 사용 미정 정의만  */
+@keyframes fadeIn {
+    from { opacity: 0 }
+    to { opacity: 1 }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95) }
+    to { opacity: 1; transform: scale(1) }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.18s ease-out;
+}
+
+.animate-scaleIn {
+    animation: scaleIn 0.2s ease-out;
+}
+
+/* ===== Tiptap 에디터 스타일 ===== */
+.tiptap-editor {
+    width: 100%;
+}
+
+.tiptap-editor .ProseMirror {
+    outline: none;
+    min-height: 500px;
+    padding: 1rem 2rem;
+}
+
+/* Placeholder 스타일 */
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: #9ca3af;
+    pointer-events: none;
+    height: 0;
+}
+
+.dark .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+    color: #6b7280;
+}
+
+
+
