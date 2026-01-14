@@ -36,7 +36,7 @@ public class GoogleLoginController {
                         .secure(false)
                         .sameSite("Lax")
                         .path("/")
-                        .maxAge(Duration.ofMinutes(5))
+                        .maxAge(Duration.ofMinutes(15))
                         .build();
 
         // 🔥 refreshToken 쿠키
