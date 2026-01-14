@@ -91,7 +91,7 @@ public class NoteQueryResolver {
         Note note = noteService.getNote(noteId, userDetails.getMember());
 
         if (note.getSummary() == null) {
-            throw new IllegalStateException("이 노트에는 요약 결과가 없습니다.");
+            return null; 
         }
 
         // summaryId 기준으로

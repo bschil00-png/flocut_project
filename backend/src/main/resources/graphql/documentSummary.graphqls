@@ -49,6 +49,7 @@ type DocumentSummaryHistoryPage {
 
 type DocumentSummaryView {
   summaryId: ID
+  status: SummaryStatus
   mainTopic: String
   keyTakeaways: [String]
   sections: [SummarySection]
