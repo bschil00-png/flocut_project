@@ -193,8 +193,7 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, newAccessCookie.toString())
                 .build();
     }
-
-
+//
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
