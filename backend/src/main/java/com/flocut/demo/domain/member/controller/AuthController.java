@@ -111,8 +111,7 @@ public class AuthController {
                     .secure(false)
                     .sameSite("Lax")
                     .path("/")
-//                    .maxAge(Duration.ofMinutes(15))
-                    .maxAge(Duration.ofMinutes(5))
+                    .maxAge(Duration.ofMinutes(15))
                     .build();
 
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -187,15 +186,14 @@ public class AuthController {
                         .secure(false)
                         .sameSite("Lax")
                         .path("/")
-                        .maxAge(Duration.ofMinutes(5))
+                        .maxAge(Duration.ofMinutes(15))
                         .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, newAccessCookie.toString())
                 .build();
     }
-
-
+//
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
