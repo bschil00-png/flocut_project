@@ -1,4 +1,3 @@
-// src/hooks/common/useResponsive.ts
 import { useState, useEffect } from 'react';
 
 export function useResponsive() {

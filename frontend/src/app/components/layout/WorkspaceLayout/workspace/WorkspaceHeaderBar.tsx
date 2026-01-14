@@ -84,7 +84,7 @@ export default function WorkspaceHeaderBar({
         { key: "all", label: "전체", icon: <Layers size={16} /> },
         { key: "note", label: "노트", icon: <FileText size={16} /> },
         { key: "document", label: "문서", icon: <File size={16} /> },
-        { key: "audio", label: "음성", icon: <Mic size={16} /> },
+        // { key: "audio", label: "음성", icon: <Mic size={16} /> }, 임시 주석 (노트에서 음성 녹음 존재)
     ];
 
     const sortOptions = [

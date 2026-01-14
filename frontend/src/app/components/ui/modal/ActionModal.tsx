@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 import { X } from "lucide-react";
-import IconButton from "@/app/components/ui/icon-button/IconButton";
-import ModalOverlay from "./ModalOverlay";
 
 type ModalSize = "sm" | "md";
 

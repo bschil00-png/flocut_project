@@ -14,6 +14,7 @@ import IconButton from "../ui/icon-button/IconButton";
 import Button from "../ui/button/Button";
 import NoteTitleInput from "@/app/components/notes/editor/NoteTitleInput";
 import NoteContentEditor from "@/app/components/notes/editor/NoteContentEditor";
+import VoiceRecorderPanel from "@/app/components/audio/VoiceRecorderPanel";
 
 type Props = {
   id: string;
@@ -179,14 +180,14 @@ function NoteContent({
         </div>
       </div>
 
-      {/* 음성 녹음 모달 */}
-      {showVoiceRecorder && (
-        <VoiceRecorder
-          open={showVoiceRecorder}
-          onClose={() => setShowVoiceRecorder(false)}
-          onTranscriptReady={handleTranscriptReady}
-        />
-      )}
+      {/* 음성 녹음 패널 */}
+        {showVoiceRecorder && (
+            <VoiceRecorderPanel
+                open={showVoiceRecorder}
+                onClose={() => setShowVoiceRecorder(false)}
+                onTranscriptReady={handleTranscriptReady}
+            />
+        )}
     </div>
   );
 }

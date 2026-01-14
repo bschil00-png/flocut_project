@@ -1,4 +1,3 @@
-// app/components/notes/NotesGridView.tsx
 "use client";
 
 import { useState } from "react";

@@ -1,4 +1,3 @@
-// src/app/components/settings/AvatarSelector.tsx
 "use client";
 
 import { useState } from "react";

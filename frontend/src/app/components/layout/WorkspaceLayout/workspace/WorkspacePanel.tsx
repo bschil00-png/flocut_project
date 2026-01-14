@@ -13,6 +13,7 @@ type UpdatedPayload = {
 type Props = {
     selectedId: string | null;
     selectedType: "note" | "document" | "audio" | null;
+    selectedFileName?: string;
     onClose: () => void;
     onCreated?: (noteId: number) => void;
     onUpdated: () => void;
@@ -21,6 +22,7 @@ type Props = {
 export default function WorkspacePanel({
                                            selectedId,
                                            selectedType,
+                                           selectedFileName,
                                            onClose,
                                            onCreated,
                                            onUpdated,
@@ -37,6 +39,7 @@ export default function WorkspacePanel({
             type={selectedType}
             id={selectedId}
             sessionId={Number(sessionId)}
+            fileName={selectedFileName}
             onClose={onClose}
             onCreated={onCreated}
             onUpdated={onUpdated}

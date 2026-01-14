@@ -1,4 +1,3 @@
-// src/components/notes/download/types.ts
 
 export type DownloadFormat = "docx" | "pdf" | "md" | "txt";
 

@@ -43,36 +43,30 @@ export default function Modal({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* overlay */}
-            <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                onClick={onCloseAction}
-            />
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
             {/* modal */}
             <div
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={title ? "modal-title" : undefined}
                 className={`
-          relative
-          w-full
-          mx-0 sm:mx-4
-          ${sizes[size]}
-          h-full sm:h-auto
-          sm:max-h-[85vh]
-          overflow-hidden
-          rounded-none sm:rounded-xl
+        pointer-events-auto
+        relative
+        w-full
+        mx-0 sm:mx-4
+        ${sizes[size]}
+        h-full sm:h-auto
+        sm:max-h-[85vh]
+        overflow-hidden
+        rounded-none sm:rounded-xl
 
-          bg-background-light
-          dark:bg-surface-dark
-          border border-border-light dark:border-border-dark
+        bg-background-light
+        dark:bg-surface-dark
+        border border-border-light dark:border-border-dark
 
-          animate-scaleIn
-          ${className}
-        `}
-                onClick={(e) => e.stopPropagation()}
+        animate-scaleIn
+        ${className}
+      `}
             >
                 {/* header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border-light dark:border-border-dark">

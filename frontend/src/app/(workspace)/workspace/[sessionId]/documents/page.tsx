@@ -1,4 +1,3 @@
-// src/app/(workspace)/workspace/[sessionId]/documents/page.tsx
 "use client";
 
 import { useRouter, useParams } from "next/navigation";

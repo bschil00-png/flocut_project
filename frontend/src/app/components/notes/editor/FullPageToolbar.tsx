@@ -27,17 +27,13 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-// ============================================
 // Types
-// ============================================
 
 type FullPageToolbarProps = {
     editor: Editor | null;
 };
 
-// ============================================
 // Main Component
-// ============================================
 
 export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
     // --------------------------------------------
@@ -337,9 +333,7 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
     );
 }
 
-// ============================================
 // Sub Components
-// ============================================
 
 const ToolButton = ({
                         icon: Icon,

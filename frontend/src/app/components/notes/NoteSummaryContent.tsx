@@ -1,7 +1,7 @@
 "use client";
 
 import SummaryContent from "@/app/components/summary/SummaryContent";
-import { useSummaryHistory } from "@/hooks/summaries/useSummaryHistory";
+import { useNoteSummary } from "@/hooks/summaries/useNoteSummary";
 
 type Props = {
     noteId: string;
@@ -9,17 +9,14 @@ type Props = {
     onNoteCreated?: () => void;
 };
 
+
 export default function NoteSummaryContent({
                                                noteId,
                                                sessionId,
                                                onNoteCreated,
                                            }: Props) {
     const id = Number(noteId);
-
-    const { history, loading, refetch } = useSummaryHistory(
-        id,
-        sessionId
-    );
+    const { history, loading, refetch } = useNoteSummary(id);
 
     return (
         <SummaryContent

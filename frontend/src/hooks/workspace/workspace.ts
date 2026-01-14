@@ -12,6 +12,7 @@ export interface WorkspaceItem {
 
     noteId?: number;
     fileId?: number;
+    fileName?: string;
     status?: string;
 }
 

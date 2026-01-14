@@ -1,4 +1,3 @@
-// hooks/notes/useNoteAction.ts
 "use client";
 
 import { deleteNote, restoreNote, moveNote } from "@/lib/rest/note/notes.rest";

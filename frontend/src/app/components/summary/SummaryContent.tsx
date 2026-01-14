@@ -1,25 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-    Loader2,
-    Sparkles,
-    FileText,
-    Trash2,
-    XCircle,
-    ChevronLeft,
-    ChevronRight,
-} from "lucide-react";
-import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 import { SummaryStatus } from "@/lib/graphql/summary/summary.type";
 import { useSummaryView } from "@/hooks/summaries/useSummaryView";
-import { deleteSummary } from "@/lib/rest/summary/summary.rest";
 
-import { SummaryStatusBadge } from "./SummaryStatusBadge";
-import SummaryFormatRenderer from "@/app/components/summary/Summaryformatrenderer";
+import SummaryEmptyState from "./SummaryEmptyState";
+import SummaryProcessing from "./SummaryProcessing";
+import SummarySkeleton from "./SummarySkeleton";
+import SummaryVersionGrid from "./SummaryVersionGrid";
 import SummaryActions from "./SummaryActions";
-import SummaryRequestButton from "@/app/components/summary/SummaryRequestButton";
+import SummaryRequestButton from "./SummaryRequestButton";
+import DownloadButton from "@/app/components/notes/download/DownloadButton";
+import SummaryFormatRenderer from "@/app/components/summary/Summaryformatrenderer";
 
 type SummaryHistoryItem = {
     summaryId: number;
@@ -38,8 +32,11 @@ type Props = {
     onNoteCreated?: () => void;
 };
 
-const PAGE_SIZE = 6; // 논리적 페이지 크기 (레이아웃과 무관)
+const PAGE_SIZE = 6;
 
+ //  요약 컨텐츠 공통 컴포넌트
+ //  노트: 버전 그리드 숨김, 단일 요약 표시
+ //  문서: 버전 그리드 표시, 히스토리 관리
 export default function SummaryContent({
                                            type,
                                            targetId,
@@ -49,10 +46,12 @@ export default function SummaryContent({
                                            onRequestSuccess,
                                            onNoteCreated,
                                        }: Props) {
-    const [selectedSummaryId, setSelectedSummaryId] =
-        useState<number | null>(null);
+    const [selectedSummaryId, setSelectedSummaryId] = useState<number | null>(
+        null
+    );
     const [page, setPage] = useState(0);
 
+    // 첫 번째 요약 자동 선택
     useEffect(() => {
         if (!selectedSummaryId && history.length > 0) {
             setSelectedSummaryId(history[0].summaryId);
@@ -70,177 +69,117 @@ export default function SummaryContent({
     const totalPages = Math.ceil(history.length / PAGE_SIZE);
 
     const visibleItems = useMemo(() => {
-        return history.slice(
-            page * PAGE_SIZE,
-            page * PAGE_SIZE + PAGE_SIZE
-        );
+        return history.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
     }, [history, page]);
 
-    const refetchAfterDelete = () => {
-        setSelectedSummaryId(null);
-        onRequestSuccess();
-    };
+    const getSummaryContent = () => {
+        if (!detail) return "";
 
-    const handleCancel = async (summaryId: number) => {
-        if (!window.confirm("요약 생성 요청을 취소하시겠습니까?")) return;
-        try {
-            await deleteSummary(summaryId);
-            toast.success("요약 생성 요청이 취소되었습니다.");
-            refetchAfterDelete();
-        } catch {
-            toast.error("요약 취소에 실패했습니다.");
+        let content = "";
+
+        if (detail.mainTopic) {
+            content += `핵심 주제\n${detail.mainTopic}\n\n`;
         }
-    };
 
-    const handleDelete = async (summaryId: number) => {
-        if (!window.confirm("요약을 삭제하시겠습니까?")) return;
-        try {
-            await deleteSummary(summaryId);
-            toast.success("요약이 삭제되었습니다.");
-            refetchAfterDelete();
-        } catch {
-            toast.error("요약 삭제에 실패했습니다.");
+        if (detail.keyTakeaways && detail.keyTakeaways.length > 0) {
+            content += "주요 포인트\n";
+            detail.keyTakeaways.forEach((item, idx) => {
+                content += `${idx + 1}. ${item}\n`;
+            });
+            content += "\n";
         }
+
+        if (detail.sections && detail.sections.length > 0) {
+            detail.sections.forEach((section) => {
+                content += `${section.title}\n${section.content}\n\n`;
+            });
+        }
+
+        if (
+            detail.finalDocument &&
+            (!detail.sections || detail.sections.length === 0)
+        ) {
+            content += detail.finalDocument;
+        }
+
+        return content;
     };
 
+    // 로딩 중
     if (loadingHistory) {
-        return (
-            <div className="flex items-center justify-center h-full py-12">
-                <Loader2 className="w-10 h-10 animate-spin text-accent" />
-            </div>
-        );
+        return <SummarySkeleton />;
     }
 
+    // 요약 없음
     if (history.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-full py-12">
-                <FileText size={40} className="opacity-20 mb-3" />
-                <SummaryRequestButton
-                    type={type}
-                    targetId={targetId}
-                    sessionId={sessionId}
-                    onRequested={onRequestSuccess}
-                />
-            </div>
+            <SummaryEmptyState
+                type={type}
+                targetId={targetId}
+                sessionId={sessionId}
+                onRequested={onRequestSuccess}
+            />
         );
     }
 
-    const isProcessing =
-        selectedHistoryItem?.status === "REQUESTED";
+    const isProcessing = selectedHistoryItem?.status === "REQUESTED";
 
     return (
         <div className="h-full flex flex-col min-w-0">
             {/* 헤더 */}
-            <div className="flex items-center justify-between px-3 py-2 border-b">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark">
+                <h3 className="text-sm font-bold text-text-primary-light dark:text-text-primary-dark">
+                    {type === "note" ? "노트 요약" : "요약 내역"}
+                </h3>
+
                 <div className="flex items-center gap-2">
-                    <Sparkles size={16} />
-                    <span className="text-sm font-bold">요약 내역</span>
-                </div>
-                <SummaryRequestButton
-                    type={type}
-                    targetId={targetId}
-                    sessionId={sessionId}
-                    size="sm"
-                    onRequested={onRequestSuccess}
-                />
-            </div>
-
-            {/* 버전 리스트 */}
-            <div className="flex items-start gap-2 px-3 py-3 border-b">
-                <button
-                    onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                    disabled={page === 0}
-                    className="p-1 disabled:opacity-30"
-                >
-                    <ChevronLeft size={18} />
-                </button>
-
-                <div
-                    className="
-            grid flex-1 gap-2
-            grid-cols-[repeat(auto-fit,minmax(140px,1fr))]
-          "
-                >
-                    {visibleItems.map((item) => {
-                        const selected =
-                            item.summaryId === selectedSummaryId;
-                        const isRequested = item.status === "REQUESTED";
-
-                        return (
-                            <div
-                                key={item.summaryId}
-                                onClick={() =>
-                                    setSelectedSummaryId(item.summaryId)
-                                }
-                                className={`
-                  relative p-3 rounded-xl border cursor-pointer
-                  ${
-                                    selected
-                                        ? "border-accent bg-accent-soft"
-                                        : "border-border-light hover:border-accent/40"
-                                }
-                `}
-                            >
-                                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold truncate">
-                    v{item.versionNo}
-                  </span>
-                                    <SummaryStatusBadge status={item.status} />
-                                </div>
-
-                                <div className="flex items-center justify-between mt-1 gap-2">
-                  <span className="text-xs truncate">
-                    {new Date(item.createdAt).toLocaleDateString(
-                        "ko-KR"
+                    {detail && !isProcessing && (
+                        <DownloadButton
+                            title={
+                                type === "note"
+                                    ? "노트 요약"
+                                    : `요약 v${selectedHistoryItem?.versionNo || ""}`
+                            }
+                            content={getSummaryContent()}
+                        />
                     )}
-                  </span>
 
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            isRequested
-                                                ? handleCancel(item.summaryId)
-                                                : handleDelete(item.summaryId);
-                                        }}
-                                        className="p-1 text-red-500 hover:bg-red-50 rounded"
-                                    >
-                                        {isRequested ? (
-                                            <XCircle size={14} />
-                                        ) : (
-                                            <Trash2 size={14} />
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
+                    <SummaryRequestButton
+                        type={type}
+                        targetId={targetId}
+                        sessionId={sessionId}
+                        size="sm"
+                        onRequested={onRequestSuccess}
+                    />
                 </div>
-
-                <button
-                    onClick={() =>
-                        setPage((p) =>
-                            Math.min(p + 1, totalPages - 1)
-                        )
-                    }
-                    disabled={page >= totalPages - 1}
-                    className="p-1 disabled:opacity-30"
-                >
-                    <ChevronRight size={18} />
-                </button>
             </div>
 
-            {/* 상세 */}
-            <div className="flex-1 overflow-y-auto p-4">
+            {/* 버전 그리드 (문서만 표시) */}
+            {type === "document" && (
+                <SummaryVersionGrid
+                    items={visibleItems}
+                    selectedId={selectedSummaryId}
+                    page={page}
+                    totalPages={totalPages}
+                    onSelect={setSelectedSummaryId}
+                    onPageChange={setPage}
+                    onRefetch={() => {
+                        setSelectedSummaryId(null);
+                        onRequestSuccess();
+                    }}
+                />
+            )}
+
+            {/* 본문 */}
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                 {isProcessing ? (
-                    <div className="flex items-center justify-center py-16">
-                        <Loader2 className="w-10 h-10 animate-spin" />
-                    </div>
+                    <SummaryProcessing />
                 ) : loadingDetail ? (
                     <div className="flex justify-center py-12">
-                        <Loader2 className="w-8 h-8 animate-spin" />
+                        <Loader2 className="w-10 h-10 animate-spin text-accent" />
                     </div>
                 ) : !detail ? (
-                    <div className="text-center py-12">
+                    <div className="text-center py-12 text-text-muted-light dark:text-text-muted-dark">
                         요약을 선택하세요
                     </div>
                 ) : (
@@ -249,7 +188,10 @@ export default function SummaryContent({
                             summaryId={detail.summaryId}
                             sessionId={sessionId}
                             onNoteCreated={onNoteCreated}
-                            onDeleted={refetchAfterDelete}
+                            onDeleted={() => {
+                                setSelectedSummaryId(null);
+                                onRequestSuccess();
+                            }}
                         />
                         <SummaryFormatRenderer {...detail} />
                     </div>

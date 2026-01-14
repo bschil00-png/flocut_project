@@ -8,7 +8,7 @@ import Button from "@/app/components/ui/button/Button";
 import FormField from "@/app/components/ui/form/FormField";
 import Input from "@/app/components/ui/input/Input";
 import Divider from "@/app/components/ui/divider/Divider";
-import ConfirmDialog from "@/app/components/ui/modal/ConfirmDialog";
+import AlertDialog from "@/app/components/ui/modal/AlertDialog";
 
 import { RootState } from "@/store";
 import { useAuthState } from "@/hooks/useAuthState";
@@ -29,8 +29,9 @@ export default function ProfilePanel() {
     const [tel, setTel] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogMessage, setDialogMessage] = useState("");
+    //  Alert 상태
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
 
     useEffect(() => {
         if (!user) return;
@@ -50,9 +51,10 @@ export default function ProfilePanel() {
             tel !== user.tel ||
             avatarId !== currentAvatarId;
 
+
         if (!isChanged) {
-            setDialogMessage("변경사항이 없습니다.");
-            setDialogOpen(true);
+            setAlertMessage("변경사항이 없습니다.");
+            setAlertOpen(true);
             return;
         }
 
@@ -61,12 +63,12 @@ export default function ProfilePanel() {
             dispatch(setAvatarId(avatarId));
             await updateProfile({ name, tel, profileImage: avatarId });
 
-            setDialogMessage("회원 정보 수정이 완료되었습니다.");
+            setAlertMessage("회원 정보가 성공적으로 저장되었습니다.");
         } catch {
-            setDialogMessage("회원 정보 수정에 실패했습니다.");
+            setAlertMessage("회원 정보 수정에 실패했습니다.");
         } finally {
             setLoading(false);
-            setDialogOpen(true);
+            setAlertOpen(true);
         }
     };
 
@@ -104,17 +106,24 @@ export default function ProfilePanel() {
                     </FormField>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="secondary" size="sm" onClick={handleSave}>
+                <div className="flex justify-end pt-2">
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        loading={loading}
+                        onClick={handleSave}
+                    >
                         저장
                     </Button>
                 </div>
             </div>
 
-            <ConfirmDialog
-                open={dialogOpen}
-                message={dialogMessage}
-                onClose={() => setDialogOpen(false)}
+            {/*  AlertDialog만 사용 */}
+            <AlertDialog
+                open={alertOpen}
+                title="알림"
+                message={alertMessage}
+                onClose={() => setAlertOpen(false)}
             />
         </>
     );

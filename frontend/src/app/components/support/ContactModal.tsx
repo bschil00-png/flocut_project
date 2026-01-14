@@ -71,7 +71,7 @@ export default function ContactModal({ open, onClose }: ContactModalProps) {
 
   return (
     <>
-      <ModalOverlay onClose={onClose} />
+      {/*<ModalOverlay onClose={onClose} />*/}
 
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
         <motion.div

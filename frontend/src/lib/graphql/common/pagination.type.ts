@@ -1,4 +1,3 @@
-// lib/types/page.ts
 
 export interface PageRequestInput {
     page: number; // 0-based

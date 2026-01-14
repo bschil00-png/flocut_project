@@ -1,12 +1,13 @@
 "use client";
 
 import WorkspaceListItem from "./WorkspaceListItem";
+import WorkspaceGridItem from "@/app/components/layout/WorkspaceLayout/workspace/WorkspaceGridItem";
 import Pagination from "@/app/components/ui/pagination/Pagination";
-import { File } from "lucide-react";
-import { WorkspaceItem, ViewMode } from "@/hooks/workspace/workspace";
 import EmptyState from "@/app/components/ui/empty-state/EmptyState";
 
-// 클라이언트 페이지 데이터 타입
+import { File } from "lucide-react";
+import { WorkspaceItem, ViewMode } from "@/hooks/workspace/workspace";
+
 type PageData = {
     pageNumber: number;
     totalPages: number;
@@ -67,8 +68,8 @@ export default function WorkspaceContent({
 
     return (
         <div className="flex-1 min-h-0 flex flex-col">
-            {/* 리스트/그리드 렌더링 */}
-            <div className="flex-1 overflow-y-auto px-3 py-3">
+            {/* content */}
+            <div className="flex-1 overflow-y-auto px-3 py-3 custom-scrollbar">
                 {viewMode === "list" ? (
                     <div className="space-y-1">
                         {items.map((item) => (
@@ -99,87 +100,12 @@ export default function WorkspaceContent({
                 )}
             </div>
 
-            {/* 페이지네이션 */}
+            {/* pagination */}
             {notePageData && notePageData.totalPages > 1 && (
-                <div className="flex-shrink-0 border-t border-border-light dark:border-border-dark">
+                <div className="flex-shrink-0dark:border-border-dark">
                     <Pagination {...notePageData} onChange={onPageChange} />
                 </div>
             )}
-        </div>
-    );
-}
-
-// 그리드 아이템 컴포넌트
-function WorkspaceGridItem({
-                               item,
-                               selected,
-                               onToggleSelect,
-                               onClick,
-                               onDeleted,
-                           }: {
-    item: WorkspaceItem;
-    selected: boolean;
-    onToggleSelect: () => void;
-    onClick: () => void;
-    onDeleted: () => void;
-}) {
-    const typeIcons = {
-        note: "N",
-        document: "D",
-        audio: "M",
-    };
-
-    const icon = typeIcons[item.type] ?? "📄";
-
-    const formattedDate = item.date
-        ? new Date(item.date).toLocaleDateString("ko-KR", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        })
-        : "";
-
-    return (
-        <div
-            className={`
-                group
-                relative
-                p-4
-                rounded-lg
-                border border-border-light dark:border-border-dark
-                bg-white dark:bg-surface-dark
-                hover:shadow-md
-                transition-all
-                cursor-pointer
-                ${selected ? "ring-2 ring-accent" : ""}
-            `}
-            onClick={onClick}
-        >
-            {/* 체크박스 */}
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <input
-                    type="checkbox"
-                    checked={selected}
-                    onChange={(e) => {
-                        e.stopPropagation();
-                        onToggleSelect();
-                    }}
-                    className="h-4 w-4 rounded border-border-light dark:border-border-dark text-accent focus:ring-accent cursor-pointer"
-                />
-            </div>
-
-            {/* 아이콘 */}
-            <div className="text-3xl mb-3">{icon}</div>
-
-            {/* 제목 */}
-            <h3 className="text-sm font-medium text-text-primary-light dark:text-text-primary-dark truncate mb-1">
-                {item.title}
-            </h3>
-
-            {/* 날짜 */}
-            <p className="text-xs text-text-muted-light dark:text-text-muted-dark">
-                {formattedDate}
-            </p>
         </div>
     );
 }

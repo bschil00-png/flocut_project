@@ -1,4 +1,3 @@
-// hooks/files/useFileAction.ts
 "use client";
 
 import { deleteFile } from "@/lib/rest/file/file.rest";
