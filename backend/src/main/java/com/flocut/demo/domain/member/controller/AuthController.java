@@ -111,8 +111,7 @@ public class AuthController {
                     .secure(false)
                     .sameSite("Lax")
                     .path("/")
-//                    .maxAge(Duration.ofMinutes(15))
-                    .maxAge(Duration.ofMinutes(5))
+                    .maxAge(Duration.ofMinutes(15))
                     .build();
 
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -187,7 +186,7 @@ public class AuthController {
                         .secure(false)
                         .sameSite("Lax")
                         .path("/")
-                        .maxAge(Duration.ofMinutes(5))
+                        .maxAge(Duration.ofMinutes(15))
                         .build();
 
         return ResponseEntity.ok()
