@@ -3,7 +3,12 @@ import { setAuthUser, clearAuth } from "@/store/slice/authSlice";
 import { getMeByGraphQL } from "@/lib/graphql/auth/auth.client";
 import * as authRest from "@/lib/rest/auth/auth.rest";
 import { useCallback } from "react";
-import {setAvatarId} from "@/store/slice/uislice";
+import { setAvatarId, setColorTheme } from "@/store/slice/uislice";
+import {
+    applyColorTheme,
+    getStoredColorTheme,
+    resetColorTheme,
+} from "@/lib/theme/colorTheme";
 
 export function useAuthActions() {
     const dispatch = useDispatch();
@@ -27,6 +32,11 @@ export function useAuthActions() {
                     regdate: me.regdate,
                 })
             );
+
+            // 로그인 유저 기준 컬러 테마 복구
+            const theme = getStoredColorTheme(me.memberId);
+            dispatch(setColorTheme(theme));
+            applyColorTheme(theme, me.memberId);
 
             return true;
         } catch {
@@ -52,6 +62,11 @@ export function useAuthActions() {
                         regdate: me.regdate,
                     })
                 );
+
+                // refresh 이후에도 컬러 테마 복구
+                const theme = getStoredColorTheme(me.memberId);
+                dispatch(setColorTheme(theme));
+                applyColorTheme(theme, me.memberId);
 
                 return true;
             } catch {
@@ -86,6 +101,11 @@ export function useAuthActions() {
                 })
             );
 
+            // 로그인 직후 컬러 테마 복구
+            const theme = getStoredColorTheme(me.memberId);
+            dispatch(setColorTheme(theme));
+            applyColorTheme(theme, me.memberId);
+
             return true;
         },
         [dispatch]
@@ -94,10 +114,24 @@ export function useAuthActions() {
     // 로그아웃
     // 서버 세션 종료 후 Redux 초기화
     const logout = useCallback(async () => {
-        await authRest.logout();
+        try {
+            await authRest.logout();
+        } catch (error) {
+            // access 토큰이 없어서 403 나는 경우도 정상 시나리오
+            console.warn("[logout] server logout failed, force local logout");
+        }
+
+        // 인증 상태 초기화 (서버 성공 여부와 무관)
         dispatch(clearAuth());
+
+        // UI 유저 종속 상태 초기화
         dispatch(setAvatarId("gradient-1"));
+        dispatch(setColorTheme("pink"));
+
+        // DOM 컬러 테마 초기화
+        resetColorTheme();
     }, [dispatch]);
+
 
     return { ensureAuth, login, logout };
 }

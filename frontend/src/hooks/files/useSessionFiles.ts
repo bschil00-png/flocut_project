@@ -2,6 +2,7 @@ import { SESSION_FILES_QUERY } from "@/lib/graphql/file/file.query";
 import { SessionFilesQueryResult } from "@/lib/graphql/file/file.type";
 import { useQuery } from "@apollo/client/react";
 
+//  서버 페이지 네이션 용
 export function useSessionFiles(sessionId: number, page: number = 0, size: number = 20) {
     const { data, loading, error, refetch } = useQuery<SessionFilesQueryResult>(
         SESSION_FILES_QUERY,

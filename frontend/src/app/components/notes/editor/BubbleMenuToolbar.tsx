@@ -19,17 +19,13 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-// ============================================
 // Types
-// ============================================
 
 interface BubbleMenuToolbarProps {
     editor: Editor;
 }
 
-// ============================================
 // Main Component
-// ============================================
 
 export default function BubbleMenuToolbar({ editor }: BubbleMenuToolbarProps) {
     // --------------------------------------------
@@ -218,9 +214,7 @@ export default function BubbleMenuToolbar({ editor }: BubbleMenuToolbarProps) {
     );
 }
 
-// ============================================
 // Sub Components
-// ============================================
 
 function ToolButton({
                         icon,

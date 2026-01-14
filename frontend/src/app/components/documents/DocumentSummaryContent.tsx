@@ -14,10 +14,7 @@ export default function DocumentSummaryContent({
                                                    sessionId,
                                                    onNoteCreated,
                                                }: Props) {
-    const { history, loading, refetch } = useSummaryHistory(
-        fileId,
-        sessionId
-    );
+    const { history, loading, refetch } = useSummaryHistory(fileId, sessionId);
 
     return (
         <SummaryContent

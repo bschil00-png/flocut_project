@@ -1,4 +1,3 @@
-// src/components/notes/header/HeaderActions.tsx
 "use client";
 
 import { X, Save, Maximize2, ArrowLeft } from "lucide-react";
@@ -19,6 +18,7 @@ type Props = {
     content: string;
     htmlContent?: string;
     isMobile?: boolean;
+    currentTab?: "edit" | "summary" | "compare" | "calendar";
 };
 
 export default function HeaderActions({
@@ -33,19 +33,30 @@ export default function HeaderActions({
                                           content,
                                           htmlContent,
                                           isMobile = false,
+                                          currentTab = "edit",
                                       }: Props) {
     const router = useRouter();
 
+    const canDownload = () => {
+        if (type === "note") return true;
+
+        if (type === "document" || type === "audio") {
+            return currentTab === "edit" && content && content.trim().length > 0;
+        }
+
+        return false;
+    };
+
     return (
         <div className="flex items-center gap-2">
-            {/* 다운로드 버튼 (항상 표시) */}
-            <DownloadButton
-                title={title}
-                content={content}
-                htmlContent={htmlContent}
-            />
+            {canDownload() && (
+                <DownloadButton
+                    title={title}
+                    content={content}
+                    htmlContent={htmlContent}
+                />
+            )}
 
-            {/*  전체 화면 버튼 (항상 표시) */}
             {type === "note" && noteId && (
                 <IconButton
                     icon={<Maximize2 size={16} />}
@@ -54,7 +65,6 @@ export default function HeaderActions({
                 />
             )}
 
-            {/*  저장 버튼 (항상 표시) */}
             {type === "note" && (
                 <Button
                     size="sm"
@@ -64,12 +74,10 @@ export default function HeaderActions({
                     onClick={onSave}
                 >
                     <Save size={14} />
-                    {/* 모바일에서는 텍스트만 숨김 */}
                     {!isMobile && (saved ? "저장됨" : "저장")}
                 </Button>
             )}
 
-            {/*  모바일: 뒤로가기 / 데스크톱: 닫기 */}
             <IconButton
                 icon={isMobile ? <ArrowLeft size={16} /> : <X size={16} />}
                 onClick={onClose}

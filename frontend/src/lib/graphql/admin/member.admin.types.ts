@@ -1,16 +1,16 @@
-// ==============================
+
 // Admin GraphQL Types (최종본)
 // 백엔드 스키마 기준
-// ==============================
+
 
 import { PageRequestInput } from "@/lib/graphql/common/pagination.type";
 import { MemberStatus, UserRole } from "@/lib/graphql/auth/auth.type";
 
 
-// ==============================
+
 // 관리자 멤버 (목록용)
 // adminMembers.content 에 대응
-// ==============================
+
 export interface AdminMember {
     memberId: number;
     email: string;
@@ -21,10 +21,10 @@ export interface AdminMember {
 }
 
 
-// ==============================
+
 // 관리자 멤버 상세
 // adminMember Query 결과에 대응
-// ==============================
+
 export interface AdminMemberDetail {
     memberId: number;
     email: string;
@@ -37,10 +37,10 @@ export interface AdminMemberDetail {
 }
 
 
-// ==============================
+
 // 관리자 로그인 이력 단건
 // AdminLoginHistory 타입
-// ==============================
+
 export interface AdminLoginHistory {
     loginAt: string;         // ISO-8601 datetime string
     ip: string | null;       // Google 로그인 등에서 null 가능
@@ -48,10 +48,10 @@ export interface AdminLoginHistory {
 }
 
 
-// ==============================
+
 // 공용 PageResponse 타입
 // PageResponseDTO<T> 대응
-// ==============================
+
 export interface PageResponse<T> {
     content: T[];
     totalElements: number;
@@ -65,21 +65,21 @@ export interface PageResponse<T> {
 }
 
 
-// ==============================
+
 // 관리자 멤버 페이지
-// ==============================
+
 export type AdminMemberPage = PageResponse<AdminMember>;
 
 
-// ==============================
+
 // 관리자 로그인 이력 페이지
-// ==============================
+
 export type AdminLoginHistoryPage = PageResponse<AdminLoginHistory>;
 
 
-// ==============================
+
 // Query Result / Variables
-// ==============================
+
 
 // 관리자 멤버 목록 조회 결과
 export interface AdminMembersQueryResult {

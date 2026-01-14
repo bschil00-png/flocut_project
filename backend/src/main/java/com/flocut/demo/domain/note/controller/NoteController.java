@@ -4,6 +4,7 @@ import com.flocut.demo.domain.note.dto.request.NoteCreateFromSummaryRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteCreateRequestDTO;
 import com.flocut.demo.domain.note.dto.request.NoteMoveRequestDTO;
 import com.flocut.demo.domain.note.dto.response.NoteDetailResponseDTO;
+import com.flocut.demo.domain.note.entity.Note;
 import com.flocut.demo.domain.note.service.NoteFacade;
 import com.flocut.demo.domain.note.service.NoteService;
 import com.flocut.demo.global.utils.CustomUserDetails;
@@ -143,6 +144,23 @@ public class NoteController {
 
     return ResponseEntity.ok().build();
   }
+
+    // 노트의 기존 요약 확인
+    @GetMapping("/{noteId}/summary/check")
+    public ResponseEntity<Map<String, Object>> checkExistingSummary(
+            @PathVariable Long noteId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Note note = noteService.getNote(noteId, userDetails.getMember());
+
+        boolean hasSummary = note.getSummary() != null;
+        Long summaryId = hasSummary ? note.getSummary().getSummaryId() : null;
+
+        return ResponseEntity.ok(Map.of(
+                "hasSummary", hasSummary,
+                "summaryId", summaryId
+        ));
+    }
 
   //  휴지통 이동
   @PatchMapping("/{noteId}/trash")

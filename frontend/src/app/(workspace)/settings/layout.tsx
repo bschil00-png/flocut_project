@@ -4,7 +4,7 @@
 import PanelModal from "@/app/components/ui/modal/PanelModal";
 import SettingsLayout from "@/app/components/settings/SettingsLayout";
 
-export default function Layout({
+export default function SettingLayout({
                                    children,
                                }: {
     children: React.ReactNode;

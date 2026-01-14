@@ -1,19 +1,19 @@
+// components/files/FileUploadButton.tsx
 "use client";
 
 import { useRef, useState } from "react";
 import Button from "@/app/components/ui/button/Button";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { uploadFile } from "@/lib/rest/file/file.rest";
 import { requestDocumentSummary } from "@/lib/rest/summary/summary.rest";
 import { toast } from "sonner";
+import AlertDialog from "@/app/components/ui/modal/AlertDialog";
 
 type FileUploadButtonProps = {
     sessionId?: number;
     requestSummary?: boolean;
     onUploadComplete?: () => void;
     onSuccess?: () => void;
-
-    /** 아이콘만 표시 (반응형용) */
     iconOnly?: boolean;
 };
 
@@ -26,43 +26,87 @@ export default function FileUploadButton({
                                          }: FileUploadButtonProps) {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [loading, setLoading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<{
+        current: number;
+        total: number;
+    } | null>(null);
+    const [showErrorDialog, setShowErrorDialog] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     const openPicker = () => {
         if (!loading) inputRef.current?.click();
     };
 
-    const handleChange = async (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
 
         setLoading(true);
+        setUploadProgress({ current: 0, total: files.length });
 
-        try {
-            // 파일 업로드
-            const uploaded = await uploadFile(file, sessionId);
-            toast.success("문서 업로드 완료");
+        const results = {
+            success: 0,
+            failed: 0,
+            errors: [] as string[],
+        };
 
-            // 업로드 완료 콜백
-            onUploadComplete?.();
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
 
-            // 요약 요청
-            if (requestSummary && uploaded.sessionId) {
-                await requestDocumentSummary({
-                    fileId: uploaded.fileId,
-                    sessionId: uploaded.sessionId,
-                });
-                toast.success("AI 요약 요청이 접수되었습니다.");
+            try {
+                // 파일 크기 확인 (30MB 제한)
+                if (file.size > 30 * 1024 * 1024) {
+                    results.failed++;
+                    results.errors.push(`${file.name}: 파일 크기 초과 (최대 30MB)`);
+                    continue;
+                }
+
+                // 파일 타입 확인
+                const extension = file.name.split(".").pop()?.toLowerCase();
+                if (!["txt", "docx"].includes(extension || "")) {
+                    results.failed++;
+                    results.errors.push(
+                        `${file.name}: 지원하지 않는 파일 형식 (.txt, .docx만 가능)`
+                    );
+                    continue;
+                }
+
+                const uploaded = await uploadFile(file, sessionId);
+                results.success++;
+
+                if (requestSummary && uploaded.sessionId) {
+                    await requestDocumentSummary({
+                        fileId: uploaded.fileId,
+                        sessionId: uploaded.sessionId,
+                    });
+                }
+
+                setUploadProgress({ current: i + 1, total: files.length });
+            } catch (err) {
+                console.error(err);
+                results.failed++;
+                results.errors.push(`${file.name}: 업로드 실패`);
             }
+        }
 
+        setLoading(false);
+        setUploadProgress(null);
+        e.target.value = "";
+
+        // 결과 처리
+        if (results.success > 0) {
+            toast.success(
+                `${results.success}개 파일 업로드 완료${
+                    requestSummary ? " (요약 요청됨)" : ""
+                }`
+            );
+            onUploadComplete?.();
             onSuccess?.();
-        } catch (err) {
-            console.error(err);
-            toast.error("업로드 또는 요약 요청 실패");
-        } finally {
-            setLoading(false);
-            e.target.value = "";
+        }
+
+        if (results.failed > 0) {
+            setErrorMessage(results.errors.join("\n"));
+            setShowErrorDialog(true);
         }
     };
 
@@ -75,12 +119,22 @@ export default function FileUploadButton({
                 disabled={loading}
                 aria-label="문서 업로드"
                 title="문서 업로드"
-                className={iconOnly ? "w-9 h-9 p-0 flex items-center justify-center" : ""}
+                className={
+                    iconOnly ? "w-9 h-9 p-0 flex items-center justify-center" : ""
+                }
             >
-            <Upload size={16} />
+                {loading ? (
+                    <Loader2 size={16} className="animate-spin" />
+                ) : (
+                    <Upload size={16} />
+                )}
                 {!iconOnly && (
                     <span className="ml-1">
-            {loading ? "업로드 중..." : "문서 업로드"}
+            {loading
+                ? uploadProgress
+                    ? `${uploadProgress.current}/${uploadProgress.total}`
+                    : "업로드 중..."
+                : "문서 업로드"}
           </span>
                 )}
             </Button>
@@ -90,7 +144,16 @@ export default function FileUploadButton({
                 type="file"
                 className="hidden"
                 onChange={handleChange}
-                accept=".pdf,.docx,.txt"
+                accept=".txt,.docx"
+                multiple
+            />
+
+            <AlertDialog
+                open={showErrorDialog}
+                title="업로드 오류"
+                message={errorMessage}
+                confirmText="확인"
+                onClose={() => setShowErrorDialog(false)}
             />
         </>
     );

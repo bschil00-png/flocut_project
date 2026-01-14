@@ -1,9 +1,7 @@
 import { gql } from "@apollo/client";
 
 
-/**
- * 네비용 세션 목록 (페이지네이션 없음)
- */
+// 네비용 세션 목록 (페이지네이션 없음)
 export const MY_SESSIONS_QUERY = gql`
   query MySessions {
     mySessions {

@@ -1,6 +1,4 @@
-// ============================================
 // 녹음 상태
-// ============================================
 export type RecordingState =
   | "idle"
   | "recording"
@@ -8,9 +6,7 @@ export type RecordingState =
   | "completed"
   | "error";
 
-// ============================================
 // 음성 조각 타입
-// ============================================
 export interface RecordChunk {
   recordId: number;
   sessionId: number;
@@ -19,9 +15,7 @@ export interface RecordChunk {
   createdAt: string;
 }
 
-// ============================================
 // 페이지네이션 응답
-// ============================================
 export interface RecordPage {
   content: RecordChunk[];
   totalElements: number;
@@ -34,25 +28,19 @@ export interface RecordPage {
   isLast: boolean;
 }
 
-// ============================================
 // GraphQL 쿼리 응답 타입
-// ============================================
 export interface RecordsBySessionQueryResult {
   recordsBySession: RecordPage;
 }
 
-// ============================================
 // Whisper STT 옵션
-// ============================================
 export interface WhisperOptions {
   language?: "ko" | "en" | "auto";
   model?: "tiny" | "base" | "small" | "medium" | "large";
   temperature?: number;
 }
 
-// ============================================
 // 녹음 결과
-// ============================================
 export interface RecordingResult {
   audioBlob: Blob;
   transcript: string;

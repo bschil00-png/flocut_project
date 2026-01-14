@@ -1,15 +1,17 @@
-import { configureStore } from "@reduxjs/toolkit";
+import {configureStore} from "@reduxjs/toolkit";
 import authReducer from "@/store/slice/authSlice";
 import uiReducer from "@/store/slice/uislice";
-import chatReducer from "@/store/slice/publicChatSlice"; // 추가
+import chatReducer from "@/store/slice/publicChatSlice";
+import editorReducer from "@/store/slice/editorSlice";
 
 export const index = configureStore({
-  reducer: {
-    auth: authReducer,
-    //   토글 같은 경우 context에 사용하는 경우도 있음
-    ui: uiReducer,
-    chat: chatReducer,
-  },
+    reducer: {
+        auth: authReducer,
+        //   토글 같은 경우 context에 사용하는 경우도 있음
+        ui: uiReducer,
+        chat: chatReducer,
+        editor: editorReducer
+    },
 });
 
 export type RootState = ReturnType<typeof index.getState>;

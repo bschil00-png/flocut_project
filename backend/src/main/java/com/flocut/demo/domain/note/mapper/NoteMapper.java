@@ -45,15 +45,13 @@ public interface NoteMapper {
 
 
 //     LocalDateTime -> String 변환
-
     @Named("dateToString")
     default String dateToString(LocalDateTime dateTime) {
         return (dateTime != null) ? dateTime.toString() : null;
     }
 
 
-//     DB의 JSON 문자열(summaryOption)을 GraphQL JSON 타입에 대응하도록 Map으로 변환합니다.
-
+//     DB의 JSON 문자열(summaryOption)을 GraphQL JSON 타입에 대응하도록 Map으로 변환
     @Named("jsonToObject")
     default Object jsonToMap(String json) {
         if (json == null || json.isBlank()) return null;

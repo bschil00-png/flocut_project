@@ -1,14 +1,18 @@
 "use client";
 
-type ModalOverlayProps = {
-    onClose: () => void;
+type Props = {
+    onClose?: () => void;
 };
 
-export default function ModalOverlay({ onClose }: ModalOverlayProps) {
+export default function ModalOverlay({ onClose }: Props) {
     return (
         <div
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
             onClick={onClose}
+            className="
+        fixed inset-0 z-40
+        bg-black/30
+        backdrop-blur-[2px]
+      "
         />
     );
 }

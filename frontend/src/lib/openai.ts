@@ -1,4 +1,3 @@
-// src/lib/openai.ts
 import OpenAI from "openai";
 
 export function getOpenAI() {

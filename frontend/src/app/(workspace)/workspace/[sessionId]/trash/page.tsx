@@ -1,4 +1,3 @@
-// app/workspace/[sessionId]/trash/page.tsx
 "use client";
 
 import { useState, Fragment, useMemo } from "react";
@@ -74,7 +73,7 @@ export default function TrashPage() {
         });
     };
 
-    // 🔥 영구삭제 핸들러
+    //  영구삭제 핸들러
     const handlePermanentDelete = async (noteId: number) => {
         const confirmed = window.confirm(
             "영구 삭제된 노트는 복구할 수 없습니다. 계속하시겠습니까?"

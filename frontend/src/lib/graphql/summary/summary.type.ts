@@ -1,4 +1,6 @@
-// 요약 상태
+// lib/graphql/summary/summary.type.ts
+
+// ==================== 요약 상태 ====================
 export enum SummaryStatus {
     REQUESTED = "REQUESTED",
     COMPLETED = "COMPLETED",
@@ -6,11 +8,13 @@ export enum SummaryStatus {
     DELETED = "DELETED",
 }
 
+// ==================== 요약 섹션 ====================
 export interface SummarySection {
     title: string;
     content: string;
 }
 
+// ==================== 요약 상세 뷰 ====================
 export interface SummaryView {
     summaryId: number;
     mainTopic?: string | null;
@@ -23,7 +27,14 @@ export interface SummaryViewQueryResult {
     documentSummaryViewBySummaryId: SummaryView | null;
 }
 
-// 히스토리
+// ==================== 요약 확인 (노트용) ====================
+export type CheckSummaryResponse = {
+    hasSummary: boolean;
+    summaryId: number | null;
+    status: SummaryStatus | null;
+};
+
+// ==================== 요약 히스토리 ====================
 export interface SummaryHistoryItem {
     summaryId: number;
     versionNo: number;
@@ -43,6 +54,17 @@ export interface SummaryHistoryPage {
     isLast: boolean;
 }
 
-export interface SummaryHistoryQueryResult {
+//  문서 요약 히스토리 응답
+export interface DocumentSummaryHistoryResponse {
     documentSummaryHistory: SummaryHistoryPage;
 }
+
+//  노트 요약 히스토리 응답
+export interface NoteSummaryHistoryResponse {
+    noteSummaryHistory: SummaryHistoryPage;
+}
+
+//  통합 히스토리 쿼리 결과 (Union Type)
+export type SummaryHistoryQueryResult =
+    | DocumentSummaryHistoryResponse
+    | NoteSummaryHistoryResponse;
