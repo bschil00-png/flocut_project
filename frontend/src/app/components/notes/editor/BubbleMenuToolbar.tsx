@@ -1,7 +1,7 @@
 "use client";
 
-import { Editor } from "@tiptap/react";
-import { BubbleMenu } from "@tiptap/react/menus";
+import {Editor} from "@tiptap/react";
+import {BubbleMenu} from "@tiptap/react/menus";
 
 import {
     Bold,
@@ -17,7 +17,7 @@ import {
     AlignCenter,
     AlignRight,
 } from "lucide-react";
-import { useState } from "react";
+import {useState} from "react";
 
 // Types
 
@@ -27,7 +27,7 @@ interface BubbleMenuToolbarProps {
 
 // Main Component
 
-export default function BubbleMenuToolbar({ editor }: BubbleMenuToolbarProps) {
+export default function BubbleMenuToolbar({editor}: BubbleMenuToolbarProps) {
     // --------------------------------------------
     // State
     // --------------------------------------------
@@ -44,7 +44,7 @@ export default function BubbleMenuToolbar({ editor }: BubbleMenuToolbarProps) {
 
     const handleSetLink = () => {
         if (linkUrl.trim()) {
-            editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
+            editor.chain().focus().setLink({href: linkUrl.trim()}).run();
             setLinkUrl("");
             setShowLinkInput(false);
         }
@@ -54,6 +54,15 @@ export default function BubbleMenuToolbar({ editor }: BubbleMenuToolbarProps) {
         editor.chain().focus().unsetLink().run();
         setShowLinkInput(false);
     };
+
+    const toggleHighlight = (color = "#fff3a0") => {
+        editor
+            .chain()
+            .focus()
+            .toggleHighlight({ color })
+            .run();
+    };
+
 
     // --------------------------------------------
     // Render
@@ -68,70 +77,72 @@ export default function BubbleMenuToolbar({ editor }: BubbleMenuToolbarProps) {
                     mainAxis: 8,
                 },
             }}
-            shouldShow={({ state }) => {
-                const { from, to } = state.selection;
+            shouldShow={({state}) => {
+                const {from, to} = state.selection;
                 return from !== to;
             }}
             className="bubble-menu-container"
         >
 
-        <div className="flex items-center gap-0.5 p-1 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-lg">
+            <div
+                className="flex items-center gap-0.5 p-1 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-lg">
 
                 {/* 기본 포맷팅 */}
                 <ToolButton
-                    icon={<Bold size={16} />}
+                    icon={<Bold size={16}/>}
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     active={editor.isActive("bold")}
                     title="굵게 (⌘B)"
                 />
                 <ToolButton
-                    icon={<Italic size={16} />}
+                    icon={<Italic size={16}/>}
                     onClick={() => editor.chain().focus().toggleItalic().run()}
                     active={editor.isActive("italic")}
                     title="기울임 (⌘I)"
                 />
                 <ToolButton
-                    icon={<UnderlineIcon size={16} />}
+                    icon={<UnderlineIcon size={16}/>}
                     onClick={() => editor.chain().focus().toggleUnderline().run()}
                     active={editor.isActive("underline")}
                     title="밑줄 (⌘U)"
                 />
                 <ToolButton
-                    icon={<Strikethrough size={16} />}
+                    icon={<Strikethrough size={16}/>}
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     active={editor.isActive("strike")}
                     title="취소선"
                 />
                 <ToolButton
-                    icon={<Code size={16} />}
+                    icon={<Code size={16}/>}
                     onClick={() => editor.chain().focus().toggleCode().run()}
                     active={editor.isActive("code")}
                     title="코드"
                 />
 
-                <div className="w-px h-5 bg-border-light dark:bg-border-dark mx-1" />
+                <div className="w-px h-5 bg-border-light dark:bg-border-dark mx-1"/>
 
                 {/* 링크 */}
                 <ToolButton
-                    icon={<LinkIcon size={16} />}
+                    icon={<LinkIcon size={16}/>}
                     onClick={() => setShowLinkInput(!showLinkInput)}
                     active={editor.isActive("link")}
                     title="링크"
                 />
 
-                {/* 하이라이트 */}
                 <ToolButton
                     icon={<Highlighter size={16} />}
-                    onClick={() => editor.chain().focus().toggleHighlight().run()}
+                    onClick={() => toggleHighlight("#fff3a0")}
                     active={editor.isActive("highlight")}
-                    title="하이라이트"
+                    title="형광펜 (Ctrl+Shift+H)"
                 />
 
-                <div className="w-px h-5 bg-border-light dark:bg-border-dark mx-1" />
+
+
+                <div className="w-px h-5 bg-border-light dark:bg-border-dark mx-1"/>
 
                 {/* 더보기 */}
                 <ToolButton
-                    icon={<MoreHorizontal size={16} />}
+                    icon={<MoreHorizontal size={16}/>}
                     onClick={() => setShowMore(!showMore)}
                     active={showMore}
                     title="더보기"
@@ -140,30 +151,30 @@ export default function BubbleMenuToolbar({ editor }: BubbleMenuToolbarProps) {
                 {/* 더보기 메뉴 */}
                 {showMore && (
                     <>
-                        <div className="w-px h-5 bg-border-light dark:bg-border-dark mx-1" />
+                        <div className="w-px h-5 bg-border-light dark:bg-border-dark mx-1"/>
 
                         <ToolButton
-                            icon={<Type size={16} />}
-                            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                            active={editor.isActive("heading", { level: 2 })}
+                            icon={<Type size={16}/>}
+                            onClick={() => editor.chain().focus().toggleHeading({level: 2}).run()}
+                            active={editor.isActive("heading", {level: 2})}
                             title="제목 2"
                         />
                         <ToolButton
-                            icon={<AlignLeft size={16} />}
+                            icon={<AlignLeft size={16}/>}
                             onClick={() => editor.chain().focus().setTextAlign("left").run()}
-                            active={editor.isActive({ textAlign: "left" })}
+                            active={editor.isActive({textAlign: "left"})}
                             title="왼쪽 정렬"
                         />
                         <ToolButton
-                            icon={<AlignCenter size={16} />}
+                            icon={<AlignCenter size={16}/>}
                             onClick={() => editor.chain().focus().setTextAlign("center").run()}
-                            active={editor.isActive({ textAlign: "center" })}
+                            active={editor.isActive({textAlign: "center"})}
                             title="가운데 정렬"
                         />
                         <ToolButton
-                            icon={<AlignRight size={16} />}
+                            icon={<AlignRight size={16}/>}
                             onClick={() => editor.chain().focus().setTextAlign("right").run()}
-                            active={editor.isActive({ textAlign: "right" })}
+                            active={editor.isActive({textAlign: "right"})}
                             title="오른쪽 정렬"
                         />
                     </>
@@ -172,7 +183,8 @@ export default function BubbleMenuToolbar({ editor }: BubbleMenuToolbarProps) {
 
             {/* 링크 입력창 */}
             {showLinkInput && (
-                <div className="mt-2 p-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-lg">
+                <div
+                    className="mt-2 p-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-lg">
                     <div className="flex items-center gap-2">
                         <input
                             type="url"

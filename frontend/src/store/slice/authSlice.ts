@@ -1,49 +1,59 @@
+// store/slice/authSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {MemberRole, MemberStatus} from "@/lib/graphql/auth/auth.type";
+import { MyProfile } from "@/lib/graphql/auth/auth.type";
 
-export interface AuthUser {
-    memberId: number;
-    email: string;
-    name: string;
-    tel: string;
-    profileImage?: string | null;
-    role: MemberRole;
-    status: MemberStatus;
-    regdate: string;
-}
+// 인증 상태
+// checking        : 인증 확인 중 (앱 최초 로드, refresh 시)
+// authenticated   : 로그인 상태
+// unauthenticated : 비로그인 상태
+export type AuthStatus = "checking" | "authenticated" | "unauthenticated";
 
 interface AuthState {
-    isAuthenticated: boolean;
-    user: AuthUser | null;
-    loading: boolean;       // 인증 처리 중 여부
-    initialized: boolean;  // 앱 최초 인증 시도 완료 여부
+  status: AuthStatus;
+  user: MyProfile | null;
 }
 
 const initialState: AuthState = {
-    isAuthenticated: false,
-    user: null,
-    loading: true,
-    initialized: false,
+  status: "checking",
+  user: null,
 };
 
 const authSlice = createSlice({
-    name: "auth",
-    initialState,
-    reducers: {
-        setAuthUser(state, action: PayloadAction<AuthUser>) {
-            state.user = action.payload;
-            state.isAuthenticated = true;
-            state.loading = false;
-            state.initialized = true;
-        },
-        clearAuth(state) {
-            state.user = null;
-            state.isAuthenticated = false;
-            state.loading = false;
-            state.initialized = true;
-        },
+  name: "auth",
+  initialState,
+  reducers: {
+    // 인증 확인 시작
+    startAuthCheck(state) {
+      state.status = "checking";
     },
+
+    // 로그인 성공
+    setAuthUser(state, action: PayloadAction<MyProfile>) {
+      state.user = action.payload;
+      state.status = "authenticated";
+    },
+    //  업데이트
+    updateAuthUser(
+      state,
+      action: PayloadAction<Partial<MyProfile>>
+    ) {
+      if (!state.user) return;
+      state.user = {
+        ...state.user,
+        ...action.payload,
+      };
+    },
+
+
+    // 인증 실패 또는 로그아웃
+    clearAuth(state) {
+      state.user = null;
+      state.status = "unauthenticated";
+    },
+  },
 });
 
-export const { setAuthUser, clearAuth } = authSlice.actions;
+
+
+export const { startAuthCheck, updateAuthUser, setAuthUser, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

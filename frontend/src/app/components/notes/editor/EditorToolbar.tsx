@@ -31,6 +31,35 @@ type EditorToolbarProps = {
     editor: Editor | null;
 };
 
+/**
+ * Titanic.css와 1:1 매핑
+ * TextStyle 전용
+ */
+const TEXT_COLORS = [
+    { label: "기본", class: "titanic-text-default" },
+    { label: "빨강", class: "titanic-text-red" },
+    { label: "파랑", class: "titanic-text-blue" },
+    { label: "초록", class: "titanic-text-green" },
+    { label: "보라", class: "titanic-text-purple" },
+];
+
+const FONT_SIZES = [
+    { label: "S", class: "titanic-text-sm" },
+    { label: "M", class: "titanic-text-md" },
+    { label: "L", class: "titanic-text-lg" },
+    { label: "XL", class: "titanic-text-xl" },
+];
+
+/**
+ * Highlight extension 전용
+ */
+const HIGHLIGHT_COLORS = [
+    { label: "노랑", color: "#fff3a0" },
+    { label: "초록", color: "#d2f4c5" },
+    { label: "파랑", color: "#dbeafe" },
+    { label: "핑크", color: "#fce7f3" },
+];
+
 export default function EditorToolbar({ editor }: EditorToolbarProps) {
     const [linkUrl, setLinkUrl] = useState("");
     const [imageUrl, setImageUrl] = useState("");
@@ -39,6 +68,9 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
 
     if (!editor) return null;
 
+    /**
+     * 공통 버튼
+     */
     const ToolButton = ({
                             icon: Icon,
                             onClick,
@@ -67,12 +99,36 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
         </button>
     );
 
+    /**
+     * TextStyle 전용 (글자색 / 크기)
+     */
+    const applyTextStyle = (className: string) => {
+        editor
+            .chain()
+            .focus()
+            .setMark("textStyle", { class: className })
+            .run();
+    };
+
+    /**
+     * Highlight 전용
+     */
+    const toggleHighlight = (color: string) => {
+        editor
+            .chain()
+            .focus()
+            .toggleHighlight({ color })
+            .run();
+    };
+
+    /**
+     * 링크 / 이미지
+     */
     const handleSetLink = () => {
-        if (linkUrl.trim()) {
-            editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
-            setLinkUrl("");
-            setShowLinkInput(false);
-        }
+        if (!linkUrl.trim()) return;
+        editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
+        setLinkUrl("");
+        setShowLinkInput(false);
     };
 
     const handleRemoveLink = () => {
@@ -82,28 +138,15 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
     };
 
     const handleAddImage = () => {
-        if (imageUrl.trim()) {
-            editor
-                .chain()
-                .focus()
-                .insertContent({
-                    type: "image",
-                    attrs: {
-                        src: imageUrl.trim(),
-                    },
-                })
-                .run();
-            setImageUrl("");
-            setShowImageInput(false);
-        }
-    };
-
-    const handleCancelLink = () => {
-        setLinkUrl("");
-        setShowLinkInput(false);
-    };
-
-    const handleCancelImage = () => {
+        if (!imageUrl.trim()) return;
+        editor
+            .chain()
+            .focus()
+            .insertContent({
+                type: "image",
+                attrs: { src: imageUrl.trim() },
+            })
+            .run();
         setImageUrl("");
         setShowImageInput(false);
     };
@@ -112,242 +155,99 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
         <div className="border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark">
             {/* 메인 툴바 */}
             <div className="flex flex-wrap items-center gap-1 px-4 py-2 overflow-x-auto">
-                {/* Undo/Redo */}
-                <ToolButton
-                    icon={Undo}
-                    onClick={() => editor.chain().focus().undo().run()}
-                    disabled={!editor.can().undo()}
-                    title="실행 취소 (Ctrl+Z)"
-                />
-                <ToolButton
-                    icon={Redo}
-                    onClick={() => editor.chain().focus().redo().run()}
-                    disabled={!editor.can().redo()}
-                    title="다시 실행 (Ctrl+Shift+Z)"
-                />
+                <ToolButton icon={Undo} onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} />
+                <ToolButton icon={Redo} onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} />
 
                 <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
 
-                {/* 텍스트 스타일 */}
-                <ToolButton
-                    icon={Bold}
-                    onClick={() => editor.chain().focus().toggleBold().run()}
-                    active={editor.isActive("bold")}
-                    title="굵게 (Ctrl+B)"
-                />
-                <ToolButton
-                    icon={Italic}
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
-                    active={editor.isActive("italic")}
-                    title="기울임 (Ctrl+I)"
-                />
-                <ToolButton
-                    icon={UnderlineIcon}
-                    onClick={() => editor.chain().focus().toggleUnderline().run()}
-                    active={editor.isActive("underline")}
-                    title="밑줄 (Ctrl+U)"
-                />
-                <ToolButton
-                    icon={Strikethrough}
-                    onClick={() => editor.chain().focus().toggleStrike().run()}
-                    active={editor.isActive("strike")}
-                    title="취소선"
-                />
-                <ToolButton
-                    icon={Code}
-                    onClick={() => editor.chain().focus().toggleCode().run()}
-                    active={editor.isActive("code")}
-                    title="코드 (Ctrl+E)"
-                />
+                <ToolButton icon={Bold} onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} />
+                <ToolButton icon={Italic} onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} />
+                <ToolButton icon={UnderlineIcon} onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} />
+                <ToolButton icon={Strikethrough} onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} />
+                <ToolButton icon={Code} onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} />
 
                 <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
 
-                {/* 제목 */}
-                <ToolButton
-                    icon={Heading1}
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                    active={editor.isActive("heading", { level: 1 })}
-                    title="제목 1"
-                />
-                <ToolButton
-                    icon={Heading2}
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                    active={editor.isActive("heading", { level: 2 })}
-                    title="제목 2"
-                />
-                <ToolButton
-                    icon={Heading3}
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                    active={editor.isActive("heading", { level: 3 })}
-                    title="제목 3"
-                />
+                <ToolButton icon={Heading1} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive("heading", { level: 1 })} />
+                <ToolButton icon={Heading2} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive("heading", { level: 2 })} />
+                <ToolButton icon={Heading3} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive("heading", { level: 3 })} />
 
                 <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
 
-                {/* 리스트 */}
-                <ToolButton
-                    icon={List}
-                    onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    active={editor.isActive("bulletList")}
-                    title="글머리 기호"
-                />
-                <ToolButton
-                    icon={ListOrdered}
-                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                    active={editor.isActive("orderedList")}
-                    title="번호 매기기"
-                />
-                <ToolButton
-                    icon={Quote}
-                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                    active={editor.isActive("blockquote")}
-                    title="인용"
-                />
+                <ToolButton icon={List} onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} />
+                <ToolButton icon={ListOrdered} onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} />
+                <ToolButton icon={Quote} onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")} />
 
                 <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
 
-                {/* 정렬 */}
-                <ToolButton
-                    icon={AlignLeft}
-                    onClick={() => editor.chain().focus().setTextAlign("left").run()}
-                    active={editor.isActive({ textAlign: "left" })}
-                    title="왼쪽 정렬"
-                />
-                <ToolButton
-                    icon={AlignCenter}
-                    onClick={() => editor.chain().focus().setTextAlign("center").run()}
-                    active={editor.isActive({ textAlign: "center" })}
-                    title="가운데 정렬"
-                />
-                <ToolButton
-                    icon={AlignRight}
-                    onClick={() => editor.chain().focus().setTextAlign("right").run()}
-                    active={editor.isActive({ textAlign: "right" })}
-                    title="오른쪽 정렬"
-                />
+                <ToolButton icon={AlignLeft} onClick={() => editor.chain().focus().setTextAlign("left").run()} />
+                <ToolButton icon={AlignCenter} onClick={() => editor.chain().focus().setTextAlign("center").run()} />
+                <ToolButton icon={AlignRight} onClick={() => editor.chain().focus().setTextAlign("right").run()} />
 
                 <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
 
-                {/* 하이라이트 */}
                 <ToolButton
                     icon={Highlighter}
-                    onClick={() => editor.chain().focus().toggleHighlight().run()}
+                    onClick={() => toggleHighlight("#fff3a0")}
                     active={editor.isActive("highlight")}
-                    title="형광펜"
+                    title="형광펜 (Ctrl+Shift+H)"
                 />
 
-                {/* 링크 */}
-                <ToolButton
-                    icon={LinkIcon}
-                    onClick={() => setShowLinkInput(!showLinkInput)}
-                    active={editor.isActive("link")}
-                    title="링크"
-                />
+                <ToolButton icon={LinkIcon} onClick={() => setShowLinkInput(!showLinkInput)} active={editor.isActive("link")} />
+                <ToolButton icon={ImageIcon} onClick={() => setShowImageInput(!showImageInput)} />
+                <ToolButton icon={Minus} onClick={() => editor.chain().focus().setHorizontalRule().run()} />
+            </div>
 
-                {/* 이미지 */}
-                <ToolButton
-                    icon={ImageIcon}
-                    onClick={() => setShowImageInput(!showImageInput)}
-                    title="이미지"
-                />
+            {/* 프리셋 영역 */}
+            <div className="flex flex-wrap items-center gap-4 px-4 py-2 border-t border-border-light dark:border-border-dark">
+                <div className="flex gap-1">
+                    {TEXT_COLORS.map(c => (
+                        <button key={c.class} onClick={() => applyTextStyle(c.class)} className="px-2 py-1 text-xs rounded hover:bg-surface-light dark:hover:bg-surface-input">
+                            {c.label}
+                        </button>
+                    ))}
+                </div>
 
-                {/* 구분선 */}
-                <ToolButton
-                    icon={Minus}
-                    onClick={() => editor.chain().focus().setHorizontalRule().run()}
-                    title="구분선"
-                />
+                <div className="flex gap-1">
+                    {FONT_SIZES.map(s => (
+                        <button key={s.class} onClick={() => applyTextStyle(s.class)} className="px-2 py-1 text-xs rounded hover:bg-surface-light dark:hover:bg-surface-input">
+                            {s.label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex gap-1">
+                    {HIGHLIGHT_COLORS.map(h => (
+                        <button
+                            key={h.color}
+                            onClick={() => toggleHighlight(h.color)}
+                            className="w-5 h-5 rounded"
+                            style={{ backgroundColor: h.color }}
+                            title={h.label}
+                        />
+                    ))}
+                </div>
             </div>
 
             {/* 링크 입력 */}
             {showLinkInput && (
-                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark bg-surface-light/50 dark:bg-surface-input/50">
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="url"
-                            value={linkUrl}
-                            onChange={(e) => setLinkUrl(e.target.value)}
-                            placeholder="https://example.com"
-                            autoFocus
-                            className="flex-1 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark text-sm outline-none focus:ring-2 focus:ring-accent"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    handleSetLink();
-                                }
-                                if (e.key === "Escape") {
-                                    e.preventDefault();
-                                    handleCancelLink();
-                                }
-                            }}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleSetLink}
-                            disabled={!linkUrl.trim()}
-                            className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            추가
-                        </button>
-                        {editor.isActive("link") && (
-                            <button
-                                type="button"
-                                onClick={handleRemoveLink}
-                                className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
-                            >
-                                제거
-                            </button>
-                        )}
-                        <button
-                            type="button"
-                            onClick={handleCancelLink}
-                            className="p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-input transition-colors"
-                            title="취소"
-                        >
-                            <X size={16} />
-                        </button>
+                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark">
+                    <div className="flex gap-2">
+                        <input value={linkUrl} onChange={e => setLinkUrl(e.target.value)} className="flex-1 px-3 py-2 rounded-lg border" />
+                        <button onClick={handleSetLink}>추가</button>
+                        {editor.isActive("link") && <button onClick={handleRemoveLink}>제거</button>}
+                        <button onClick={() => setShowLinkInput(false)}><X size={16} /></button>
                     </div>
                 </div>
             )}
 
             {/* 이미지 입력 */}
             {showImageInput && (
-                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark bg-surface-light/50 dark:bg-surface-input/50">
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="url"
-                            value={imageUrl}
-                            onChange={(e) => setImageUrl(e.target.value)}
-                            placeholder="https://example.com/image.jpg"
-                            autoFocus
-                            className="flex-1 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark text-sm outline-none focus:ring-2 focus:ring-accent"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    handleAddImage();
-                                }
-                                if (e.key === "Escape") {
-                                    e.preventDefault();
-                                    handleCancelImage();
-                                }
-                            }}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleAddImage}
-                            disabled={!imageUrl.trim()}
-                            className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            추가
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleCancelImage}
-                            className="p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-input transition-colors"
-                            title="취소"
-                        >
-                            <X size={16} />
-                        </button>
+                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark">
+                    <div className="flex gap-2">
+                        <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} className="flex-1 px-3 py-2 rounded-lg border" />
+                        <button onClick={handleAddImage}>추가</button>
+                        <button onClick={() => setShowImageInput(false)}><X size={16} /></button>
                     </div>
                 </div>
             )}

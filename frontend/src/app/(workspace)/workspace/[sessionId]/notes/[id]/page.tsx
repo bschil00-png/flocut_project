@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import {
     ArrowLeft,
     Save,
@@ -11,12 +11,12 @@ import {
     Eye,
     EyeOff,
 } from "lucide-react";
-import { useNoteEditor } from "@/hooks/notes/useNoteEditor";
-import { useNoteCreate } from "@/hooks/notes/useNoteCreate";
-import { useState, useEffect, useRef } from "react";
-import { toast } from "sonner";
+import {useNoteEditor} from "@/hooks/notes/useNoteEditor";
+import {useNoteCreate} from "@/hooks/notes/useNoteCreate";
+import {useState, useEffect, useRef} from "react";
+import {toast} from "sonner";
 
-import { requestNoteSummary } from "@/lib/rest/summary/summary.rest";
+import {requestNoteSummary} from "@/lib/rest/summary/summary.rest";
 
 import NoteTitleInput from "@/app/components/notes/editor/NoteTitleInput";
 import NoteContentEditor from "@/app/components/notes/editor/NoteContentEditor";
@@ -24,11 +24,11 @@ import FullPageToolbar from "@/app/components/notes/editor/FullPageToolbar";
 import DownloadMenu from "@/app/components/notes/download/DownloadMenu";
 import NoteSummaryContent from "@/app/components/notes/NoteSummaryContent";
 import VoiceRecorder from "@/app/components/audio/VoiceRecorder";
-import { DownloadData } from "@/app/components/notes/download/types";
+import {DownloadData} from "@/app/components/notes/download/types";
 
 export default function NoteDetailPage() {
     const router = useRouter();
-    const { sessionId, id } = useParams<{ sessionId: string; id: string }>();
+    const {sessionId, id} = useParams<{ sessionId: string; id: string }>();
 
     const isNew = id === "new";
     const [noteId, setNoteId] = useState<number | undefined>(
@@ -41,7 +41,7 @@ export default function NoteDetailPage() {
 
     const creatingRef = useRef(false);
 
-    const { handleCreate, isCreating } = useNoteCreate(Number(sessionId));
+    const {handleCreate, isCreating} = useNoteCreate(Number(sessionId));
     const {
         loading,
         localTitle,
@@ -106,7 +106,7 @@ export default function NoteDetailPage() {
     if (loading || isCreating) {
         return (
             <div className="h-screen flex items-center justify-center bg-white dark:bg-surface-dark">
-                <Loader2 className="animate-spin text-accent" size={48} />
+                <Loader2 className="animate-spin text-accent" size={48}/>
             </div>
         );
     }
@@ -116,14 +116,15 @@ export default function NoteDetailPage() {
             {/* 메인 에디터 */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* 헤더 */}
-                <header className="h-14 border-b border-border-light dark:border-border-dark flex items-center justify-between px-4 sm:px-6 bg-white dark:bg-surface-dark">
+                <header
+                    className="h-14 border-b border-border-light dark:border-border-dark flex items-center justify-between px-4 sm:px-6 bg-white dark:bg-surface-dark">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                         <button
                             onClick={handleBackClick}
                             className="p-2 hover:bg-accent-soft rounded-lg"
                             aria-label="뒤로가기"
                         >
-                            <ArrowLeft size={18} />
+                            <ArrowLeft size={18}/>
                         </button>
                         <h1 className="text-sm font-medium truncate">
                             {localTitle || "제목 없음"}
@@ -136,7 +137,7 @@ export default function NoteDetailPage() {
                                 onClick={() => setShowVoiceRecorder(true)}
                                 className="p-2 hover:bg-accent-soft rounded-lg"
                             >
-                                <Mic size={16} />
+                                <Mic size={16}/>
                             </button>
                         )}
 
@@ -147,9 +148,9 @@ export default function NoteDetailPage() {
                                 className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-accent text-white"
                             >
                                 {summaryLoading ? (
-                                    <Loader2 size={14} className="animate-spin" />
+                                    <Loader2 size={14} className="animate-spin"/>
                                 ) : (
-                                    <Sparkles size={14} />
+                                    <Sparkles size={14}/>
                                 )}
                                 <span className="hidden sm:inline">요약 요청</span>
                             </button>
@@ -164,7 +165,7 @@ export default function NoteDetailPage() {
                                         : "hover:bg-accent-soft"
                                 }`}
                             >
-                                {showSummary ? <EyeOff size={16} /> : <Eye size={16} />}
+                                {showSummary ? <EyeOff size={16}/> : <Eye size={16}/>}
                             </button>
                         )}
 
@@ -173,7 +174,7 @@ export default function NoteDetailPage() {
                                 onClick={() => setShowDownload(!showDownload)}
                                 className="p-2 hover:bg-accent-soft rounded-lg"
                             >
-                                <Download size={16} />
+                                <Download size={16}/>
                             </button>
                             {showDownload && (
                                 <DownloadMenu
@@ -183,19 +184,38 @@ export default function NoteDetailPage() {
                             )}
                         </div>
 
-                        {!saved && !isSaving && (
-                            <button
-                                onClick={handleSync}
-                                className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-accent text-white"
-                            >
-                                <Save size={14} />
-                                <span className="hidden sm:inline">저장</span>
-                            </button>
-                        )}
+                        <button
+                            onClick={handleSync}
+                            disabled={isSaving || saved}
+                            className={`
+                            flex items-center justify-center gap-2
+                            px-3 py-1.5 text-sm rounded-lg
+                            min-w-[92px]
+                            transition-colors
+                            ${
+                                                        saved
+                                                            ? "bg-surface-light text-text-muted-light cursor-default"
+                                                            : "bg-accent text-white hover:bg-accent-dark"
+                                                    }
+                            ${isSaving ? "opacity-80 cursor-wait" : ""}
+                          `}
+                                                >
+                                                    {isSaving ? (
+                                                        <Loader2 size={14} className="animate-spin"/>
+                                                    ) : (
+                                                        <Save size={14}/>
+                                                    )}
+
+                                                    <span className="hidden sm:inline">
+                            {isSaving ? "저장 중…" : saved ? "저장됨" : "저장"}
+                          </span>
+                        </button>
+
+
                     </div>
                 </header>
 
-                <FullPageToolbar editor={editor} />
+                <FullPageToolbar editor={editor}/>
 
                 {/* 에디터 */}
                 <main className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-8">
@@ -224,12 +244,12 @@ export default function NoteDetailPage() {
                 <div className="w-96 border-l flex flex-col bg-white dark:bg-surface-dark">
                     <div className="p-4 border-b flex justify-between">
                         <h2 className="font-bold text-sm flex items-center gap-2">
-                            <Sparkles size={16} className="text-accent" />
+                            <Sparkles size={16} className="text-accent"/>
                             요약
                         </h2>
                         <button onClick={() => setShowSummary(false)}>닫기</button>
                     </div>
-                    <NoteSummaryContent noteId={id} sessionId={Number(sessionId)} />
+                    <NoteSummaryContent noteId={id} sessionId={Number(sessionId)}/>
                 </div>
             )}
 

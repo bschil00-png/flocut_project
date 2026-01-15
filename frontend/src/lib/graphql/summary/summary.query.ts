@@ -53,6 +53,7 @@ export const NOTE_LATEST_SUMMARY_QUERY = gql`
   query NoteLatestSummary($noteId: ID!) {
     noteLatestSummary(noteId: $noteId) {
       summaryId
+      status
       mainTopic
       keyTakeaways
       sections {

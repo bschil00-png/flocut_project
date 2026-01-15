@@ -55,7 +55,7 @@ export default function SummaryProcessing() {
             {/* 예상 시간 */}
             <div className="mt-6 flex items-center gap-2 text-xs text-text-muted-light dark:text-text-muted-dark">
                 <Clock size={14} />
-                <span>평균 10~30초 소요</span>
+                <span>평균 20~50초 소요</span>
             </div>
         </div>
     );

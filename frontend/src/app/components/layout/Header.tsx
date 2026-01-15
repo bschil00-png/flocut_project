@@ -8,7 +8,6 @@ import HeaderClient from "./HeaderClient";
 const NAV_ITEMS = [
     { href: "/about", label: "회사 소개" },
     { href: "/workspace", label: "스튜디오" },
-    { href: "/calendar", label: "캘린더" },
     { href: "/support", label: "고객지원" },
 ];
 

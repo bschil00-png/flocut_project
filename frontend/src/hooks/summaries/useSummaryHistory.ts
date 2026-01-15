@@ -1,44 +1,48 @@
 "use client";
 
+import { useEffect } from "react";
+import { useQuery } from "@apollo/client/react";
 import { SUMMARY_HISTORY_QUERY } from "@/lib/graphql/summary/summary.query";
 import {
-    SummaryHistoryPage,
-    DocumentSummaryHistoryResponse,
+  SummaryHistoryPage,
+  DocumentSummaryHistoryResponse,
 } from "@/lib/graphql/summary/summary.type";
-import {useQuery} from "@apollo/client/react";
 
-
-  // 문서 요약 히스토리 조회 Hook
-  // - 문서 전용 (노트는 useNoteSummary 사용)
-  // - 버전 관리, 페이지네이션 지원
 export function useSummaryHistory(
-    fileId: number | null,
-    sessionId: number,
-    pageNumber: number = 0,
-    pageSize: number = 10
+  fileId: number | null,
+  sessionId: number,
+  pageNumber: number = 0,
+  pageSize: number = 10
 ) {
-    const { data, loading, error, refetch } =
-        useQuery<DocumentSummaryHistoryResponse>(SUMMARY_HISTORY_QUERY, {
-            variables: {
-                fileId: fileId?.toString(),
-                sessionId: sessionId.toString(),
-                page: {
-                    page: pageNumber,
-                    size: pageSize,
-                },
-            },
-            skip: fileId == null,
-            fetchPolicy: "cache-and-network",
-        });
+  const { data, loading, error, refetch, startPolling, stopPolling } =
+    useQuery<DocumentSummaryHistoryResponse>(SUMMARY_HISTORY_QUERY, {
+      variables: {
+        fileId: fileId?.toString(),
+        sessionId: sessionId.toString(),
+        page: { page: pageNumber, size: pageSize },
+      },
+      skip: fileId == null,
+      fetchPolicy: "network-only",
+    });
 
-    const historyPage: SummaryHistoryPage | undefined =
-        data?.documentSummaryHistory;
+  const history = data?.documentSummaryHistory?.content || [];
 
-    return {
-        history: historyPage?.content || [],
-        page: historyPage,
-        loading,
-        error,
-        refetch,
-    };
+  //  생성 중인 히스토리가 하나라도 있으면 폴링 시작
+  useEffect(() => {
+    const hasProcessing = history.some((item) => item.status === "REQUESTED");
+    if (hasProcessing) {
+      startPolling(3000);
+    } else {
+      stopPolling();
+    }
+    return () => stopPolling();
+  }, [history, startPolling, stopPolling]);
+
+  return {
+    history,
+    page: data?.documentSummaryHistory,
+    loading,
+    error,
+    refetch,
+  };
 }

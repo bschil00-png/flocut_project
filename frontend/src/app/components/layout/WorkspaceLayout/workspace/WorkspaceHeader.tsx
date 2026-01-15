@@ -94,21 +94,6 @@ export default function WorkspaceHeader({
 
             {/* RIGHT */}
             <div className="flex items-center gap-3">
-                <button
-                    className="
-            relative p-2 rounded-md
-            text-text-muted-light dark:text-text-muted-dark
-            hover:bg-surface-light dark:hover:bg-surface-dark
-            transition-colors
-          "
-                    aria-label="알림"
-                >
-                    <Bell size={16} />
-                    {notificationCount > 0 && (
-                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
-                    )}
-                </button>
-
                 <ProfileAvatar user={user} />
             </div>
         </header>

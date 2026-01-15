@@ -27,19 +27,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-// Types
-
 type FullPageToolbarProps = {
     editor: Editor | null;
 };
 
-// Main Component
-
 export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
-    // --------------------------------------------
-    // State
-    // --------------------------------------------
-
     const [linkUrl, setLinkUrl] = useState("");
     const [imageUrl, setImageUrl] = useState("");
     const [showLinkInput, setShowLinkInput] = useState(false);
@@ -47,16 +39,15 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
 
     if (!editor) return null;
 
-    // --------------------------------------------
-    // Handlers
-    // --------------------------------------------
+    /* --------------------------------------------
+     * Handlers
+     * -------------------------------------------- */
 
     const handleSetLink = () => {
-        if (linkUrl.trim()) {
-            editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
-            setLinkUrl("");
-            setShowLinkInput(false);
-        }
+        if (!linkUrl.trim()) return;
+        editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
+        setLinkUrl("");
+        setShowLinkInput(false);
     };
 
     const handleRemoveLink = () => {
@@ -66,31 +57,36 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
     };
 
     const handleAddImage = () => {
-        if (imageUrl.trim()) {
-            editor
-                .chain()
-                .focus()
-                .insertContent({
-                    type: "image",
-                    attrs: {
-                        src: imageUrl.trim(),
-                    },
-                })
-                .run();
-            setImageUrl("");
-            setShowImageInput(false);
-        }
+        if (!imageUrl.trim()) return;
+        editor
+            .chain()
+            .focus()
+            .insertContent({
+                type: "image",
+                attrs: { src: imageUrl.trim() },
+            })
+            .run();
+        setImageUrl("");
+        setShowImageInput(false);
     };
 
-    // --------------------------------------------
-    // Render
-    // --------------------------------------------
+    // 형광펜 (Highlight extension 기반)
+    const toggleHighlight = (color = "#fff3a0") => {
+        editor
+            .chain()
+            .focus()
+            .toggleHighlight({ color })
+            .run();
+    };
+
+    /* --------------------------------------------
+     * Render
+     * -------------------------------------------- */
 
     return (
         <div className="border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark">
-            {/* 메인 툴바 */}
             <div className="flex flex-wrap items-center gap-1 px-4 py-2 overflow-x-auto">
-                {/* Undo/Redo */}
+                {/* Undo / Redo */}
                 <ToolButton
                     icon={Undo}
                     onClick={() => editor.chain().focus().undo().run()}
@@ -104,9 +100,9 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
                     title="다시 실행 (Ctrl+Shift+Z)"
                 />
 
-                <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
+                <Divider />
 
-                {/* 텍스트 스타일 */}
+                {/* Text style */}
                 <ToolButton
                     icon={Bold}
                     onClick={() => editor.chain().focus().toggleBold().run()}
@@ -138,9 +134,9 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
                     title="코드 (Ctrl+E)"
                 />
 
-                <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
+                <Divider />
 
-                {/* 제목 */}
+                {/* Headings */}
                 <ToolButton
                     icon={Heading1}
                     onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -160,9 +156,9 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
                     title="제목 3"
                 />
 
-                <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
+                <Divider />
 
-                {/* 리스트 */}
+                {/* Lists */}
                 <ToolButton
                     icon={List}
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -182,9 +178,9 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
                     title="인용"
                 />
 
-                <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
+                <Divider />
 
-                {/* 정렬 */}
+                {/* Alignment */}
                 <ToolButton
                     icon={AlignLeft}
                     onClick={() => editor.chain().focus().setTextAlign("left").run()}
@@ -204,17 +200,17 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
                     title="오른쪽 정렬"
                 />
 
-                <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />
+                <Divider />
 
-                {/* 하이라이트 */}
+                {/* Highlight */}
                 <ToolButton
                     icon={Highlighter}
-                    onClick={() => editor.chain().focus().toggleHighlight().run()}
+                    onClick={() => toggleHighlight("#fff3a0")}
                     active={editor.isActive("highlight")}
-                    title="형광펜"
+                    title="형광펜 (Ctrl+Shift+H)"
                 />
 
-                {/* 링크 */}
+                {/* Link */}
                 <ToolButton
                     icon={LinkIcon}
                     onClick={() => setShowLinkInput(!showLinkInput)}
@@ -222,14 +218,14 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
                     title="링크"
                 />
 
-                {/* 이미지 */}
+                {/* Image */}
                 <ToolButton
                     icon={ImageIcon}
                     onClick={() => setShowImageInput(!showImageInput)}
                     title="이미지"
                 />
 
-                {/* 구분선 */}
+                {/* Divider */}
                 <ToolButton
                     icon={Minus}
                     onClick={() => editor.chain().focus().setHorizontalRule().run()}
@@ -237,103 +233,59 @@ export default function FullPageToolbar({ editor }: FullPageToolbarProps) {
                 />
             </div>
 
-            {/* 링크 입력 */}
+            {/* Link input */}
             {showLinkInput && (
-                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark bg-surface-light/50 dark:bg-surface-input/50">
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="url"
-                            value={linkUrl}
-                            onChange={(e) => setLinkUrl(e.target.value)}
-                            placeholder="https://example.com"
-                            autoFocus
-                            className="flex-1 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark text-sm outline-none focus:ring-2 focus:ring-accent"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    handleSetLink();
-                                }
-                                if (e.key === "Escape") {
-                                    e.preventDefault();
-                                    setShowLinkInput(false);
-                                }
-                            }}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleSetLink}
-                            disabled={!linkUrl.trim()}
-                            className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            추가
-                        </button>
-                        {editor.isActive("link") && (
-                            <button
-                                type="button"
-                                onClick={handleRemoveLink}
-                                className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
-                            >
-                                제거
-                            </button>
-                        )}
-                        <button
-                            type="button"
-                            onClick={() => setShowLinkInput(false)}
-                            className="p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-input transition-colors"
-                            title="취소"
-                        >
-                            <X size={16} />
-                        </button>
-                    </div>
-                </div>
+                <InputRow>
+                    <input
+                        value={linkUrl}
+                        onChange={(e) => setLinkUrl(e.target.value)}
+                        placeholder="https://example.com"
+                        className="flex-1 px-3 py-2 rounded-lg border"
+                    />
+                    <button onClick={handleSetLink}>추가</button>
+                    {editor.isActive("link") && (
+                        <button onClick={handleRemoveLink}>제거</button>
+                    )}
+                    <button onClick={() => setShowLinkInput(false)}>
+                        <X size={16} />
+                    </button>
+                </InputRow>
             )}
 
-            {/* 이미지 입력 */}
+            {/* Image input */}
             {showImageInput && (
-                <div className="px-4 py-3 border-t border-border-light dark:border-border-dark bg-surface-light/50 dark:bg-surface-input/50">
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="url"
-                            value={imageUrl}
-                            onChange={(e) => setImageUrl(e.target.value)}
-                            placeholder="https://example.com/image.jpg"
-                            autoFocus
-                            className="flex-1 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark text-sm outline-none focus:ring-2 focus:ring-accent"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    handleAddImage();
-                                }
-                                if (e.key === "Escape") {
-                                    e.preventDefault();
-                                    setShowImageInput(false);
-                                }
-                            }}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleAddImage}
-                            disabled={!imageUrl.trim()}
-                            className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            추가
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowImageInput(false)}
-                            className="p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-input transition-colors"
-                            title="취소"
-                        >
-                            <X size={16} />
-                        </button>
-                    </div>
-                </div>
+                <InputRow>
+                    <input
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        placeholder="https://example.com/image.jpg"
+                        className="flex-1 px-3 py-2 rounded-lg border"
+                    />
+                    <button onClick={handleAddImage}>추가</button>
+                    <button onClick={() => setShowImageInput(false)}>
+                        <X size={16} />
+                    </button>
+                </InputRow>
             )}
         </div>
     );
 }
 
-// Sub Components
+/* --------------------------------------------
+ * Sub components
+ * -------------------------------------------- */
+
+function Divider() {
+    return <div className="w-px h-6 bg-border-light dark:bg-border-dark mx-1" />;
+}
+
+function InputRow({ children }: { children: React.ReactNode }) {
+    return (
+        <div className="px-4 py-3 border-t border-border-light dark:border-border-dark flex gap-2">
+            {children}
+        </div>
+    );
+}
 
 const ToolButton = ({
                         icon: Icon,

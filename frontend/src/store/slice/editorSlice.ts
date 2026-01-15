@@ -1,58 +1,32 @@
+// store/slice/editorSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type EditorState = {
-    noteId: number | null;
-    title: string;
-    content: string;
-    isDirty: boolean;
-};
+interface EditorState {
+  noteId: number | null;
+  title: string;
+}
 
 const initialState: EditorState = {
-    noteId: null,
-    title: "",
-    content: "",
-    isDirty: false,
+  noteId: null,
+  title: "",
 };
 
 const editorSlice = createSlice({
-    name: "editor",
-    initialState,
-    reducers: {
-        initEditor(
-            state,
-            action: PayloadAction<{
-                noteId: number;
-                title: string;
-                content: string;
-            }>
-        ) {
-            state.noteId = action.payload.noteId;
-            state.title = action.payload.title;
-            state.content = action.payload.content;
-            state.isDirty = false;
-        },
-
-        updateTitle(state, action: PayloadAction<string>) {
-            state.title = action.payload;
-            state.isDirty = true;
-        },
-
-        updateContent(state, action: PayloadAction<string>) {
-            state.content = action.payload;
-            state.isDirty = true;
-        },
-
-        clearEditor() {
-            return initialState;
-        },
+  name: "editor",
+  initialState,
+  reducers: {
+    // 에디터 진입 시 초기화
+    setEditingNote(state, action: PayloadAction<{ noteId: number; title: string }>) {
+      state.noteId = action.payload.noteId;
+      state.title = action.payload.title;
     },
+    // 타이핑 즉시 업데이트 (이게 목록의 제목을 바꿈)
+    updateLocalTitle(state, action: PayloadAction<string>) {
+      state.title = action.payload;
+    },
+    clearEditor: () => initialState,
+  },
 });
 
-export const {
-    initEditor,
-    updateTitle,
-    updateContent,
-    clearEditor,
-} = editorSlice.actions;
-
+export const { setEditingNote, updateLocalTitle, clearEditor } = editorSlice.actions;
 export default editorSlice.reducer;

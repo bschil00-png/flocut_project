@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import AvatarSelector from "@/app/components/settings/AvatarSelector";
@@ -11,120 +11,124 @@ import Divider from "@/app/components/ui/divider/Divider";
 import AlertDialog from "@/app/components/ui/modal/AlertDialog";
 
 import { RootState } from "@/store";
-import { useAuthState } from "@/hooks/useAuthState";
-import { setAvatarId } from "@/store/slice/uislice";
 import { useProfileActions } from "@/hooks/member/useProfileActions";
+import { setAvatarId } from "@/store/slice/uislice";
 
 export default function ProfilePanel() {
-    const dispatch = useDispatch();
-    const { user } = useAuthState();
-    const { updateProfile } = useProfileActions();
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const currentAvatarId = useSelector(
+    (state: RootState) => state.ui.avatarId
+  );
 
-    const currentAvatarId = useSelector(
-        (state: RootState) => state.ui.avatarId
-    );
+  const { updateProfile } = useProfileActions();
 
-    const [avatarId, setLocalAvatarId] = useState(currentAvatarId);
-    const [name, setName] = useState("");
-    const [tel, setTel] = useState("");
-    const [loading, setLoading] = useState(false);
+  const initializedRef = useRef(false);
 
-    //  Alert 상태
-    const [alertOpen, setAlertOpen] = useState(false);
-    const [alertMessage, setAlertMessage] = useState("");
+  const [avatarId, setLocalAvatarId] = useState(currentAvatarId);
+  const [name, setName] = useState("");
+  const [tel, setTel] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (!user) return;
-        setName(user.name);
-        setTel(user.tel);
-    }, [user]);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
-    useEffect(() => {
-        setLocalAvatarId(currentAvatarId);
-    }, [currentAvatarId]);
+  // 최초 1회만 user → local 동기화
+  useEffect(() => {
+    if (!user || initializedRef.current) return;
 
-    const handleSave = async () => {
-        if (!user || !name.trim() || !tel.trim()) return;
+    setName(user.name);
+    setTel(user.tel);
+    setLocalAvatarId(user.profileImage || currentAvatarId);
 
-        const isChanged =
-            name !== user.name ||
-            tel !== user.tel ||
-            avatarId !== currentAvatarId;
+    initializedRef.current = true;
+  }, [user, currentAvatarId]);
 
+  const handleSave = async () => {
+    if (!user) return;
 
-        if (!isChanged) {
-            setAlertMessage("변경사항이 없습니다.");
-            setAlertOpen(true);
-            return;
-        }
+    const isChanged =
+      name !== user.name ||
+      tel !== user.tel ||
+      avatarId !== user.profileImage;
 
-        setLoading(true);
-        try {
-            dispatch(setAvatarId(avatarId));
-            await updateProfile({ name, tel, profileImage: avatarId });
+    if (!isChanged) {
+      setAlertMessage("변경사항이 없습니다.");
+      setAlertOpen(true);
+      return;
+    }
 
-            setAlertMessage("회원 정보가 성공적으로 저장되었습니다.");
-        } catch {
-            setAlertMessage("회원 정보 수정에 실패했습니다.");
-        } finally {
-            setLoading(false);
-            setAlertOpen(true);
-        }
-    };
+    setLoading(true);
+    try {
+      dispatch(setAvatarId(avatarId));
 
-    if (!user) return null;
+      await updateProfile({
+        name,
+        tel,
+        profileImage: avatarId,
+      });
 
-    return (
-        <>
-            <div className="max-w-2xl space-y-6">
-                <div>
-                    <h2 className="text-lg font-bold">프로필 설정</h2>
-                    <p className="text-sm text-text-muted-light mt-1">
-                        프로필 정보를 관리합니다.
-                    </p>
-                </div>
+      setAlertMessage("회원 정보가 저장되었습니다.");
+    } catch {
+      setAlertMessage("회원 정보 수정에 실패했습니다.");
+    } finally {
+      setLoading(false);
+      setAlertOpen(true);
+    }
+  };
 
-                <AvatarSelector
-                    currentAvatarId={avatarId}
-                    userName={name}
-                    onChange={setLocalAvatarId}
-                />
+  if (!user) return null;
 
-                <Divider />
+  return (
+    <>
+      <div className="max-w-2xl space-y-6">
+        <div>
+          <h2 className="text-lg font-bold">프로필 설정</h2>
+          <p className="text-sm text-text-muted-light mt-1">
+            프로필 정보를 관리합니다.
+          </p>
+        </div>
 
-                <div className="space-y-3">
-                    <FormField label="이름">
-                        <Input value={name} onChange={(e) => setName(e.target.value)} />
-                    </FormField>
+        <AvatarSelector
+          currentAvatarId={avatarId}
+          userName={name}
+          onChange={setLocalAvatarId}
+        />
 
-                    <FormField label="이메일">
-                        <Input value={user.email} disabled />
-                    </FormField>
+        <Divider />
 
-                    <FormField label="전화번호">
-                        <Input value={tel} onChange={(e) => setTel(e.target.value)} />
-                    </FormField>
-                </div>
+        <div className="space-y-3">
+          <FormField label="이름">
+            <Input value={name} onChange={(e) => setName(e.target.value)} />
+          </FormField>
 
-                <div className="flex justify-end pt-2">
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        loading={loading}
-                        onClick={handleSave}
-                    >
-                        저장
-                    </Button>
-                </div>
-            </div>
+          <FormField label="이메일">
+            <Input value={user.email} disabled />
+          </FormField>
 
-            {/*  AlertDialog만 사용 */}
-            <AlertDialog
-                open={alertOpen}
-                title="알림"
-                message={alertMessage}
-                onClose={() => setAlertOpen(false)}
-            />
-        </>
-    );
+          <FormField label="전화번호">
+            <Input value={tel} onChange={(e) => setTel(e.target.value)} />
+          </FormField>
+        </div>
+
+        <div className="flex justify-end pt-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            loading={loading}
+            onClick={handleSave}
+          >
+            저장
+          </Button>
+        </div>
+      </div>
+
+      <AlertDialog
+        open={alertOpen}
+        title="알림"
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
+    </>
+  );
 }

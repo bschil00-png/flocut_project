@@ -1,6 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 
-// interceptor로 인해 response.data를 직접 반환하는 커스텀 인스턴스 타입
 interface CustomAxiosInstance {
   get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
   post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
@@ -21,7 +20,11 @@ axiosInstance.interceptors.response.use(
     const originalRequest: any = error.config;
     const status = error.response?.status;
 
-    if (status === 401 && !originalRequest._retry) {
+    const shouldRefresh =
+      (status === 401 || status === 403) &&
+      !originalRequest._retry;
+
+    if (shouldRefresh) {
       originalRequest._retry = true;
 
       try {
@@ -30,10 +33,12 @@ axiosInstance.interceptors.response.use(
           credentials: "include",
         });
 
+        // refresh 성공 후 동일 요청 재시도
         return axiosInstance(originalRequest);
-      } catch {
+      } catch (refreshError) {
+        // refresh 실패 → 완전 로그아웃
         window.dispatchEvent(new Event("member:logout"));
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
       }
     }
 

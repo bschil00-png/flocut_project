@@ -1,4 +1,3 @@
-// src/app/api/proxy/[...path]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,9 +16,9 @@ async function proxy(request: NextRequest) {
     const cleanBaseUrl = BACKEND_BASE_URL.replace(/\/+$/, "");
     const targetUrl = `${cleanBaseUrl}${targetPath}${search}`;
 
-    console.log("\n========== PROXY REQUEST ==========");
-    console.log("TARGET URL:", targetUrl);
-    console.log("METHOD:", request.method);
+    // console.log("\n========== PROXY REQUEST ==========");
+    // console.log("TARGET URL:", targetUrl);
+    // console.log("METHOD:", request.method);
 
     const cookies = request.cookies.getAll();
     const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join("; ");
@@ -48,9 +47,9 @@ async function proxy(request: NextRequest) {
         credentials: "include",
     });
 
-    console.log("========== BACKEND RESPONSE ==========");
-    console.log("STATUS:", response.status);
-    console.log("HEADERS:", Object.fromEntries(response.headers));
+    // console.log("========== BACKEND RESPONSE ==========");
+    // console.log("STATUS:", response.status);
+    // console.log("HEADERS:", Object.fromEntries(response.headers));
 
     if (response.status === 204) {
         const result = new NextResponse(null, { status: 204 });
@@ -60,15 +59,15 @@ async function proxy(request: NextRequest) {
             result.headers.append("Set-Cookie", cookie);
         });
 
-        console.log("========== END PROXY (204) ==========\n");
+        // console.log("========== END PROXY (204) ==========\n");
         return result;
     }
 
     const responseBody = await response.text();
 
     //  body 로그 추가
-    console.log("BODY:", responseBody);
-    console.log("========== END PROXY ==========\n");
+    // console.log("BODY:", responseBody);
+    // console.log("========== END PROXY ==========\n");
 
     const result = new NextResponse(responseBody, {
         status: response.status,

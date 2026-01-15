@@ -1,34 +1,27 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "@/hooks/useAuthState";
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuthState();
-    const router = useRouter();
+  const { status, user } = useAuthState();
+  const router = useRouter();
 
-    useEffect(() => {
-        if (loading) return;
-
-        if (!user) {
-            router.replace("/login");
-            return;
-        }
-
-        if (user.role !== "ADMIN") {
-            router.replace("/403");
-        }
-    }, [loading, user, router]);
-
-    if (loading || !user || user.role !== "ADMIN") {
-        return (
-            <div className="h-screen flex items-center justify-center">
-                권한 확인 중...
-            </div>
-        );
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/login");
+      return;
     }
 
-    return <>{children}</>;
-}
+    if (status === "authenticated" && user?.role !== "ADMIN") {
+      router.replace("/403");
+    }
+  }, [status, user, router]);
 
+  if (status !== "authenticated" || user?.role !== "ADMIN") {
+    return null;
+  }
+
+  return <>{children}</>;
+}
