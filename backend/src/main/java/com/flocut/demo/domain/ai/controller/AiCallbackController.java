@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AiCallbackController {
 
-
-//     AI <-> 백엔드  전용
+//     AI <-> 백엔드  전용///
     private final AiSummaryCallbackService callbackService;
 
     @PostMapping("/summary/callback")
