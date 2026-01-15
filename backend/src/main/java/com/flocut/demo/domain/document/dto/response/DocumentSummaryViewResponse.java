@@ -10,6 +10,7 @@ import java.util.List;
 public class DocumentSummaryViewResponse {
 
     private Long summaryId;
+    private String status;
     private String mainTopic;
     private List<String> keyTakeaways;
     private List<SectionResponse> sections;
