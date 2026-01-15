@@ -4,11 +4,10 @@ import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-import Highlight from "@tiptap/extension-highlight";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
-import Color from "@tiptap/extension-color";
+import Highlight from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
 
 import { useEffect, useState } from "react";
@@ -35,8 +34,6 @@ export default function TiptapEditor({
                                          showMobileToolbar = true,
                                      }: TiptapEditorProps) {
     const [isMounted, setIsMounted] = useState(false);
-
-    // 반응형 감지
     const isMobile = useMediaQuery("(max-width: 768px)");
 
     useEffect(() => {
@@ -45,93 +42,100 @@ export default function TiptapEditor({
 
     const editor = useEditor({
         immediatelyRender: false,
+
         extensions: [
             StarterKit.configure({
-                heading: {
-                    levels: [1, 2, 3],
-                },
-                bulletList: {
-                    keepMarks: true,
-                    keepAttributes: false,
-                },
-                orderedList: {
-                    keepMarks: true,
-                    keepAttributes: false,
-                },
+                heading: { levels: [1, 2, 3] },
+                bulletList: { keepMarks: true },
+                orderedList: { keepMarks: true },
             }),
+
+            // 글자 색 / 크기용 (형광펜 아님)
             TextStyle,
-            Color,
+
             Underline,
+
             TextAlign.configure({
                 types: ["heading", "paragraph"],
             }),
-            Highlight.configure({
-                multicolor: false,
+
+            //  형광펜
+            Highlight.extend({
+                addKeyboardShortcuts() {
+                    return {
+                        "Mod-Shift-h": () =>
+                            this.editor
+                                .chain()
+                                .focus()
+                                .toggleHighlight({ color: "#fff3a0" })
+                                .run(),
+                    };
+                },
+            }).configure({
+                multicolor: true,
             }),
+
             Link.configure({
                 openOnClick: false,
                 HTMLAttributes: {
-                    class: "text-accent underline cursor-pointer hover:bg-accent-dark",
+                    class: "tiptap-link",
                 },
             }),
+
             Image.configure({
                 inline: true,
                 allowBase64: true,
                 HTMLAttributes: {
-                    class: "max-w-full h-auto rounded-lg my-4",
+                    class: "tiptap-image",
                 },
             }),
+
             Placeholder.configure({
                 placeholder,
             }),
         ],
+
         content,
         editable,
+
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML());
         },
+
         editorProps: {
             attributes: {
-                class:
-                    "prose prose-lg max-w-none focus:outline-none min-h-[200px] text-text-primary-light dark:text-text-primary-dark",
+                class: "ProseMirror titanic-editor focus:outline-none min-h-[200px]",
             },
         },
     });
 
+    // 외부 content → editor 반영 (커서 유지)
     useEffect(() => {
         if (!editor) return;
+        if (content === editor.getHTML()) return;
 
-        if (content !== editor.getHTML()) {
-            const { from, to } = editor.state.selection;
+        const { from, to } = editor.state.selection;
 
-            editor.commands.setContent(content, {
-                emitUpdate: false,
-            });
+        editor.commands.setContent(content, { emitUpdate: false });
 
-            const maxPos = editor.state.doc.content.size;
-            editor.commands.setTextSelection({
-                from: Math.min(from, maxPos),
-                to: Math.min(to, maxPos),
-            });
-        }
+        const maxPos = editor.state.doc.content.size;
+        editor.commands.setTextSelection({
+            from: Math.min(from, maxPos),
+            to: Math.min(to, maxPos),
+        });
     }, [content, editor]);
 
+    // editor ready callback
     useEffect(() => {
         if (editor && onReady) {
             onReady(editor);
         }
     }, [editor, onReady]);
 
-    useEffect(() => {
-        return () => {
-            editor?.destroy();
-        };
-    }, [editor]);
-
     if (!isMounted || !editor) {
         return (
-            <div className="flex items-center justify-center min-h-[200px] text-text-muted-light dark:text-text-muted-dark">
-                <div className="text-sm">에디터 로딩 중...</div>
+            <div className="flex items-center justify-center min-h-[200px] text-sm text-text-muted-light">
+                에디터 로딩 중…
             </div>
         );
     }
@@ -139,9 +143,9 @@ export default function TiptapEditor({
     return (
         <div className="tiptap-wrapper">
             {editable && <BubbleMenuToolbar editor={editor} />}
+
             <EditorContent editor={editor} />
 
-            {/*  모바일에서만 하단 툴바 표시 */}
             {editable && showMobileToolbar && isMobile && (
                 <MobileBottomToolbar editor={editor} />
             )}

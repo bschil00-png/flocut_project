@@ -1,137 +1,163 @@
-import { useDispatch } from "react-redux";
-import { setAuthUser, clearAuth } from "@/store/slice/authSlice";
+"use client";
+
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setAuthUser,
+  clearAuth,
+  startAuthCheck,
+} from "@/store/slice/authSlice";
 import { getMeByGraphQL } from "@/lib/graphql/auth/auth.client";
 import * as authRest from "@/lib/rest/auth/auth.rest";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { setAvatarId, setColorTheme } from "@/store/slice/uislice";
 import {
-    applyColorTheme,
-    getStoredColorTheme,
-    resetColorTheme,
+  applyColorTheme,
+  getStoredColorTheme,
+  resetColorTheme,
 } from "@/lib/theme/colorTheme";
+import { RootState } from "@/store";
 
 export function useAuthActions() {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const authStatus = useSelector((state: RootState) => state.auth.status);
 
-    // 이미 로그인된 사용자인지 확인
-    // 앱 초기 로드, 새로고침, 인증 재검증에서 사용
-    const ensureAuth = useCallback(async () => {
-        try {
-            // accessToken 기준 me 조회
-            const me = await getMeByGraphQL();
+  // ensureAuth 동시 실행 방지용 (실제 락)
+  const ensureAuthInFlightRef = useRef(false);
 
-            dispatch(
-                setAuthUser({
-                    memberId: me.memberId,
-                    email: me.email,
-                    name: me.name,
-                    tel: me.tel,
-                    profileImage: me.profileImage,
-                    role: me.role,
-                    status: me.status,
-                    regdate: me.regdate,
-                })
-            );
+  // 로그인된 유저 기준 컬러 테마 적용
+  const applyUserTheme = (memberId: number) => {
+    const theme = getStoredColorTheme(memberId);
+    dispatch(setColorTheme(theme));
+    applyColorTheme(theme, memberId);
+  };
 
-            // 로그인 유저 기준 컬러 테마 복구
-            const theme = getStoredColorTheme(me.memberId);
-            dispatch(setColorTheme(theme));
-            applyColorTheme(theme, me.memberId);
+  // 인증 상태 확인
+  // 앱 최초 로드, 새로고침, visibility/online 재검증에서 사용
+  const ensureAuth = useCallback(async () => {
+    // 이미 실행 중이면 중복 호출 방지
+    if (ensureAuthInFlightRef.current) {
+      return false;
+    }
 
-            return true;
-        } catch {
-            try {
-                // accessToken 만료 시 refresh 시도
-                await fetch("/api/proxy/auth/refresh", {
-                    method: "POST",
-                    credentials: "include",
-                });
+    ensureAuthInFlightRef.current = true;
 
-                // refresh 성공 후 다시 me 조회
-                const me = await getMeByGraphQL();
+    // UI를 checking 상태로 전환
+    if (authStatus !== "checking") {
+      dispatch(startAuthCheck());
+    }
 
-                dispatch(
-                    setAuthUser({
-                        memberId: me.memberId,
-                        email: me.email,
-                        name: me.name,
-                        tel: me.tel,
-                        profileImage: me.profileImage,
-                        role: me.role,
-                        status: me.status,
-                        regdate: me.regdate,
-                    })
-                );
+    try {
+      // accessToken 기준 me 조회
+      const me = await getMeByGraphQL();
 
-                // refresh 이후에도 컬러 테마 복구
-                const theme = getStoredColorTheme(me.memberId);
-                dispatch(setColorTheme(theme));
-                applyColorTheme(theme, me.memberId);
+      dispatch(
+        setAuthUser({
+          memberId: me.memberId,
+          email: me.email,
+          name: me.name,
+          tel: me.tel,
+          profileImage: me.profileImage,
+          role: me.role,
+          status: me.status,
+          regdate: me.regdate,
+        })
+      );
 
-                return true;
-            } catch {
-                // refresh 실패 시 인증 상태 초기화
-                dispatch(clearAuth());
-                return false;
-            }
-        }
-    }, [dispatch]);
+      // 로그인 유저 기준 컬러 테마 복구
+      applyUserTheme(me.memberId);
+      return true;
+    } catch {
+      try {
+        // accessToken 만료 시 refresh 시도
+        await fetch("/api/proxy/auth/refresh", {
+          method: "POST",
+          credentials: "include",
+        });
 
-    // 일반 로그인
-    // REST 로그인 → 쿠키 발급 → me 조회 → Redux 동기화
-    const login = useCallback(
-        async (email: string, password: string) => {
-            // 로그인 요청 (REST)
-            await authRest.login(email, password);
+        // refresh 성공 후 다시 me 조회
+        const me = await getMeByGraphQL();
 
-            // 로그인 성공 후 서버 기준 사용자 조회
-            const me = await getMeByGraphQL();
+        dispatch(
+          setAuthUser({
+            memberId: me.memberId,
+            email: me.email,
+            name: me.name,
+            tel: me.tel,
+            profileImage: me.profileImage,
+            role: me.role,
+            status: me.status,
+            regdate: me.regdate,
+          })
+        );
 
-            // Redux에 사용자 정보 저장
-            dispatch(
-                setAuthUser({
-                    memberId: me.memberId,
-                    email: me.email,
-                    name: me.name,
-                    tel: me.tel,
-                    profileImage: me.profileImage,
-                    role: me.role,
-                    status: me.status,
-                    regdate: me.regdate,
-                })
-            );
-
-            // 로그인 직후 컬러 테마 복구
-            const theme = getStoredColorTheme(me.memberId);
-            dispatch(setColorTheme(theme));
-            applyColorTheme(theme, me.memberId);
-
-            return true;
-        },
-        [dispatch]
-    );
-
-    // 로그아웃
-    // 서버 세션 종료 후 Redux 초기화
-    const logout = useCallback(async () => {
-        try {
-            await authRest.logout();
-        } catch (error) {
-            // access 토큰이 없어서 403 나는 경우도 정상 시나리오
-            console.warn("[logout] server logout failed, force local logout");
-        }
-
-        // 인증 상태 초기화 (서버 성공 여부와 무관)
+        // refresh 이후에도 컬러 테마 복구
+        applyUserTheme(me.memberId);
+        return true;
+      } catch {
+        // refresh 포함 인증 완전 실패
         dispatch(clearAuth());
+        return false;
+      }
+    } finally {
+      ensureAuthInFlightRef.current = false;
+    }
+  }, [dispatch, authStatus]);
 
-        // UI 유저 종속 상태 초기화
-        dispatch(setAvatarId("gradient-1"));
-        dispatch(setColorTheme("pink"));
+  // 일반 로그인
+  // REST 로그인 → 쿠키 발급 → me 조회 → Redux 동기화
+  const login = useCallback(
+    async (email: string, password: string) => {
+      dispatch(startAuthCheck());
 
-        // DOM 컬러 테마 초기화
-        resetColorTheme();
-    }, [dispatch]);
+      // 로그인 요청 (REST)
+      await authRest.login(email, password);
 
+      // 로그인 성공 후 서버 기준 사용자 조회
+      const me = await getMeByGraphQL();
 
-    return { ensureAuth, login, logout };
+      dispatch(
+        setAuthUser({
+          memberId: me.memberId,
+          email: me.email,
+          name: me.name,
+          tel: me.tel,
+          profileImage: me.profileImage,
+          role: me.role,
+          status: me.status,
+          regdate: me.regdate,
+        })
+      );
+
+      // 로그인 직후 컬러 테마 복구
+      applyUserTheme(me.memberId);
+      return true;
+    },
+    [dispatch]
+  );
+
+  // 로그아웃
+  // 서버 세션 종료 여부와 무관하게 로컬 상태 초기화
+  const logout = useCallback(async () => {
+    try {
+      await authRest.logout();
+    } catch {
+      // accessToken 만료로 서버 로그아웃 실패해도 정상 흐름
+    }
+
+    // 인증 상태 초기화
+    dispatch(clearAuth());
+
+    // UI 유저 종속 상태 초기화
+    dispatch(setAvatarId("gradient-1"));
+    dispatch(setColorTheme("pink"));
+
+    // DOM 컬러 테마 초기화
+    resetColorTheme();
+  }, [dispatch]);
+
+  return {
+    ensureAuth,
+    login,
+    logout,
+  };
 }

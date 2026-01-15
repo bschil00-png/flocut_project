@@ -59,7 +59,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            log.info("JWT 발견 (Authorization Header)");
+//            log.info("JWT 발견 (Authorization Header)");
         }
 
         // Cookie (accessToken)
@@ -67,7 +67,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             for (Cookie cookie : request.getCookies()) {
                 if ("accessToken".equals(cookie.getName())) {
                     token = cookie.getValue();
-                    log.info(" JWT 발견 (Cookie)");
+//                    log.info(" JWT 발견 (Cookie)");
                     break;
                 }
             }
@@ -75,21 +75,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         //  토큰이 없는 경우
         if (token == null) {
-            log.info(" JWT 없음 → 인증 없이 진행 (path={})", path);
+//            log.info(" JWT 없음 → 인증 없이 진행 (path={})", path);
             filterChain.doFilter(request, response);
             return;
         }
 
         //  토큰 검증
         if (!jwtUtil.validateToken(token)) {
-            log.warn(" JWT 검증 실패 → 인증 세팅 안 함");
+//            log.warn(" JWT 검증 실패 → 인증 세팅 안 함");
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 5이미 인증된 경우 스킵
+        // 이미 인증된 경우 스킵
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            log.info(" 이미 인증된 요청 → 스킵");
+//            log.info(" 이미 인증된 요청 → 스킵");
             filterChain.doFilter(request, response);
             return;
         }

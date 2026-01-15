@@ -15,8 +15,9 @@ export default function TabBar({ type, currentTab, onChangeTab }: Props) {
     const isCompact = useMediaQuery("(max-width: 640px)");
 
     return (
-        <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar-hide">
-            <TabButton
+        <div className="flex items-center gap-1 overflow-x-hidden flex-wrap">
+
+        <TabButton
                 label="편집"
                 icon={<Edit3 size={14} />}
                 active={currentTab === "edit"}
@@ -43,14 +44,14 @@ export default function TabBar({ type, currentTab, onChangeTab }: Props) {
                 compact={isCompact}
             />
 
-            <TabButton
-                label="일정"
-                icon={<Calendar size={14} />}
-                active={currentTab === "calendar"}
-                onClick={() => onChangeTab("calendar")}
-                disabled={type !== "note"}
-                compact={isCompact}
-            />
+            {/*<TabButton*/}
+            {/*    label="일정"*/}
+            {/*    icon={<Calendar size={14} />}*/}
+            {/*    active={currentTab === "calendar"}*/}
+            {/*    onClick={() => onChangeTab("calendar")}*/}
+            {/*    disabled={type !== "note"}*/}
+            {/*    compact={isCompact}*/}
+            {/*/>*/}
         </div>
     );
 }

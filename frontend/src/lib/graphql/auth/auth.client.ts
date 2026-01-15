@@ -2,22 +2,23 @@ import { apolloClient } from "@/lib/apollo/clients";
 import {MyProfile} from "@/lib/graphql/auth/auth.type";
 import {ME_QUERY} from "@/lib/graphql/auth/ auth.query";
 
+
 interface MeQueryResult {
-    me: MyProfile;
+  me: MyProfile;
 }
 
 
-// 그래프큐엘 기준 me 조회
+// GraphQL 기준 me 조회
+// refresh 중에도 기존 캐시를 우선 사용해 UI 안정성 확보
 export async function getMeByGraphQL(): Promise<MyProfile> {
-    const { data } = await apolloClient.query<MeQueryResult>({
-        query: ME_QUERY,
-        fetchPolicy: "network-only",
-    });
+  const { data } = await apolloClient.query<MeQueryResult>({
+    query: ME_QUERY,
+    fetchPolicy: "cache-first",
+  });
 
-    // data가 undefined일 수 있으므로 체크
-    if (!data) {
-        throw new Error("사용자 데이터 찾기에 실패했습니다.");
-    }
+  if (!data || !data.me) {
+    throw new Error("사용자 데이터 조회 실패");
+  }
 
-    return data.me;
+  return data.me;
 }

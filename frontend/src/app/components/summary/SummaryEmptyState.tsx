@@ -24,7 +24,7 @@ export default function SummaryEmptyState({
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent/10 to-accent/5 flex items-center justify-center">
                     <FileText size={36} className="text-accent/40" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-accent flex items-center justify-center shadow-lg">
+                <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-accent flex items-center justify-center ">
                     <Sparkles size={20} className="text-white" />
                 </div>
             </div>

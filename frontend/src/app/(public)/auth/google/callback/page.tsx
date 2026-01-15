@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthActions } from "@/hooks/useAuthActions";
 
@@ -10,7 +9,13 @@ export default function GoogleCallbackPage() {
     const searchParams = useSearchParams();
     const { ensureAuth } = useAuthActions();
 
+    // StrictMode / rerender 중복 실행 방지
+    const calledRef = useRef(false);
+
     useEffect(() => {
+        if (calledRef.current) return;
+        calledRef.current = true;
+
         (async () => {
             try {
                 const code = searchParams.get("code");
@@ -26,35 +31,28 @@ export default function GoogleCallbackPage() {
                     credentials: "include",
                 });
 
-                console.log("Google login response status:", response.status);
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error("Google login failed:", errorText);
                     router.replace("/login");
                     return;
                 }
 
-                //  쿠키 설정 대기 (100ms)
+                // 쿠키 반영 대기 (짧게)
                 await new Promise(resolve => setTimeout(resolve, 100));
 
                 const ok = await ensureAuth();
                 if (!ok) {
-                    console.error("ensureAuth failed after Google login");
                     router.replace("/login");
                     return;
                 }
 
                 sessionStorage.removeItem("auth_block_silent_login");
                 router.replace("/");
-
-            } catch (error) {
-                console.error("Google login error:", error);
+            } catch {
                 router.replace("/login");
             }
         })();
     }, [searchParams, ensureAuth, router]);
 
     return null;
-
 }

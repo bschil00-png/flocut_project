@@ -46,25 +46,30 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid MemberRegisterRequestDTO request) {
+        try {
+            Member member = Member.builder()
+                    .email(request.getEmail())
+                    .password(request.getPassword())
+                    .name(request.getName())
+                    .tel(request.getTel())
+                    .status(MemberStatus.READY)
+                    .emailVerified(false)
+                    .emailVerifyToken(UUID.randomUUID().toString())
+                    .build();
 
-        Member member = Member.builder()
-                .email(request.getEmail())
-                .password(request.getPassword())
-                .name(request.getName())
-                .tel(request.getTel())
-                .status(MemberStatus.READY)
-                .emailVerified(false)
-                .emailVerifyToken(UUID.randomUUID().toString())
-                .build();
+            Member saved = memberService.register(member);
 
-        Member saved = memberService.register(member);
-        System.out.println("REGISTER TEL = [" + request.getTel() + "]");
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(memberMapper.toDto(saved));
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(memberMapper.toDto(saved));
-
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO(e.getMessage()));
+        }
     }
+
 
 
 

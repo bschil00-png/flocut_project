@@ -139,13 +139,13 @@ export default function WorkspacePage() {
                 </div>
             )}
             right={
-                <WorkspacePanel
-                    selectedId={selectedId}
-                    selectedType={selectedType}
-                    onClose={closePanel}
-                    onCreated={forceRefetch}
-                    onUpdated={forceRefetch}
-                />
+              <WorkspacePanel
+                selectedId={selectedId}
+                selectedType={selectedType}
+                onClose={closePanel}
+                onCreated={forceRefetch}
+                onUpdated={forceRefetch}
+              />
             }
         />
     );

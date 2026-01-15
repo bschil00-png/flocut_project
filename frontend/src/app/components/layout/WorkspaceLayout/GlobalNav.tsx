@@ -136,6 +136,12 @@ export default function GlobalNav({
                                 showLabel={showLabel}
                                 onClick={() => router.push("/calendar")}
                             />
+                            <NavButton
+                                icon={Home}
+                                label="내 프로젝트"
+                                showLabel={showLabel}
+                                onClick={() => router.push("/workspace/sessions")}
+                            />
                         </div>
 
                         {showLabel ? (
