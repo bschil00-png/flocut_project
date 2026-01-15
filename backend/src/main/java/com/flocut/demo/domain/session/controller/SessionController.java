@@ -34,7 +34,7 @@ public class SessionController {
         );
     }
 
-
+//
     @PatchMapping("/{sessionId}")
     public ResponseEntity<SessionResponseDTO> updateSession(
             @PathVariable Long sessionId,
