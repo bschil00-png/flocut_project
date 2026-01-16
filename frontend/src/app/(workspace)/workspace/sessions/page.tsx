@@ -1,7 +1,7 @@
-import SessionList from "@/app/components/sessions/SessionList";
 
+import SessionListPage from "@/app/components/sessions/SessionListPage";
 
 
 export default function SessionsPage() {
-    return <SessionList />;
+    return <SessionListPage />;
 }

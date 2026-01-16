@@ -1,208 +1,62 @@
-/* =========================
-   Base (Editor Root)
-   ========================= */
+/* src/app/components/notes/editor/tiptap.css */
 
 .ProseMirror {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Apple SD Gothic Neo, Noto Sans KR, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Apple SD Gothic Neo, Noto Sans KR, sans-serif;
     font-size: 16px;
-    line-height: 1.75;
-    color: #1f2328;
+    line-height: 1.8;
+    color: #222;
     outline: none;
     word-break: break-word;
+    padding: 2rem 0;
+}
+.dark .ProseMirror { color: #e6e8eb; }
+
+/* 리스트 스타일 강제 고정 (숫자 1. 및 불렛 · 해결) */
+.ProseMirror ul {
+    list-style-type: disc !important;
+    padding-left: 1.8em !important;
+    margin: 1em 0 !important;
 }
 
-.ProseMirror p {
-    margin: 0.6em 0;
-}
-
-/* 제목 간격 – 블로그/워드 느낌 */
-.ProseMirror h1,
-.ProseMirror h2,
-.ProseMirror h3 {
-    font-weight: 700;
-    line-height: 1.4;
-}
-
-.ProseMirror h1 {
-    font-size: 2rem;
-    margin: 1.6em 0 0.8em;
-}
-
-.ProseMirror h2 {
-    font-size: 1.5rem;
-    margin: 1.4em 0 0.6em;
-}
-
-.ProseMirror h3 {
-    font-size: 1.25rem;
-    margin: 1.2em 0 0.5em;
-}
-
-/* =========================
-   Text Highlight (형광펜)
-   ========================= */
-/* Highlight 기본 */
-.ProseMirror mark {
-    background-color: #fff3a0;
-    padding: 0.1em 0.2em;
-    border-radius: 3px;
-}
-
-/* 컬러별 */
-.ProseMirror mark[data-color="#fff3a0"] {
-    background-color: #fff3a0;
-}
-
-.ProseMirror mark[data-color="#d2f4c5"] {
-    background-color: #d2f4c5;
-}
-
-.ProseMirror mark[data-color="#dbeafe"] {
-    background-color: #dbeafe;
-}
-
-.ProseMirror mark[data-color="#fce7f3"] {
-    background-color: #fce7f3;
-}
-
-
-/* =========================
-   Text Color
-   ========================= */
-
-.titanic-text-default {
-    color: #1f2328;
-}
-
-.titanic-text-gray {
-    color: #6b7280;
-}
-
-.titanic-text-red {
-    color: #e5484d;
-}
-
-.titanic-text-orange {
-    color: #f59e0b;
-}
-
-.titanic-text-green {
-    color: #16a34a;
-}
-
-.titanic-text-blue {
-    color: #2563eb;
-}
-
-.titanic-text-purple {
-    color: #7c3aed;
-}
-
-/* =========================
-   Font Size (Preset only)
-   ========================= */
-
-.titanic-text-xs {
-    font-size: 0.75rem;
-}
-
-.titanic-text-sm {
-    font-size: 0.875rem;
-}
-
-.titanic-text-md {
-    font-size: 1rem;
-}
-
-.titanic-text-lg {
-    font-size: 1.125rem;
-}
-
-.titanic-text-xl {
-    font-size: 1.25rem;
-}
-
-.titanic-text-2xl {
-    font-size: 1.5rem;
-}
-
-/* =========================
-   Inline Code
-   ========================= */
-
-.ProseMirror code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", monospace;
-    font-size: 0.9em;
-    background-color: #f4f4f5;
-    padding: 0.15em 0.4em;
-    border-radius: 4px;
-}
-
-/* =========================
-   Block Code
-   ========================= */
-
-.ProseMirror pre {
-    background: #0f172a;
-    color: #e5e7eb;
-    padding: 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    overflow-x: auto;
-    margin: 1.2em 0;
-}
-
-/* =========================
-   Blockquote
-   ========================= */
-
-.ProseMirror blockquote {
-    border-left: 4px solid #e5e7eb;
-    padding-left: 1em;
-    color: #4b5563;
-    margin: 1.2em 0;
-}
-
-/* =========================
-   List (블로그 스타일)
-   ========================= */
-
-.ProseMirror ul,
 .ProseMirror ol {
-    padding-left: 1.5em;
-    margin: 0.8em 0;
+    list-style-type: decimal !important;
+    padding-left: 1.8em !important;
+    margin: 1em 0 !important;
 }
 
 .ProseMirror li {
-    margin: 0.4em 0;
+    margin: 0.5em 0 !important;
+    display: list-item !important;
 }
 
-/* =========================
-   Selection / Cursor
-   ========================= */
-
-.ProseMirror ::selection {
-    background: rgba(59, 130, 246, 0.25);
+/* 복사-붙여넣기 시 발생하는 불필요한 배경/박스 제거 */
+.ProseMirror pre {
+    background: transparent !important; /* 어두운 박스 제거 */
+    color: inherit !important;
+    padding: 0 !important;
+    margin: 1em 0 !important;
+    border: none !important;
+    font-family: inherit !important;
 }
 
-/* =========================
-   Read-only mode
-   ========================= */
-
-.ProseMirror.readonly {
-    cursor: default;
+/* 인라인 코드 스타일 (포인트 컬러) */
+.ProseMirror code {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--accent);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
 }
 
-/* =========================
-   Print / PDF
-   ========================= */
+.dark .ProseMirror code { background-color: rgba(255, 255, 255, 0.1); }
 
-@media print {
-    .ProseMirror {
-        font-size: 14px;
-        line-height: 1.6;
-        color: #000;
-    }
+.ProseMirror mark { padding: 0.1em 0.2em; border-radius: 2px; }
+.ProseMirror ::selection { background: var(--accent-soft); }
+
+/* 모바일 버블 메뉴 스크롤 방지 */
+.bubble-menu-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: calc(100vw - 32px);
+    overflow: visible !important;
 }

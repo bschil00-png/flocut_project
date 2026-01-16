@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Button from "@/app/components/ui/button/Button";
-import ModalOverlay from "./ModalOverlay";
 
 type AlertDialogProps = {
     open: boolean;

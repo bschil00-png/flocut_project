@@ -17,7 +17,6 @@ export default function NoteTitleInput({
                                        }: NoteTitleInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // 텍스트 길이에 맞춰 높이 자동 조절 (제목 잘림 해결)
   const adjustHeight = () => {
     const node = textareaRef.current;
     if (node) {
@@ -29,7 +28,8 @@ export default function NoteTitleInput({
   useEffect(() => { adjustHeight(); }, [value]);
 
   return (
-    <div className="w-full mb-10 border-b-2 border-accent/5 pb-4 focus-within:border-accent/20 transition-colors">
+
+    <div className="w-full mb-4 border-b border-accent/5 pb-1 focus-within:border-accent/20 transition-colors">
       <textarea
         ref={textareaRef}
         rows={1}
@@ -38,10 +38,10 @@ export default function NoteTitleInput({
         placeholder={placeholder}
         disabled={disabled}
         className="
-          w-full text-3xl sm:text-4xl lg:text-5xl font-extrabold
+          w-full text-lg sm:text-xl lg:text-2xl font-bold
           bg-transparent border-none outline-none resize-none overflow-hidden
           text-text-primary-light dark:text-text-primary-dark
-          placeholder:text-text-muted-light/20 leading-tight
+          placeholder:text-text-muted-light/30 leading-snug
         "
         style={{ height: "auto" }}
       />

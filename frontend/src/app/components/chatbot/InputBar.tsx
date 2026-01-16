@@ -19,14 +19,7 @@ export default function InputBar({ onSend, disabled }: Props) {
     };
 
     return (
-        <div
-            className="
-        flex items-center gap-2
-        px-3 py-3
-        bg-background-light dark:bg-surface-dark
-      "
-        >
-            {/* FLOCUT Input wrapper */}
+        <div className="flex items-center gap-2 px-3 py-3 bg-background-light dark:bg-surface-dark">
             <div className="flex-1">
                 <Input
                     value={input}
@@ -39,16 +32,9 @@ export default function InputBar({ onSend, disabled }: Props) {
                 />
             </div>
 
-            {/* FLOCUT Button은 고정 크기 */}
-            <div className="shrink-0">
-                <Button
-                    size="md"
-                    disabled={disabled}
-                    onClick={handleSend}
-                >
-                    Send
-                </Button>
-            </div>
+            <Button size="md" disabled={disabled} onClick={handleSend}>
+                Send
+            </Button>
         </div>
     );
 }

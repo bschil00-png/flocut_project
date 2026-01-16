@@ -18,11 +18,11 @@ export default function ChatContainer({
                                           loading,
                                       }: Props) {
     return (
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+        <div className="px-4 py-3 space-y-3">
             {messages.length === 0 && !loading && (
                 <EmptyState
                     icon={<MessageCircle size={24} />}
-                    title="FLOCUT  AI 도우미"
+                    title="FLOCUT AI 도우미"
                     description="문서·음성 요약 사용법 안내와 짧은 텍스트 요약을 체험해보세요."
                 />
             )}
@@ -35,7 +35,6 @@ export default function ChatContainer({
                     cta={msg.cta}
                 />
             ))}
-
 
             {loading && <TypingIndicator />}
 

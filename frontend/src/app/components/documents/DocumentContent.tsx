@@ -8,7 +8,6 @@ import SummaryRequestButton from "@/app/components/summary/SummaryRequestButton"
 import EmptyState from "@/app/components/ui/empty-state/EmptyState";
 import Card from "@/app/components/ui/card/Card";
 import ConfirmDialog from "@/app/components/ui/modal/ConfirmDialog";
-import ModalOverlay from "@/app/components/ui/modal/ModalOverlay";
 
 type Props = {
   fileId: string;

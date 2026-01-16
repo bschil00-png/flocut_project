@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useSelector } from "react-redux"; // 추가
-import { RootState } from "@/store"; // 추가
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import {
   FileText,
   File as FileIcon,
@@ -39,19 +39,22 @@ export default function WorkspaceListItem({
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [menuPosition, setMenuPosition] = useState<"bottom" | "top">("bottom");
 
-  // 1. Redux에서 현재 에디터가 편집 중인 정보를 실시간으로 가져옵니다.
-  const { noteId: editingId, title: editingTitle } = useSelector(
-    (state: RootState) => state.editor
-  );
+  // Redux에서 noteId와 fileId를 모두 가져와서 문서 클릭 시에도 대응
+  const {
+    noteId: editingNoteId,
+    fileId: editingFileId,
+    title: editingTitle
+  } = useSelector((state: RootState) => state.editor);
 
   const { handleSoftDelete } = useNoteAction();
   const { handleDeleteWithConfirm } = useFileAction();
 
-  // 현재 아이템이 에디터에서 수정 중인 아이템인지 판별
-  // 타입 불일치를 방지하기 위해 Number로 캐스팅하여 비교
-  const isEditingThis = item.noteId !== undefined && Number(editingId) === Number(item.noteId);
+  // 노트 ID 혹은 파일 ID가 에디터에 열려있는지 판별
+  const isEditingThis =
+    (item.noteId !== undefined && Number(editingNoteId) === Number(item.noteId)) ||
+    (item.fileId !== undefined && Number(editingFileId) === Number(item.fileId));
 
-  //수정 중이라면 서버 데이터(item.title)가 아닌 리덕스 데이터(editingTitle)를 우선 노출
+  // 수정 중이라면 리덕스 데이터(editingTitle)를 우선 노출
   const displayTitle = isEditingThis ? editingTitle : item.title;
 
   useEffect(() => {
@@ -112,17 +115,20 @@ export default function WorkspaceListItem({
   const icon =
     item.type === "document" ? <FileIcon size={18} /> : <FileText size={18} />;
 
+  // 3. 날짜 포맷 수정: 시간과 분을 포함하도록 변경
   const formattedDate = item.date
-    ? new Date(item.date).toLocaleDateString("ko-KR", {
+    ? new Date(item.date).toLocaleString("ko-KR", {
       year: "numeric",
       month: "short",
       day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     })
     : "";
 
   return (
     <div
-      // 호버 시 브라우저 기본 툴팁으로 전체 제목이 보이게 설정
       title={displayTitle}
       className={`
                 flex items-center gap-3 px-3 py-2 rounded-lg
@@ -142,12 +148,10 @@ export default function WorkspaceListItem({
       </div>
 
       <div className="flex-1 min-w-0 cursor-pointer" onClick={onClick}>
-        {/*  제목이 길면 ...으로 생략되도록 truncate 속성을 강화합니다. */}
         <h3 className="text-sm font-medium flex items-center gap-2 overflow-hidden">
                     <span className="truncate flex-1">
                         {displayTitle || "제목 없음"}
                     </span>
-          {/* 수정 중일 때 시각적 피드백(작은 점)을 추가 */}
           {isEditingThis && (
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse flex-shrink-0" />
           )}

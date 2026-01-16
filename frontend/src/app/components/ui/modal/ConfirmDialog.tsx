@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Button from "@/app/components/ui/button/Button";
-import ModalOverlay from "./ModalOverlay";
 
 type ConfirmDialogProps = {
     open: boolean;

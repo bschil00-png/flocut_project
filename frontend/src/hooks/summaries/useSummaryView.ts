@@ -6,31 +6,38 @@ import { SUMMARY_VIEW_BY_ID_QUERY } from "@/lib/graphql/summary/summary.query";
 import { SummaryViewQueryResult } from "@/lib/graphql/summary/summary.type";
 
 export function useSummaryView(summaryId?: number) {
-  const { data, loading, error, refetch, startPolling, stopPolling } =
-    useQuery<SummaryViewQueryResult>(
-      SUMMARY_VIEW_BY_ID_QUERY,
-      {
-        variables: { summaryId },
-        skip: !summaryId,
-        fetchPolicy: "network-only",
-      }
-    );
+  const {
+    data,
+    error,
+    refetch,
+    startPolling,
+    stopPolling,
+    networkStatus,
+  } = useQuery<SummaryViewQueryResult>(SUMMARY_VIEW_BY_ID_QUERY, {
+    variables: { summaryId },
+    skip: !summaryId,
+    //  캐시 정책 변경
+    fetchPolicy: "network-only",
+    nextFetchPolicy: "network-only",
+    notifyOnNetworkStatusChange: true,
+  });
 
   const summary = data?.documentSummaryViewBySummaryId ?? null;
 
-  // 현재 보고 있는 요약이 생성 중이면 폴링
   useEffect(() => {
     if (summary?.status === "REQUESTED") {
+      console.log(` 폴링 시작 - Summary ${summaryId} 생성 중`);
       startPolling(3000);
     } else {
       stopPolling();
     }
+
     return () => stopPolling();
-  }, [summary?.status, startPolling, stopPolling]);
+  }, [summary?.status, summaryId, startPolling, stopPolling]);
 
   return {
     summary,
-    loading,
+    loading: networkStatus === 1,
     error,
     refetch,
   };

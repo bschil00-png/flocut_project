@@ -33,68 +33,71 @@ export default function TeamSection() {
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* Header - 아래에서 위로 올라오는 애니메이션 적용 */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="text-center mb-16"
       >
-        <h2 className="text-4xl font-bold mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-text-primary-light dark:text-text-primary-dark">
           우리 팀
         </h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400">
-          열정과 전문성을 갖춘 FloCut 팀을 소개합니다
+        <p className="text-lg text-text-muted-light dark:text-text-muted-dark font-medium">
+          열정과 전문성을 갖춘 FLOCUT 팀을 소개합니다
         </p>
       </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-3 gap-8 lg:gap-10">
         {team.map((member, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="group bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 hover:border-accent/50 transition-all hover:shadow-xl"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="group bg-surface-light dark:bg-surface-dark rounded-2xl p-8 border border-border-light dark:border-border-dark hover:border-accent/40 transition-all duration-300 hover:shadow-2xl hover:shadow-accent/5 hover:-translate-y-1"
           >
             <div className="relative mb-6">
-              <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white text-2xl font-bold mx-auto shadow-lg group-hover:scale-110 transition-transform`}>
+              {/* 프로필 이미지 박스 - 공용 border 및 그림자 적용 */}
+              <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white text-2xl font-bold mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                 {member.initial}
               </div>
             </div>
 
-            <h3 className="text-xl font-bold text-center mb-1">
+            <h3 className="text-xl font-bold text-center mb-1 text-text-primary-light dark:text-text-primary-dark">
               {member.name}
             </h3>
-            <p className="text-sm text-accent font-medium text-center mb-4">
+            <p className="text-sm text-accent font-bold text-center mb-4 uppercase tracking-wide">
               {member.role}
             </p>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+            <p className="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed mb-6 text-center font-medium">
               {member.description}
             </p>
 
-            {/* Skills */}
-            <div className="flex flex-wrap gap-2 mb-6">
+            {/* Skills - 공용 surface 및 text 컬러 적용 */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
               {member.skills.map((skill, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  className="px-3 py-1 text-[11px] font-bold rounded-full bg-background-light dark:bg-surface-hover text-text-muted-light dark:text-text-muted-dark border border-border-light dark:border-border-dark uppercase tracking-wider"
                 >
                   {skill}
                 </span>
               ))}
             </div>
 
-            {/* Social links */}
-            <div className="flex items-center justify-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-              <button className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-accent hover:text-white transition-all">
-                <Github size={16} />
-              </button>
-              <button className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-accent hover:text-white transition-all">
-                <Linkedin size={16} />
-              </button>
-              <button className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-accent hover:text-white transition-all">
-                <Mail size={16} />
-              </button>
+            {/* Social links - 공용 surface 및 border 컬러 적용 */}
+            <div className="flex items-center justify-center gap-3 pt-6 border-t border-border-light dark:border-border-dark">
+              {[Github, Mail].map((Icon, i) => (
+                <button
+                  key={i}
+                  className="w-9 h-9 rounded-xl bg-background-light dark:bg-surface-hover flex items-center justify-center text-text-muted-light dark:text-text-muted-dark border border-border-light dark:border-border-dark hover:bg-accent hover:text-white hover:border-accent transition-all duration-300 shadow-sm"
+                >
+                  <Icon size={16} strokeWidth={2} />
+                </button>
+              ))}
             </div>
           </motion.div>
         ))}

@@ -15,7 +15,6 @@ import NoteTitleInput from "@/app/components/notes/editor/NoteTitleInput";
 import NoteContentEditor from "@/app/components/notes/editor/NoteContentEditor";
 import VoiceRecorderPanel from "@/app/components/audio/VoiceRecorderPanel";
 import ConfirmDialog from "@/app/components/ui/modal/ConfirmDialog";
-import ModalOverlay from "@/app/components/ui/modal/ModalOverlay";
 
 type Props = {
   id: string;

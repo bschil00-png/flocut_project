@@ -8,7 +8,7 @@ export default function MidCTASection() {
     const router = useRouter();
 
     const features = [
-        { icon: Zap, text: "5초 내 분석 완료" },
+        { icon: Zap, text: "30초 내 분석 완료" },
         { icon: Shield, text: "안전한 데이터 관리" },
         { icon: Users, text: "팀 협업 지원" }
     ];
@@ -55,7 +55,7 @@ export default function MidCTASection() {
                         className="mb-12"
                     >
                         <button
-                            onClick={() => router.push("/signup")}
+                            onClick={() => router.push("/workspace")}
                             className="group relative h-14 px-8 rounded-xl bg-accent hover:bg-accent-hover text-white font-semibold text-lg shadow-xl shadow-accent/30 transition-all overflow-hidden"
                         >
                             <span className="relative z-10 flex items-center gap-2">

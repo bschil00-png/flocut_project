@@ -41,10 +41,10 @@ export default function ResizablePanelLayout({
             const leftWidth = vw - clamped;
             const leftRatio = leftWidth / vw;
 
-            // 🔑 compact 판단 (리스트 UI용)
+            //  compact 판단 (리스트 UI용)
             setIsCompact(leftRatio <= 0.3);
 
-            // 🔑 전체 패널은 "드래그 중일 때만"
+            //  전체 패널은 "드래그 중일 때만"
             isFullWhileDraggingRef.current = leftRatio <= 0.3;
         };
 
@@ -70,7 +70,7 @@ export default function ResizablePanelLayout({
         isDraggingRef.current &&
         isFullWhileDraggingRef.current;
 
-    // ✅ 드래그 중 + 30% 이하일 때만 전체
+    // 드래그 중 + 30% 이하일 때만 전체
     if (showFullPanel) {
         return (
             <div className="h-full w-full overflow-hidden">

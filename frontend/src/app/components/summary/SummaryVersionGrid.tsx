@@ -1,173 +1,219 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Trash2, XCircle } from "lucide-react";
+import { useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { SummaryStatusBadge } from "./SummaryStatusBadge";
 import { deleteSummary } from "@/lib/rest/summary/summary.rest";
 import { SummaryStatus } from "@/lib/graphql/summary/summary.type";
 import ConfirmDialog from "@/app/components/ui/modal/ConfirmDialog";
-import { useState } from "react";
+import { useMediaQuery } from "@/hooks/common/useMediaQuery";
 
 type VersionItem = {
-    summaryId: number;
-    versionNo: number;
-    status: SummaryStatus;
-    createdAt: string;
+  summaryId: number;
+  versionNo: number;
+  status: SummaryStatus;
+  createdAt: string;
 };
 
 type Props = {
-    items: VersionItem[];
-    selectedId: number | null;
-    page: number;
-    totalPages: number;
-    onSelect: (id: number) => void;
-    onPageChange: (page: number) => void;
-    onRefetch: () => void;
+  items: VersionItem[];
+  selectedId: number | null;
+  page: number;
+  totalPages: number;
+  onSelect: (id: number) => void;
+  onPageChange: (page: number) => void;
+  onRefetch: () => void;
 };
 
 export default function SummaryVersionGrid({
-                                               items,
-                                               selectedId,
-                                               page,
-                                               totalPages,
-                                               onSelect,
-                                               onPageChange,
-                                               onRefetch,
+                                             items,
+                                             selectedId,
+                                             page,
+                                             totalPages,
+                                             onSelect,
+                                             onPageChange,
+                                             onRefetch,
                                            }: Props) {
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [targetSummaryId, setTargetSummaryId] = useState<number | null>(null);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
-    const handleDeleteClick = (summaryId: number, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setTargetSummaryId(summaryId);
-        setShowDeleteConfirm(true);
-    };
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [targetSummaryId, setTargetSummaryId] = useState<number | null>(null);
 
-    const handleConfirmDelete = async () => {
-        if (!targetSummaryId) return;
+  const handleDeleteClick = (summaryId: number, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setTargetSummaryId(summaryId);
+    setShowDeleteConfirm(true);
+  };
 
-        try {
-            await deleteSummary(targetSummaryId);
-            toast.success("요약이 삭제되었습니다.");
-            onRefetch();
-        } catch {
-            toast.error("삭제 실패");
-        } finally {
-            setShowDeleteConfirm(false);
-            setTargetSummaryId(null);
-        }
-    };
+  const handleConfirmDelete = async () => {
+    if (!targetSummaryId) return;
 
-    const handleCancelClick = async (summaryId: number, e: React.MouseEvent) => {
-        e.stopPropagation();
+    try {
+      await deleteSummary(targetSummaryId);
+      toast.success("요약이 삭제되었습니다.");
+      onRefetch();
+    } catch {
+      toast.error("삭제 실패");
+    } finally {
+      setShowDeleteConfirm(false);
+      setTargetSummaryId(null);
+    }
+  };
 
-        if (!window.confirm("요약 생성 요청을 취소하시겠습니까?")) return;
+  const handleCancelClick = async (
+    summaryId: number,
+    e?: React.MouseEvent
+  ) => {
+    e?.stopPropagation();
 
-        try {
-            await deleteSummary(summaryId);
-            toast.success("요약 요청이 취소되었습니다.");
-            onRefetch();
-        } catch {
-            toast.error("취소 실패");
-        }
-    };
+    if (!window.confirm("요약 생성 요청을 취소하시겠습니까?")) return;
 
+    try {
+      await deleteSummary(summaryId);
+      toast.success("요약 요청이 취소되었습니다.");
+      onRefetch();
+    } catch {
+      toast.error("취소 실패");
+    }
+  };
+
+  /* =========================
+   * 📱 MOBILE : 드롭다운
+   * ========================= */
+  if (isMobile) {
     return (
-        <>
-            <div className="flex items-start gap-2 px-4 py-3 border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark">
-                {/* 이전 페이지 */}
-                <button
-                    onClick={() => onPageChange(Math.max(page - 1, 0))}
-                    disabled={page === 0}
-                    className="p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-dark disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    aria-label="이전 페이지"
-                >
-                    <ChevronLeft size={18} />
-                </button>
+      <div className="px-4 py-3 border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark">
+        <select
+          className="w-full px-3 py-2 rounded-lg border border-border-light dark:border-border-dark text-sm"
+          value={selectedId ?? ""}
+          onChange={(e) => onSelect(Number(e.target.value))}
+        >
+          {items.map((item) => (
+            <option key={item.summaryId} value={item.summaryId}>
+              v{item.versionNo} ·{" "}
+              {item.status === "REQUESTED"
+                ? "생성 중"
+                : item.status === "COMPLETED"
+                  ? "완료"
+                  : "기타"}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
 
-                {/* 그리드 */}
-                <div className="grid flex-1 gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {items.map((item) => {
-                        const selected = item.summaryId === selectedId;
-                        const isRequested = item.status === "REQUESTED";
+  /* =========================
+   * 🖥 DESKTOP / TABLET : GRID
+   * ========================= */
+  return (
+    <>
+      <div className="flex items-start gap-2 px-4 py-3 border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark">
+        {/* 이전 페이지 */}
+        <button
+          onClick={() => onPageChange(Math.max(page - 1, 0))}
+          disabled={page === 0}
+          className="p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-dark disabled:opacity-30"
+        >
+          <ChevronLeft size={18} />
+        </button>
 
-                        return (
-                            <div
-                                key={item.summaryId}
-                                onClick={() => onSelect(item.summaryId)}
-                                className={`
-                  relative p-3 rounded-xl border cursor-pointer
-                  transition-all duration-200
+        {/* 그리드 - key를 summaryId만 사용 (깜빡임 방지) */}
+        <div className="grid flex-1 gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item) => {
+            const selected = item.summaryId === selectedId;
+            const isRequested = item.status === "REQUESTED";
+
+            return (
+              <div
+                key={item.summaryId}
+                onClick={() => {
+                  // COMPLETED 상태만 클릭 가능
+                  if (item.status === "COMPLETED") {
+                    onSelect(item.summaryId);
+                  }
+                }}
+                className={`
+                  relative p-3 rounded-xl border transition-all duration-200
+                  ${isRequested ? "cursor-default opacity-70" : "cursor-pointer"}
                   ${
-                                    selected
-                                        ? "border-accent bg-accent-soft shadow-sm"
-                                        : "border-border-light dark:border-border-dark hover:border-accent/40 hover:shadow-sm"
-                                }
+                  selected
+                    ? "border-accent bg-accent-soft shadow-sm"
+                    : "border-border-light dark:border-border-dark hover:border-accent/40 hover:shadow-sm"
+                }
                 `}
-                            >
-                                {/* 상단 */}
-                                <div className="flex items-center justify-between gap-2 mb-2">
+              >
+                {/* 상단 */}
+                <div className="flex items-center justify-between gap-2 mb-2">
                   <span
-                      className={`text-sm font-bold ${
-                          selected ? "text-accent" : ""
-                      }`}
+                    className={`text-sm font-bold ${
+                      selected ? "text-accent" : ""
+                    }`}
                   >
                     v{item.versionNo}
                   </span>
-                                    <SummaryStatusBadge status={item.status} />
-                                </div>
+                  <SummaryStatusBadge status={item.status} />
+                </div>
 
-                                {/* 하단 */}
-                                <div className="flex items-center justify-between gap-2">
+                {/* 하단 */}
+                <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-text-muted-light dark:text-text-muted-dark truncate">
                     {new Date(item.createdAt).toLocaleDateString("ko-KR", {
-                        month: "short",
-                        day: "numeric",
+                      month: "short",
+                      day: "numeric",
                     })}
                   </span>
 
-                                    <button
-                                        onClick={(e) =>
-                                            isRequested
-                                                ? handleCancelClick(item.summaryId, e)
-                                                : handleDeleteClick(item.summaryId, e)
-                                        }
-                                        className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                                        aria-label={isRequested ? "요청 취소" : "삭제"}
-                                    >
-                                        {isRequested ? <XCircle size={14} /> : <Trash2 size={14} />}
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
+                  <button
+                    onClick={(e) =>
+                      isRequested
+                        ? handleCancelClick(item.summaryId, e)
+                        : handleDeleteClick(item.summaryId, e)
+                    }
+                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  >
+                    {isRequested ? (
+                      <XCircle size={14} />
+                    ) : (
+                      <Trash2 size={14} />
+                    )}
+                  </button>
                 </div>
+              </div>
+            );
+          })}
+        </div>
 
-                {/* 다음 페이지 */}
-                <button
-                    onClick={() => onPageChange(Math.min(page + 1, totalPages - 1))}
-                    disabled={page >= totalPages - 1}
-                    className="p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-dark disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    aria-label="다음 페이지"
-                >
-                    <ChevronRight size={18} />
-                </button>
-            </div>
+        {/* 다음 페이지 */}
+        <button
+          onClick={() => onPageChange(Math.min(page + 1, totalPages - 1))}
+          disabled={page >= totalPages - 1}
+          className="p-2 rounded-lg hover:bg-surface-light dark:hover:bg-surface-dark disabled:opacity-30"
+        >
+          <ChevronRight size={18} />
+        </button>
+      </div>
 
-            {/* 삭제 확인 다이얼로그 */}
-            <ConfirmDialog
-                open={showDeleteConfirm}
-                title="요약 삭제"
-                message="이 요약을 삭제하시겠습니까?"
-                confirmText="삭제"
-                cancelText="취소"
-                onConfirm={handleConfirmDelete}
-                onClose={() => {
-                    setShowDeleteConfirm(false);
-                    setTargetSummaryId(null);
-                }}
-            />
-        </>
-    );
+      {/* 삭제 확인 다이얼로그 */}
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="요약 삭제"
+        message="이 요약을 삭제하시겠습니까?"
+        confirmText="삭제"
+        cancelText="취소"
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setTargetSummaryId(null);
+        }}
+      />
+    </>
+  );
 }

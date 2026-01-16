@@ -29,7 +29,7 @@ export default function RootLayout({
         `}
         >
         <Providers>
-            <GlobalLoader />
+
             {children}
         </Providers>
         </body>

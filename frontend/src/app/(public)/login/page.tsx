@@ -1,17 +1,10 @@
-import LoginForm from "@/app/components/auth/LoginForm";
+import { Suspense } from "react";
+import LoginClient from "@/app/(public)/login/LoginClient";
 
 export default function LoginPage() {
-    return (
-        <div className="min-h-[calc(100vh-64px)] bg-white dark:bg-background-dark flex items-center justify-center px-6 py-20">
-            <div className="w-full max-w-7xl">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center justify-items-center">
-
-                    <div className="w-full max-w-md lg:col-span-2 flex justify-center">
-                        <LoginForm />
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <Suspense fallback={<p>로그인 페이지 로딩 중...</p>}>
+      <LoginClient />
+    </Suspense>
+  );
 }

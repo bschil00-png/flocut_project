@@ -111,7 +111,7 @@ function getBreadcrumbs(pathname: string) {
 
         if (paths[1] && !isNaN(Number(paths[1]))) {
             breadcrumbs.push({
-                label: `세션 ${paths[1]}`,
+                label: `내 프로젝트 `,
                 href: `/workspace/${paths[1]}`,
             });
         }

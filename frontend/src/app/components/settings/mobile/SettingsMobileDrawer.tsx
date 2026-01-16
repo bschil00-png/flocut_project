@@ -3,7 +3,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { User, Palette, Shield, LogOut } from "lucide-react";
-import ModalOverlay from "@/app/components/ui/modal/ModalOverlay";
 import { useAuthActions } from "@/hooks/useAuthActions";
 import ConfirmDialog from "@/app/components/ui/modal/ConfirmDialog";
 import AlertDialog from "@/app/components/ui/modal/AlertDialog";

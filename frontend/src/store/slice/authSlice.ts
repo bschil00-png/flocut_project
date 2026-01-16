@@ -1,4 +1,3 @@
-// store/slice/authSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { MyProfile } from "@/lib/graphql/auth/auth.type";
 

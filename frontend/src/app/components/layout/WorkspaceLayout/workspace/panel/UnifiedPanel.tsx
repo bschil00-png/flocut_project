@@ -1,6 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useDispatch } from "react-redux";
+import {
+  setEditingNote,
+  setEditingFile,
+  clearEditor,
+} from "@/store/slice/editorSlice";
+
 import PanelHeader, { PanelTab } from "./PanelHeader";
 import PanelFooter from "./PanelFooter";
 import NoteContent from "@/app/components/notes/NoteContent";
@@ -35,12 +42,15 @@ export default function UnifiedPanel({
                                        onUpdated,
                                        isMobile = false,
                                      }: UnifiedPanelProps) {
+  const dispatch = useDispatch();
+
   const [currentTab, setCurrentTab] = useState<PanelTab>("edit");
   const [saved, setSaved] = useState(true);
   const [saving, setSaving] = useState(false);
   const [charCount, setCharCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
-  const [title, setTitle] = useState("제목 없음");
+
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const handleSyncRef = useRef<(() => Promise<void>) | null>(null);
@@ -49,18 +59,44 @@ export default function UnifiedPanel({
     type === "document" ? Number(id) : null
   );
 
+  /* ===============================
+   * 요약 → 노트 생성 콜백 (🔥 누락됐던 핵심)
+   * =============================== */
+  const handleNoteCreatedFromSummary = useCallback(
+    (noteId: number) => {
+      // 부모 Workspace에 새 노트 생성 알림
+      onCreated?.(noteId);
+
+      // 요약 탭 → 편집 탭 전환
+      setCurrentTab("edit");
+    },
+    [onCreated]
+  );
+
+  /* ===============================
+   * 초기 데이터 동기화
+   * =============================== */
   useEffect(() => {
     setCurrentTab("edit");
-    if (type === "document") {
-      setTitle(fileName ? fileName.replace(/\.[^/.]+$/, "") : "문서");
-      setContent(documentText || "");
-    } else if (type === "audio") {
-      setTitle("음성");
-      setContent("");
-    }
-  }, [id, type, documentText, fileName]);
 
-  // 수동 저장: 버튼 클릭 시 즉시 리스트 정렬 및 제목 갱신
+    if (type === "document") {
+      if (fileName && fileName.trim() !== "") {
+        const cleanTitle = fileName.replace(/\.[^/.]+$/, "");
+        setTitle(cleanTitle);
+        setContent(documentText || "");
+        dispatch(setEditingFile({ fileId: Number(id), title: cleanTitle }));
+      }
+    } else if (type === "audio") {
+      const audioTitle = "음성 기록";
+      setTitle(audioTitle);
+      dispatch(setEditingFile({ fileId: Number(id), title: audioTitle }));
+    } else if (type === "note") {
+      dispatch(
+        setEditingNote({ noteId: Number(id), title: title || "제목 없음" })
+      );
+    }
+  }, [id, type, documentText, fileName, dispatch]);
+
   const handleSave = async () => {
     if (!handleSyncRef.current) return;
     await handleSyncRef.current();
@@ -74,23 +110,27 @@ export default function UnifiedPanel({
     }
   };
 
-
   const handleClosePanel = useCallback(() => {
     if (type === "note" && id !== "new") {
-      // 인자 없이 호출하여 forceRefetch만 발생시킴 (순환 참조 방지)
       onUpdated?.();
     }
-    // 부모의 패널 닫기 로직 실행
+    dispatch(clearEditor());
     onClose();
-  }, [onClose, onUpdated, type, id]);
+  }, [onClose, onUpdated, type, id, dispatch]);
 
-  const handleNoteCreatedFromSummary = useCallback(() => {
-    onUpdated?.({
-      noteId: 0,
-      title: "새 노트",
-      moddate: new Date().toISOString(),
-    });
-  }, [onUpdated]);
+  const handleTitleChange = useCallback(
+    (newTitle: string) => {
+      const finalTitle = newTitle || "제목 없음";
+      setTitle(finalTitle);
+
+      if (type === "note") {
+        dispatch(setEditingNote({ noteId: Number(id), title: finalTitle }));
+      } else {
+        dispatch(setEditingFile({ fileId: Number(id), title: finalTitle }));
+      }
+    },
+    [dispatch, id, type]
+  );
 
   const noteContentProps = useMemo(
     () => ({
@@ -105,17 +145,13 @@ export default function UnifiedPanel({
         setCharCount(chars);
         setWordCount(words);
       },
-      onTitleChange: (newTitle: string) => {
-        setTitle(newTitle || "제목 없음");
-      },
-      onContentChange: (newContent: string) => {
-        setContent(newContent);
-      },
+      onTitleChange: handleTitleChange,
+      onContentChange: (newContent: string) => setContent(newContent),
       onSyncReady: (syncFn: () => Promise<void>) => {
         handleSyncRef.current = syncFn;
       },
     }),
-    [id, sessionId, onCreated]
+    [id, sessionId, onCreated, handleTitleChange]
   );
 
   return (
@@ -127,17 +163,17 @@ export default function UnifiedPanel({
         saved={saved}
         saving={saving}
         onSave={handleSave}
-        onClose={handleClosePanel} // 기존 onClose 대신 handleClosePanel 연결
+        onClose={handleClosePanel}
         sessionId={sessionId}
         noteId={id !== "new" ? Number(id) : undefined}
-        title={title}
+        title={title || fileName?.replace(/\.[^/.]+$/, "") || "파일 읽는 중..."}
         content={content}
         isMobile={isMobile}
       />
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {currentTab === "edit" && (
-          <div className="h-full bg-white dark:bg-background-dark">
+          <div className="h-full">
             {type === "note" && (
               <NoteContent key={`note-edit-${id}`} {...noteContentProps} />
             )}
@@ -166,11 +202,7 @@ export default function UnifiedPanel({
           </div>
         )}
 
-        {currentTab === "compare" && (
-          <div className="h-full">
-            <CompareComingSoon />
-          </div>
-        )}
+        {currentTab === "compare" && <CompareComingSoon />}
       </div>
 
       {type === "note" && (

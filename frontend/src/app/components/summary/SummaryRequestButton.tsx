@@ -1,4 +1,3 @@
-// components/summary/SummaryRequestButton.tsx
 "use client";
 
 import { useState, forwardRef } from "react";
@@ -14,15 +13,11 @@ import {
   requestNoteSummary,
 } from "@/lib/rest/summary/summary.rest";
 
-/**
- * Props 인터페이스 확장
- * TS2430 해결: HTMLButtonElement의 'type' 속성과 충돌하지 않도록 Omit 후 재정의
- */
 interface Props extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
   type: "document" | "note";
   targetId: number;
   sessionId: number;
-  onRequested?: () => void;
+  onRequested?: () => void | Promise<void>; //  Promise 지원
   size?: "sm" | "md" | "lg";
 }
 
@@ -31,7 +26,6 @@ const SummaryRequestButton = forwardRef<HTMLButtonElement, Props>(
     const [loading, setLoading] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const { checkSummary, loading: checkingLoading } = useNoteSummaryCheck();
-
 
     const executeRequest = async () => {
       setLoading(true);
@@ -44,8 +38,12 @@ const SummaryRequestButton = forwardRef<HTMLButtonElement, Props>(
         } else {
           await requestNoteSummary(targetId);
         }
+
         toast.success("AI 요약 요청이 접수되었습니다.");
-        onRequested?.();
+
+        //  onRequested가 Promise면 await
+        await onRequested?.();
+
       } catch (error) {
         console.error("요약 요청 실패:", error);
         toast.error("요약 요청에 실패했습니다.");
@@ -54,7 +52,6 @@ const SummaryRequestButton = forwardRef<HTMLButtonElement, Props>(
         setShowConfirm(false);
       }
     };
-
 
     const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
       props.onClick?.(e);
@@ -66,7 +63,7 @@ const SummaryRequestButton = forwardRef<HTMLButtonElement, Props>(
 
         if (result.hasSummary && result.status === "REQUESTED") {
           toast.info("이미 요약이 생성 중입니다. 잠시만 기다려 주세요.");
-          onRequested?.();
+          await onRequested?.(); //  refetch
           return;
         }
 
@@ -106,7 +103,6 @@ const SummaryRequestButton = forwardRef<HTMLButtonElement, Props>(
           )}
         </Button>
 
-        {/* Note 전용 중복 확인 컨펌창 */}
         <ConfirmDialog
           open={showConfirm}
           title="새 요약 생성"

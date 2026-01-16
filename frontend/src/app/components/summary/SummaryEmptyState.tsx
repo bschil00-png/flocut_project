@@ -41,14 +41,14 @@ export default function SummaryEmptyState({
                 주요 포인트와 요약을 제공합니다.
             </p>
 
-            {/* 버튼 */}
-            <SummaryRequestButton
-                type={type}
-                targetId={targetId}
-                sessionId={sessionId}
-                onRequested={onRequested}
-                size="md"
-            />
+            {/*/!* 버튼 *!/*/}
+            {/*<SummaryRequestButton*/}
+            {/*    type={type}*/}
+            {/*    targetId={targetId}*/}
+            {/*    sessionId={sessionId}*/}
+            {/*    onRequested={onRequested}*/}
+            {/*    size="md"*/}
+            {/*/>*/}
 
             {/* 기능 안내 */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md w-full">

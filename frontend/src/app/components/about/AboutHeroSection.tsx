@@ -31,10 +31,11 @@ export default function AboutHeroSection() {
               <span>AI-Powered Document Platform</span>
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] mb-6">
+            <h1 className="text-5xl md:text-6xl font-bold leading-[1.2] mb-6">
               문서 업무의
               <br />
-              <span className="bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent">
+              {/* 수정 포인트: inline-block과 pb-1을 추가하여 그라데이션이 짤리지 않게 공간 확보 */}
+              <span className="inline-block pb-1 bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent">
                 모든 과정을 자동화
               </span>
             </h1>
@@ -71,14 +72,13 @@ export default function AboutHeroSection() {
             </motion.button>
           </motion.div>
 
-          {/* Right - Visual Card */}
+          {/* Right - Visual Card (동일) */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <div className="relative">
-              {/* Main Card */}
               <div className="relative bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -120,7 +120,6 @@ export default function AboutHeroSection() {
                 </div>
               </div>
 
-              {/* Floating badges */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
